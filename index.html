@@ -83,7 +83,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
 /* --- TIGHT, GAPLESS TREE LINES --- */
 .tree-row { display: flex; justify-content: center; position: relative; padding-top: 30px; }
-/* Added padding side to side so overflowing text doesn't touch */
+/* Side padding ensures overflowing names do not visually overlap */
 .tree-col { display: flex; flex-direction: column; align-items: center; position: relative; padding: 20px 24px 0; } 
 
 .tree-col::before { content: ''; position: absolute; top: 0; height: 2px; background: var(--gold); z-index: 0; }
@@ -146,9 +146,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .url-apply:hover{border-color:rgba(201,169,110,.4);color:var(--gold)}
 .upload-lbl{display:block;padding:.45rem .8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center}
 .form-actions{display:flex;gap:.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center}
-.btn-save{padding:.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#0d0a04;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif}
-.btn-save:hover{background:var(--gold2)}
-.btn-save:disabled{opacity: 0.6; cursor: wait;}
+.btn-save{padding:.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#0d0a04;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif; transition:all 0.2s;}
+.btn-save:hover:not(:disabled){background:var(--gold2)}
+.btn-save:disabled{opacity: 0.5; cursor: not-allowed;}
 .btn-del{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
 .btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595}
 .btn-cancel{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
@@ -174,7 +174,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   #tree-view{padding:1.5rem 0} 
   .tree-header h1{font-size:26px}
   .tree-container{justify-content:flex-start; padding: 0 1rem 2rem 1rem;} 
-  .tree-col { padding: 20px 16px 0; } /* Tighter gaps on phones */
+  .tree-col { padding: 20px 16px 0; } 
   .admin-form-wrap{padding:1.25rem}
   .form-grid{grid-template-columns:1fr}
   .fg.full{grid-column:1}
@@ -359,9 +359,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   /* ── FIREBASE ── */
   function saveToFirebase(){
     if(!state.dbReady) return;
-    dataRef.set({members:state.members, familyName:state.familyName, expanded:state.expanded, v:1})
-      .then(function(){showSync('✓ synced');})
-      .catch(function(){showSync('⚠ sync failed','#f09595');});
+    try {
+      // JSON Cleanse: Automatically strips any hidden "undefined" variables that cause Firebase to crash silently
+      var cleanPayload = JSON.parse(JSON.stringify({members:state.members, familyName:state.familyName, expanded:state.expanded, v:1}));
+      
+      dataRef.set(cleanPayload)
+        .then(function(){showSync('✓ synced');})
+        .catch(function(err){ console.error(err); showSync('⚠ sync failed','#f09595');});
+    } catch(e) {
+      console.error("Firebase payload error: ", e);
+      showSync('⚠ data error','#f09595');
+    }
   }
 
   function startSync(){
@@ -484,7 +492,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     var card=document.createElement('div');
     card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
     
-    // Tight box matches avatar size perfectly. Flex-direction sets up the centering.
+    // Tight box matches avatar size perfectly.
     card.style.cssText='padding:'+pad+'px; width:'+cardW+'px; min-width:'+cardW+'px; flex-shrink:0; display:flex; flex-direction:column; align-items:center;';
     card.appendChild(makeAvatar(m,sz));
     
@@ -560,7 +568,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
         primaryWrap.appendChild(conn);
         primaryWrap.appendChild(buildCard(sp, sz, fs, pad, cardW, false, false, true));
         
-        // CSS Variable shifts the horizontal branches perfectly without pushing elements
+        // CSS Variable shifts the horizontal branches perfectly
         var shiftX = (cardW + connW) / 2;
         col.style.setProperty('--shift-x', shiftX + 'px');
       } else {
@@ -691,11 +699,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   }
   function cancelEdit(){ state.editingId=null; renderAdmin(); }
 
-  // PRIMARY PHOTO LOGIC
+  // PRIMARY PHOTO LOGIC + PROCESSING LOCK
   function applyUrl(){
     var url=(document.getElementById('p-url')||{}).value||'';
     url=url.trim(); 
-    // Prevent accidental wipe if they already uploaded a file and clicked apply on an empty box
     if (url === '' && state.prevPhoto && state.prevPhoto.startsWith('data:image')) return;
     state.prevPhoto=url;
     var pp=document.getElementById('pp');
@@ -707,32 +714,48 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   function handleFile(inp){
     var f=inp.files[0]; if(!f) return;
+    var btn = document.querySelector('.btn-save');
+    // Lock the Save button so the user can't save until image shrinks!
+    if(btn) { btn.disabled = true; btn.textContent = 'Processing Image...'; }
+    showToast('Processing image...');
+    
     var r=new FileReader();
     r.onload=function(e){
       var img = new Image();
       img.onload = function() {
-        // Automatically compress the image to a tiny size so Firebase never crashes
         var canvas = document.createElement('canvas');
-        var MAX = 160; 
+        var MAX = 180; 
         var w = img.width, h = img.height;
+        if(w === 0 || h === 0) {
+           if(btn) { btn.disabled = false; btn.textContent = 'Save'; }
+           showToast('Invalid image'); return;
+        }
         if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } 
         else { if (h > MAX) { w *= MAX / h; h = MAX; } }
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        var tinyUrl = canvas.toDataURL('image/jpeg', 0.8);
+        var tinyUrl = canvas.toDataURL('image/jpeg', 0.85); // Compress instantly
         
         state.prevPhoto=tinyUrl;
         var pp=document.getElementById('pp');
         if(pp) pp.innerHTML='<img src="'+tinyUrl+'">';
         var pu=document.getElementById('p-url');
-        if(pu) pu.value=''; // Clear the URL box automatically
+        if(pu) pu.value=''; 
+
+        // Re-enable the Save button
+        if(btn) { btn.disabled = false; btn.textContent = 'Save'; }
+      };
+      img.onerror = function() {
+        if(btn) { btn.disabled = false; btn.textContent = 'Save'; }
+        showToast('Error loading image');
       };
       img.src = e.target.result;
     };
+    r.onerror = function() { if(btn) { btn.disabled = false; btn.textContent = 'Save'; } };
     r.readAsDataURL(f);
   }
 
-  // SPOUSE PHOTO LOGIC
+  // SPOUSE PHOTO LOGIC + PROCESSING LOCK
   function applyUrlSp(){
     var url=(document.getElementById('p-url-sp')||{}).value||'';
     url=url.trim(); 
@@ -747,27 +770,42 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   function handleFileSp(inp){
     var f=inp.files[0]; if(!f) return;
+    var btn = document.querySelector('.btn-save');
+    if(btn) { btn.disabled = true; btn.textContent = 'Processing Image...'; }
+    showToast('Processing image...');
+    
     var r=new FileReader();
     r.onload=function(e){
       var img = new Image();
       img.onload = function() {
         var canvas = document.createElement('canvas');
-        var MAX = 160; 
+        var MAX = 180; 
         var w = img.width, h = img.height;
+        if(w === 0 || h === 0) {
+           if(btn) { btn.disabled = false; btn.textContent = 'Save'; }
+           showToast('Invalid image'); return;
+        }
         if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } 
         else { if (h > MAX) { w *= MAX / h; h = MAX; } }
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        var tinyUrl = canvas.toDataURL('image/jpeg', 0.8);
+        var tinyUrl = canvas.toDataURL('image/jpeg', 0.85);
         
         state.prevPhotoSpouse=tinyUrl;
         var pp=document.getElementById('pp-sp');
         if(pp) pp.innerHTML='<img src="'+tinyUrl+'">';
         var pu=document.getElementById('p-url-sp');
         if(pu) pu.value='';
+
+        if(btn) { btn.disabled = false; btn.textContent = 'Save'; }
+      };
+      img.onerror = function() {
+        if(btn) { btn.disabled = false; btn.textContent = 'Save'; }
+        showToast('Error loading image');
       };
       img.src = e.target.result;
     };
+    r.onerror = function() { if(btn) { btn.disabled = false; btn.textContent = 'Save'; } };
     r.readAsDataURL(f);
   }
 
@@ -811,8 +849,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
           })
         });
         var data = await resp.json();
-        if(data.error) throw new Error(data.error.message);
-        return data.candidates[0].content.parts[0].text.trim();
+        // Safe check to prevent execution halts if API quota fails
+        if(data.error) return '';
+        if(data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+           return data.candidates[0].content.parts[0].text.trim();
+        }
+        return '';
       } catch(e) { 
         console.error('Auto-translate failed', e);
         return ''; 
