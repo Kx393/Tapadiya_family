@@ -65,15 +65,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 #tree-root { min-width: max-content; padding-top: 1rem; display: inline-flex; flex-direction: column; align-items: center; margin: 0 auto; }
 
 .person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:background .2s,border .2s,transform .15s;border:1px solid transparent}
-.person-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)}
+.person-card:hover:not(.view-only){background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)}
 .person-card.selected{background:var(--gold-soft);border-color:rgba(201,169,110,0.3)}
 .person-card.spouse-card{cursor:default;opacity:.85}
 .person-card.spouse-card:hover{background:transparent;border-color:transparent;transform:none}
 .avatar{border-radius:50%;border:2px solid var(--border2);flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--text2);overflow:hidden;transition:border-color .2s}
-.person-card:hover .avatar,.person-card.selected .avatar{border-color:var(--gold)}
+.person-card:hover:not(.view-only) .avatar,.person-card.selected .avatar{border-color:var(--gold)}
 .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 
-/* Negative Margins to allow names to stretch without pushing layout apart */
 .person-name{color:var(--text2);text-align:center;line-height:1.2;}
 .person-name.primary{color:var(--text);font-weight:500}
 .spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;}
@@ -117,7 +116,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .admin-form-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem}
 .admin-form-wrap h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:1.25rem;color:var(--text)}
 
-/* NEW AUTH PANEL USERS LIST */
+/* AUTH PANEL USERS LIST */
 .user-card { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; margin-bottom: 1rem;}
 .user-info strong { font-size: 16px; color: var(--text); display: block; margin-bottom: 4px;}
 .user-info span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 4px; }
@@ -132,6 +131,15 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .btn-promote:hover { background: rgba(201,169,110,0.25); }
 .btn-revoke { background: transparent; border-color: var(--border2); color: var(--text3); }
 .btn-revoke:hover { border-color: rgba(242,80,80,0.4); color: #f09595; }
+
+/* SHARE LINK GENERATOR */
+.share-generator { margin-top: 2rem; padding: 1.5rem; background: rgba(201,169,110,0.05); border: 1px solid rgba(201,169,110,0.2); border-radius: 12px; }
+.share-generator h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--gold); font-size: 20px; margin-bottom: 10px; }
+.share-generator p { font-size: 12px; color: var(--text3); margin-bottom: 15px; }
+.share-controls { display: flex; gap: 10px; align-items: center; }
+.share-select { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; }
+.share-btn { padding: 0.5rem 1.2rem; background: var(--gold); color: #0d0a04; border: none; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.share-btn:hover { background: var(--gold2); }
 
 /* FORM STYLES */
 .fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
@@ -199,6 +207,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   .url-apply{height:36px;width:100%}
   .toast{bottom:1rem;right:.75rem;left:.75rem;text-align:center}
   .user-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .share-controls { flex-direction: column; align-items: stretch; }
 }
 @media (max-width: 380px) {
   .nav-tab{padding:.7rem .4rem;font-size:9px}
@@ -275,6 +284,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   const fbDB = firebase.database();
   const dataRef = fbDB.ref('familyTree');
   const usersRef = fbDB.ref('familyTreeUsers');
+  const linksRef = fbDB.ref('sharedLinks'); // NEW: Database for temporary links
 
   /* ── MASTER ADMIN CREDENTIALS ── */
   const MASTER_USER = 'Kx393';
@@ -324,12 +334,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     selected: null,
     editingId: null,
     prevPhoto: '',
-    prevPhotoSpouse: '' 
+    prevPhotoSpouse: '',
+    isViewOnly: false // NEW: Flag to lock UI for guests
   };
 
   /* ── SECURITY HELPER ── */
   function isAdmin() {
-      return state.currentUser && state.currentUser.role === 'admin';
+      return state.currentUser && state.currentUser.role === 'admin' && !state.isViewOnly;
   }
 
   /* ── RESPONSIVE DYNAMIC MATH ENGINE ── */
@@ -368,6 +379,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2200);
   }
   function showSync(msg, col){
+    if(state.isViewOnly) return; // Hide sync messages from guests
     var p=document.getElementById('sync-pill');
     p.textContent=msg; p.style.color=col||'var(--gold)'; p.style.opacity='1';
     clearTimeout(p._t); p._t=setTimeout(function(){p.style.opacity='0';},2500);
@@ -375,7 +387,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   /* ── FIREBASE DATA SYNC ── */
   function saveToFirebase(){
-    if(!state.dbReady) return;
+    if(!state.dbReady || state.isViewOnly) return;
     try {
       var cleanPayload = JSON.parse(JSON.stringify({members:state.members, familyName:state.familyName, expanded:state.expanded, v:1}));
       dataRef.set(cleanPayload)
@@ -427,57 +439,86 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       showSync('✓ connected');
     });
 
-    // 2. LIVE ACTIVE SESSION MONITORING
-    usersRef.on('value', function(snap){
-      state.users = snap.val() || {};
-      
-      if (state.currentUser) {
-        if (state.currentUser.username === MASTER_USER) {
-           // Immune
-        } else {
-           var dbUserKey = Object.keys(state.users).find(k => state.users[k].username === state.currentUser.username);
-           var dbUser = dbUserKey ? state.users[dbUserKey] : null;
+    // 2. LIVE ACTIVE SESSION MONITORING (Skip if view-only guest)
+    if (!state.isViewOnly) {
+      usersRef.on('value', function(snap){
+        state.users = snap.val() || {};
+        
+        if (state.currentUser) {
+          if (state.currentUser.username === MASTER_USER) {
+             // Immune
+          } else {
+             var dbUserKey = Object.keys(state.users).find(k => state.users[k].username === state.currentUser.username);
+             var dbUser = dbUserKey ? state.users[dbUserKey] : null;
 
-           // FORCE REVOKE CHECK
-           if (!dbUser) {
-              doLogout();
-              return;
-           }
+             if (!dbUser) {
+                doLogout();
+                return;
+             }
 
-           // CHECK FOR LIVE PROMOTIONS OR DEMOTIONS
-           var needsUpdate = false;
-           if (state.currentUser.status !== dbUser.status) {
-              state.currentUser.status = dbUser.status;
-              needsUpdate = true;
-           }
-           if (state.currentUser.role !== dbUser.role) {
-              state.currentUser.role = dbUser.role;
-              needsUpdate = true;
-           }
+             var needsUpdate = false;
+             if (state.currentUser.status !== dbUser.status) {
+                state.currentUser.status = dbUser.status;
+                needsUpdate = true;
+             }
+             if (state.currentUser.role !== dbUser.role) {
+                state.currentUser.role = dbUser.role;
+                needsUpdate = true;
+             }
 
-           if (needsUpdate) {
-              localStorage.setItem('famUser', JSON.stringify(state.currentUser));
-              
-              if (state.currentUser.status === 'approved') {
-                 unlockApp(); 
-              } else {
-                 document.getElementById('main-nav').style.display = 'none';
-                 document.getElementById('tree-view').style.display = 'none';
-                 document.getElementById('admin-view').style.display = 'none';
-                 document.getElementById('auth-view').style.display = 'none';
-                 document.getElementById('waiting-overlay').style.display = 'flex';
-              }
-           }
+             if (needsUpdate) {
+                localStorage.setItem('famUser', JSON.stringify(state.currentUser));
+                
+                if (state.currentUser.status === 'approved') {
+                   unlockApp(); 
+                } else {
+                   document.getElementById('main-nav').style.display = 'none';
+                   document.getElementById('tree-view').style.display = 'none';
+                   document.getElementById('admin-view').style.display = 'none';
+                   document.getElementById('auth-view').style.display = 'none';
+                   document.getElementById('waiting-overlay').style.display = 'flex';
+                }
+             }
+          }
         }
-      }
 
-      var authV = document.getElementById('auth-view');
-      if(authV && authV.style.display !== 'none' && isAdmin()) renderAuthPanel();
-    });
+        var authV = document.getElementById('auth-view');
+        if(authV && authV.style.display !== 'none' && isAdmin()) renderAuthPanel();
+      });
+    }
   }
 
   /* ── AUTHENTICATION ENGINE ── */
   function checkLocalAuth() {
+    // URL Check First: Is this a shared link guest?
+    const urlParams = new URLSearchParams(window.location.search);
+    const shareToken = urlParams.get('share');
+    
+    if (shareToken) {
+       document.getElementById('auth-title').textContent = "Checking secure link...";
+       document.getElementById('auth-user').style.display = 'none';
+       document.getElementById('auth-pass').style.display = 'none';
+       document.getElementById('btn-login-submit').style.display = 'none';
+       document.getElementById('btn-login-toggle').style.display = 'none';
+
+       linksRef.child(shareToken).once('value').then(function(snap) {
+           var linkData = snap.val();
+           if (linkData && linkData.expiresAt > Date.now()) {
+               // SUCCESS! Link is valid.
+               state.isViewOnly = true;
+               unlockApp();
+           } else {
+               // FAIL! Link expired or invalid.
+               document.getElementById('auth-error').textContent = "This shared link has expired or is invalid.";
+               document.getElementById('btn-login-toggle').style.display = 'block';
+               document.getElementById('btn-login-toggle').textContent = "Return to Login";
+               document.getElementById('btn-login-toggle').onclick = function() { window.location.href = window.location.pathname; };
+           }
+       });
+       return; // Stop normal auth flow
+    }
+
+    // Normal Auth Flow
     var saved = localStorage.getItem('famUser');
     if (saved) {
       state.currentUser = JSON.parse(saved);
@@ -519,7 +560,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
     if (!un || !pw) { err.textContent = 'Please enter both fields.'; return; }
 
-    // 1. MASTER ADMIN OVERRIDE
     if (un === MASTER_USER && pw === MASTER_PASS) {
        state.currentUser = { username: un, role: 'admin', status: 'approved' };
        localStorage.setItem('famUser', JSON.stringify(state.currentUser));
@@ -527,7 +567,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
        return;
     }
 
-    // 2. Fetch Users Database to verify
     usersRef.once('value').then(function(snap) {
        var users = snap.val() || {};
        var userKey = Object.keys(users).find(k => users[k].username.toLowerCase() === un.toLowerCase());
@@ -547,7 +586,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
              startSync();
           }
        } else {
-          // REGISTER MODE
           if (dbUser) { err.textContent = 'Username is already taken.'; return; }
           if (un.toLowerCase() === MASTER_USER.toLowerCase()) { err.textContent = 'Reserved username.'; return; }
 
@@ -566,14 +604,20 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function unlockApp() {
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('waiting-overlay').style.display = 'none';
-    document.getElementById('main-nav').style.display = 'flex';
     
-    document.getElementById('tab-admin').style.display = 'none';
-    document.getElementById('tab-auth').style.display = 'none';
+    if (state.isViewOnly) {
+        // GUEST MODE: Hide the entire navigation bar
+        document.getElementById('main-nav').style.display = 'none';
+    } else {
+        // MEMBER/ADMIN MODE: Show navigation
+        document.getElementById('main-nav').style.display = 'flex';
+        document.getElementById('tab-admin').style.display = 'none';
+        document.getElementById('tab-auth').style.display = 'none';
 
-    if (isAdmin()) {
-       document.getElementById('tab-admin').style.display = 'block';
-       document.getElementById('tab-auth').style.display = 'block';
+        if (isAdmin()) {
+           document.getElementById('tab-admin').style.display = 'block';
+           document.getElementById('tab-auth').style.display = 'block';
+        }
     }
 
     applyLang();
@@ -591,13 +635,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
         startSync();
     } else {
         var activeTab = document.querySelector('.nav-tab.active');
-        if(activeTab) showView(activeTab.id.replace('tab-', ''), activeTab);
+        if(activeTab && !state.isViewOnly) showView(activeTab.id.replace('tab-', ''), activeTab);
+        else if (state.isViewOnly) renderTree();
     }
   }
 
   function doLogout(){ 
     localStorage.removeItem('famUser');
-    location.reload(); 
+    window.location.href = window.location.pathname; // Strips out ?share= URL params securely
   }
 
   /* ── LANGUAGE ── */
@@ -637,7 +682,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   function buildCard(m, sz, fs, pad, cardW, hasKids, isExp, isSpouse){
     var card=document.createElement('div');
-    card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
+    
+    // GUEST MODE: Remove cursor hover effects and selection states if view only
+    if(state.isViewOnly) {
+       card.className='person-card'+(isSpouse?' spouse-card':'');
+       card.style.cursor = 'default';
+       // Expand the whole tree automatically for guests since they can't click
+       isExp = true; 
+    } else {
+       card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
+    }
+
     card.style.cssText='padding:'+pad+'px; width:'+cardW+'px; min-width:'+cardW+'px; flex-shrink:0; display:flex; flex-direction:column; align-items:center;';
     card.appendChild(makeAvatar(m,sz));
     
@@ -662,14 +717,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       card.appendChild(sl);
     }
     
-    if(hasKids&&!isSpouse){
+    // Hide dots for guests
+    if(hasKids && !isSpouse && !state.isViewOnly){
       var dot=document.createElement('div');
       dot.className='expand-dot';
       dot.style.background=isExp?'var(--gold2)':'var(--gold)';
       dot.style.marginTop='4px';
       card.appendChild(dot);
     }
-    if(!isSpouse){
+
+    // Disable clicks for guests
+    if(!isSpouse && !state.isViewOnly){
       card.onclick=function(){
         if(hasKids){
           if(state.expanded[m.id]) delete state.expanded[m.id];
@@ -697,7 +755,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       var col=document.createElement('div');
       col.className = 'tree-col'; 
       
-      var sp=getSpouse(m), kids=getChildren(m), exp=!!state.expanded[m.id];
+      // If View-Only, expand all nodes automatically so the guest sees everyone.
+      var sp=getSpouse(m), kids=getChildren(m), exp = state.isViewOnly ? true : !!state.expanded[m.id];
       
       var primaryWrap = document.createElement('div');
       primaryWrap.style.cssText = 'display: flex; align-items: flex-start; position: relative; z-index: 2;';
@@ -748,7 +807,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div>';
       return;
     }
-    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1><p>'+s('clickHint')+'</p></div><div class="tree-container"><div id="tree-root"></div></div>';
+    
+    // Hide "Click a name" hint if view only
+    var hintText = state.isViewOnly ? '' : '<p>'+s('clickHint')+'</p>';
+    
+    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1>'+hintText+'</div><div class="tree-container"><div id="tree-root"></div></div>';
     renderLevel(document.getElementById('tree-root'),null,0);
 
     setTimeout(function() {
@@ -761,7 +824,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   /* ── ADMIN RENDER (MEMBER DATA) ── */
   function renderAdmin(){
-    if(!isAdmin()) return; // SECURE GUARD
+    if(!isAdmin()) return; 
 
     var v=document.getElementById('admin-view');
     v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">'+s('allMembers')+'</div><div id="mlist"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">'+s('addMember')+'</button><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap" id="aform"><div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div></div>';
@@ -813,9 +876,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       +'<div class="form-actions">'+(m?'<button class="btn-del" onclick="App.delMember(\''+m.id+'\')">'+s('del')+'</button>':'')+'<button class="btn-cancel" onclick="App.cancelEdit()">'+s('cancel')+'</button><button class="btn-save" onclick="App.saveMember()">'+s('save')+'</button></div>';
   }
 
-  /* ── AUTH PANEL RENDER (USER MANAGEMENT) ── */
+  /* ── AUTH PANEL RENDER (USER MANAGEMENT + LINK SHARING) ── */
   function renderAuthPanel() {
-    if(!isAdmin()) return; // SECURE GUARD
+    if(!isAdmin()) return; 
 
     var v = document.getElementById('auth-view');
     var userCardsHTML = '';
@@ -842,17 +905,60 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
     if(!hasUsers) userCardsHTML = '<div class="empty-state"><span>No registered users yet.</span></div>';
 
-    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">Security & Access</div><p style="font-size:12px; color:var(--text3); line-height:1.4;">Any Admin can view this panel. Approve family members below to grant them instant access, or promote them to Admin.</p><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap"><h2>Authentication Panel</h2><div style="margin-top: 1.5rem;">'+userCardsHTML+'</div></div>';
+    // NEW: View-Only Link Generator UI
+    var linkGeneratorHTML = `
+      <div class="share-generator">
+         <h3>Generate View-Only Link</h3>
+         <p>Create a temporary link to share the family tree with relatives. They will not need to log in, but they will not be able to edit anything.</p>
+         <div class="share-controls">
+            <select id="share-expiry" class="share-select">
+               <option value="1">Valid for 1 Hour</option>
+               <option value="24">Valid for 24 Hours</option>
+               <option value="168">Valid for 7 Days</option>
+            </select>
+            <button class="share-btn" onclick="App.generateShareLink()">Copy Link</button>
+         </div>
+      </div>
+    `;
+
+    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">Security & Access</div><p style="font-size:12px; color:var(--text3); line-height:1.4;">Any Admin can view this panel. Approve family members below to grant them instant access, or promote them to Admin.</p><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap"><h2>Authentication Panel</h2><div style="margin-top: 1.5rem;">'+userCardsHTML+'</div>'+linkGeneratorHTML+'</div>';
   }
 
   function modifyUser(key, action) {
-    if(!isAdmin()) return; // SECURE GUARD
+    if(!isAdmin()) return; 
     var uRef = usersRef.child(key);
     if (action === 'approve') uRef.update({ status: 'approved' });
     else if (action === 'admin') uRef.update({ role: 'admin' });
     else if (action === 'demote') uRef.update({ role: 'member' });
     else if (action === 'revoke') uRef.remove(); 
     showToast('User updated');
+  }
+
+  /* ── SHARE LINK LOGIC ── */
+  function generateShareLink() {
+     if(!isAdmin()) return;
+     var hours = parseInt(document.getElementById('share-expiry').value) || 1;
+     
+     // Generate a random 9 character token
+     var token = 'share_' + Math.random().toString(36).substr(2, 9);
+     var expiresAt = Date.now() + (hours * 60 * 60 * 1000); // Convert hours to ms
+
+     // Save to Firebase
+     linksRef.child(token).set({
+         expiresAt: expiresAt,
+         createdBy: state.currentUser.username
+     }).then(function() {
+         // Create the full URL
+         var url = window.location.origin + window.location.pathname + '?share=' + token;
+         
+         // Copy to clipboard
+         navigator.clipboard.writeText(url).then(function() {
+             showToast("Link copied! Valid for " + hours + " hr(s).");
+         }).catch(function() {
+             // Fallback for older browsers
+             prompt("Copy this link:", url);
+         });
+     });
   }
 
   /* ── ACTIONS ── */
@@ -869,7 +975,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function startNew(){ state.editingId='__new__'; state.prevPhoto=''; state.prevPhotoSpouse=''; renderAdmin(); renderForm(null); }
   function cancelEdit(){ state.editingId=null; renderAdmin(); }
 
-  // PHOTO UPLOAD LOGIC
   function applyUrl(){
     var url=(document.getElementById('p-url')||{}).value||''; url=url.trim(); 
     if (url === '' && state.prevPhoto && state.prevPhoto.startsWith('data:image')) return;
@@ -929,7 +1034,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   }
 
   async function saveMember(){
-    if(!isAdmin()) { showToast("Unauthorized"); return; } // SECURE GUARD
+    if(!isAdmin()) { showToast("Unauthorized"); return; }
     const GEMINI_API_KEY = 'YOUR_API_KEY_HERE';
     
     if(!state.members) state.members = [];
@@ -989,11 +1094,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   }
 
   function delMember(id){
-    if(!isAdmin()) { showToast("Unauthorized"); return; } // SECURE GUARD
+    if(!isAdmin()) { showToast("Unauthorized"); return; } 
     
     var m=state.members.find(function(x){return x && x.id===id;});
-    
-    // GHOST SPOUSE FIX: Hunt down and wipe out the spouse data entirely
     if(m && m.spouse) {
        state.members = state.members.filter(function(x){ return x && x.id !== m.spouse; });
        delete state.expanded[m.spouse];
@@ -1008,7 +1111,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   }
 
   function showView(v, btn){
-    // SECURE GUARD: Block hidden views if a non-admin tries to force them open via console
     if ((v === 'admin' || v === 'auth') && !isAdmin()) {
         showToast("Unauthorized access blocked.");
         return;
@@ -1042,9 +1144,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     saveMember: saveMember,
     delMember: delMember,
     doLogout: doLogout,
-    modifyUser: modifyUser
+    modifyUser: modifyUser,
+    generateShareLink: generateShareLink // NEW EXPORT
   };
 
+  // Check on load
   checkLocalAuth();
 
 })();
