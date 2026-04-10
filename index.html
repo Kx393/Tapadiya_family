@@ -60,8 +60,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:.05em;line-height:1.2}
 .tree-header h1 em{color:var(--gold);font-style:italic}
 .tree-header p{font-size:12px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem}
-.tree-container{overflow-x:auto;padding-bottom:2rem; width:100%; display:flex; justify-content:center; -webkit-overflow-scrolling:touch;}
-#tree-root { min-width: max-content; padding-top: 1rem; }
+
+.tree-container{overflow-x:auto;padding-bottom:2rem; width:100%; text-align:center; -webkit-overflow-scrolling:touch;}
+#tree-root { min-width: max-content; padding-top: 1rem; display: inline-flex; flex-direction: column; align-items: center; margin: 0 auto; }
 
 .person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:background .2s,border .2s,transform .15s;border:1px solid transparent}
 .person-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)}
@@ -72,6 +73,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .person-card:hover .avatar,.person-card.selected .avatar{border-color:var(--gold)}
 .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 
+/* Negative Margins to allow names to stretch without pushing layout apart */
 .person-name{color:var(--text2);text-align:center;line-height:1.2;}
 .person-name.primary{color:var(--text);font-weight:500}
 .spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;}
@@ -182,7 +184,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   .login-box{width:90vw;padding:2rem 1.25rem}
   #tree-view{padding:1.5rem 0} 
   .tree-header h1{font-size:26px}
-  .tree-container{justify-content:flex-start; padding: 0 1rem 2rem 1rem;} 
+  .tree-container{text-align:left; padding: 0 1rem 2rem 1rem;} 
   .tree-col { padding: 20px 16px 0; } 
   .admin-form-wrap{padding:1.25rem}
   .form-grid{grid-template-columns:1fr}
@@ -233,7 +235,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     <div class="login-logo"><em>family</em> <span>tree</span></div>
     <div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite; margin: 20px auto;"></div>
     <h3 style="font-family:'Outfit'; font-weight:400; color:var(--gold); margin-bottom: 10px;">Account Pending</h3>
-    <p style="font-size:13px; color:var(--text3); line-height: 1.4; margin-bottom: 20px;">Your account has been created successfully. You are currently waiting for the Master Admin to approve your access.</p>
+    <p style="font-size:13px; color:var(--text3); line-height: 1.4; margin-bottom: 20px;">Your account has been created successfully. You are currently waiting for an Admin to approve your access.</p>
     <button class="auth-btn-sec" onclick="App.doLogout()">Log Out</button>
   </div>
 </div>
@@ -252,7 +254,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
 <div id="tree-view" style="display:none"></div>
 <div id="admin-view" style="display:none"></div>
-<div id="auth-view" style="display:none"></div> <div class="toast" id="toast"></div>
+<div id="auth-view" style="display:none"></div>
+
+<div class="toast" id="toast"></div>
 <div class="sync-pill" id="sync-pill"></div>
 
 <script>
@@ -270,7 +274,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   firebase.initializeApp(fbConfig);
   const fbDB = firebase.database();
   const dataRef = fbDB.ref('familyTree');
-  const usersRef = fbDB.ref('familyTreeUsers'); // NEW: Database for user accounts
+  const usersRef = fbDB.ref('familyTreeUsers');
 
   /* ── MASTER ADMIN CREDENTIALS ── */
   const MASTER_USER = 'Kx393';
@@ -314,14 +318,19 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     dbReady: false,
     members: [],
     expanded: {},
-    users: {}, // Holds all registered accounts
-    currentUser: null, // The person currently using the device
-    authMode: 'login', // 'login' or 'register'
+    users: {}, 
+    currentUser: null, 
+    authMode: 'login', 
     selected: null,
     editingId: null,
     prevPhoto: '',
     prevPhotoSpouse: '' 
   };
+
+  /* ── SECURITY HELPER ── */
+  function isAdmin() {
+      return state.currentUser && state.currentUser.role === 'admin';
+  }
 
   /* ── RESPONSIVE DYNAMIC MATH ENGINE ── */
   function getSizes() {
@@ -412,31 +421,58 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
       var tv = document.getElementById('tree-view');
       var av = document.getElementById('admin-view');
-      if(av && av.style.display !== 'none') renderAdmin();
+      if(av && av.style.display !== 'none' && isAdmin()) renderAdmin();
       else if(tv && tv.style.display !== 'none') renderTree();
       
       showSync('✓ connected');
     });
 
-    // 2. Sync User Accounts (Crucial for live unlocking the Waiting Room)
+    // 2. LIVE ACTIVE SESSION MONITORING
     usersRef.on('value', function(snap){
       state.users = snap.val() || {};
       
-      // Real-time check: If the current user is in the waiting room, check if an Admin just approved them!
-      if (state.currentUser && state.currentUser.status === 'pending') {
-        var dbUser = Object.values(state.users).find(u => u.username === state.currentUser.username);
-        if (dbUser && dbUser.status === 'approved') {
-           // They got approved! Unlock the app instantly.
-           state.currentUser.status = 'approved';
-           state.currentUser.role = dbUser.role;
-           localStorage.setItem('famUser', JSON.stringify(state.currentUser));
-           unlockApp();
+      if (state.currentUser) {
+        if (state.currentUser.username === MASTER_USER) {
+           // Immune
+        } else {
+           var dbUserKey = Object.keys(state.users).find(k => state.users[k].username === state.currentUser.username);
+           var dbUser = dbUserKey ? state.users[dbUserKey] : null;
+
+           // FORCE REVOKE CHECK
+           if (!dbUser) {
+              doLogout();
+              return;
+           }
+
+           // CHECK FOR LIVE PROMOTIONS OR DEMOTIONS
+           var needsUpdate = false;
+           if (state.currentUser.status !== dbUser.status) {
+              state.currentUser.status = dbUser.status;
+              needsUpdate = true;
+           }
+           if (state.currentUser.role !== dbUser.role) {
+              state.currentUser.role = dbUser.role;
+              needsUpdate = true;
+           }
+
+           if (needsUpdate) {
+              localStorage.setItem('famUser', JSON.stringify(state.currentUser));
+              
+              if (state.currentUser.status === 'approved') {
+                 unlockApp(); 
+              } else {
+                 document.getElementById('main-nav').style.display = 'none';
+                 document.getElementById('tree-view').style.display = 'none';
+                 document.getElementById('admin-view').style.display = 'none';
+                 document.getElementById('auth-view').style.display = 'none';
+                 document.getElementById('waiting-overlay').style.display = 'flex';
+              }
+           }
         }
       }
 
-      // Live refresh Auth Panel if Admin is looking at it
       var authV = document.getElementById('auth-view');
-      if(authV && authV.style.display !== 'none') renderAuthPanel();
+      if(authV && authV.style.display !== 'none' && isAdmin()) renderAuthPanel();
     });
   }
 
@@ -448,10 +484,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       if (state.currentUser.status === 'approved') {
          unlockApp();
       } else {
-         // They are still pending
          document.getElementById('login-overlay').style.display = 'none';
          document.getElementById('waiting-overlay').style.display = 'flex';
-         startSync(); // Start sync just to listen for their approval
+         startSync(); 
       }
     }
   }
@@ -533,8 +568,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     document.getElementById('waiting-overlay').style.display = 'none';
     document.getElementById('main-nav').style.display = 'flex';
     
-    // Show Admin Tabs if applicable
-    if (state.currentUser.role === 'admin') {
+    document.getElementById('tab-admin').style.display = 'none';
+    document.getElementById('tab-auth').style.display = 'none';
+
+    if (isAdmin()) {
        document.getElementById('tab-admin').style.display = 'block';
        document.getElementById('tab-auth').style.display = 'block';
     }
@@ -542,10 +579,20 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     applyLang();
     
     var tv = document.getElementById('tree-view');
-    tv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:.06em">loading family data…</span></div>';
-    tv.style.display = 'block';
+    var av = document.getElementById('admin-view');
+    var au = document.getElementById('auth-view');
     
-    startSync();
+    if (tv.style.display === 'none' && av.style.display === 'none' && au.style.display === 'none') {
+        tv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:.06em">loading family data…</span></div>';
+        tv.style.display = 'block';
+    }
+
+    if (!state.dbReady) {
+        startSync();
+    } else {
+        var activeTab = document.querySelector('.nav-tab.active');
+        if(activeTab) showView(activeTab.id.replace('tab-', ''), activeTab);
+    }
   }
 
   function doLogout(){ 
@@ -562,8 +609,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     applyLang();
     var tv=document.getElementById('tree-view');
     var av=document.getElementById('admin-view');
+    var au=document.getElementById('auth-view');
     if(tv&&tv.style.display!=='none') renderTree();
-    if(av&&av.style.display!=='none') renderAdmin();
+    if(av&&av.style.display!=='none' && isAdmin()) renderAdmin();
+    if(au&&au.style.display!=='none' && isAdmin()) renderAuthPanel();
   }
   function applyLang(){
     document.getElementById('tab-tree').textContent=s('navTree');
@@ -699,7 +748,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div>';
       return;
     }
-    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1><p>'+s('clickHint')+'</p></div><div class="tree-container"><div id="tree-root" style="display:flex;flex-direction:column;align-items:center;"></div></div>';
+    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1><p>'+s('clickHint')+'</p></div><div class="tree-container"><div id="tree-root"></div></div>';
     renderLevel(document.getElementById('tree-root'),null,0);
 
     setTimeout(function() {
@@ -712,6 +761,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   /* ── ADMIN RENDER (MEMBER DATA) ── */
   function renderAdmin(){
+    if(!isAdmin()) return; // SECURE GUARD
+
     var v=document.getElementById('admin-view');
     v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">'+s('allMembers')+'</div><div id="mlist"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">'+s('addMember')+'</button><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap" id="aform"><div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div></div>';
     var list=document.getElementById('mlist');
@@ -764,9 +815,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   /* ── AUTH PANEL RENDER (USER MANAGEMENT) ── */
   function renderAuthPanel() {
+    if(!isAdmin()) return; // SECURE GUARD
+
     var v = document.getElementById('auth-view');
-    
-    // Build User Cards from Firebase Data
     var userCardsHTML = '';
     var hasUsers = false;
 
@@ -781,6 +832,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
           actionsHTML = '<button class="auth-act-btn btn-approve" onclick="App.modifyUser(\''+key+'\', \'approve\')">Approve Access</button>';
        } else {
           if (u.role !== 'admin') actionsHTML += '<button class="auth-act-btn btn-promote" onclick="App.modifyUser(\''+key+'\', \'admin\')">Make Admin</button>';
+          else actionsHTML += '<button class="auth-act-btn btn-revoke" onclick="App.modifyUser(\''+key+'\', \'demote\')">Make Member</button>';
+          
           actionsHTML += '<button class="auth-act-btn btn-revoke" onclick="App.modifyUser(\''+key+'\', \'revoke\')">Revoke</button>';
        }
 
@@ -789,19 +842,22 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
     if(!hasUsers) userCardsHTML = '<div class="empty-state"><span>No registered users yet.</span></div>';
 
-    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">Security & Access</div><p style="font-size:12px; color:var(--text3); line-height:1.4;">Only Master Admins can view this panel. Approve family members below to grant them instant access to the tree.</p><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap"><h2>Authentication Panel</h2><div style="margin-top: 1.5rem;">'+userCardsHTML+'</div></div>';
+    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">Security & Access</div><p style="font-size:12px; color:var(--text3); line-height:1.4;">Any Admin can view this panel. Approve family members below to grant them instant access, or promote them to Admin.</p><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap"><h2>Authentication Panel</h2><div style="margin-top: 1.5rem;">'+userCardsHTML+'</div></div>';
   }
 
   function modifyUser(key, action) {
+    if(!isAdmin()) return; // SECURE GUARD
     var uRef = usersRef.child(key);
     if (action === 'approve') uRef.update({ status: 'approved' });
     else if (action === 'admin') uRef.update({ role: 'admin' });
-    else if (action === 'revoke') uRef.remove(); // Deletes them entirely
+    else if (action === 'demote') uRef.update({ role: 'member' });
+    else if (action === 'revoke') uRef.remove(); 
     showToast('User updated');
   }
 
   /* ── ACTIONS ── */
   function updateFamilyName(){
+    if(!isAdmin()) { showToast("Unauthorized"); return; }
     var val=(document.getElementById('fn-inp')||{}).value;
     if(!val||!val.trim()) return;
     state.familyName=val.trim();
@@ -873,7 +929,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   }
 
   async function saveMember(){
+    if(!isAdmin()) { showToast("Unauthorized"); return; } // SECURE GUARD
     const GEMINI_API_KEY = 'YOUR_API_KEY_HERE';
+    
     if(!state.members) state.members = [];
     if(!Array.isArray(state.members)) state.members = Object.keys(state.members).map(function(k){ return state.members[k]; });
 
@@ -931,15 +989,31 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   }
 
   function delMember(id){
+    if(!isAdmin()) { showToast("Unauthorized"); return; } // SECURE GUARD
+    
     var m=state.members.find(function(x){return x && x.id===id;});
-    if(m&&m.spouse) state.members=state.members.filter(function(x){return x && x.id!==m.spouse;});
+    
+    // GHOST SPOUSE FIX: Hunt down and wipe out the spouse data entirely
+    if(m && m.spouse) {
+       state.members = state.members.filter(function(x){ return x && x.id !== m.spouse; });
+       delete state.expanded[m.spouse];
+    }
+    
     state.members.filter(function(x){return x && x.parentId===id;}).forEach(function(c){c.parentId=null;});
     state.members=state.members.filter(function(x){return x && x.id!==id;});
-    delete state.expanded[id]; state.editingId=null;
+    delete state.expanded[id]; 
+    state.editingId=null;
+    
     saveToFirebase(); showToast(s('deleted')); renderAdmin(); renderTree();
   }
 
   function showView(v, btn){
+    // SECURE GUARD: Block hidden views if a non-admin tries to force them open via console
+    if ((v === 'admin' || v === 'auth') && !isAdmin()) {
+        showToast("Unauthorized access blocked.");
+        return;
+    }
+
     document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
     btn.classList.add('active');
     document.getElementById('tree-view').style.display='none';
@@ -971,7 +1045,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     modifyUser: modifyUser
   };
 
-  // ON INITIAL LOAD: Check if a user is already authenticated on this device!
   checkLocalAuth();
 
 })();
