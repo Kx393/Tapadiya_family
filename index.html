@@ -76,10 +76,38 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .person-name.primary{color:var(--text);font-weight:500}
 .spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
 .expand-dot{width:4px;height:4px;border-radius:50%;margin:4px auto 0;background:var(--gold);box-shadow:0 0 6px var(--gold);transition:all .2s}
-.connector-v{width:2px;background:var(--gold);margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .person-card{animation:fadeIn .25s ease both}
+
+/* --- FLAWLESS FORKED TREE LINES --- */
+.tree-row {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  padding-top: 30px; 
+}
+.tree-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 20px 10px 0; 
+}
+.tree-col::before {
+  content: ''; position: absolute; top: 0; height: 2px; background: var(--gold); z-index: 0;
+}
+.tree-col:first-child::before { left: 50%; right: 0; }
+.tree-col:last-child::before { left: 0; right: 50%; }
+.tree-col:not(:first-child):not(:last-child)::before { left: 0; right: 0; }
+.tree-col:only-child::before { display: none; }
+.tree-col::after {
+  content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 20px; background: var(--gold); transform: translateX(-50%); z-index: 0;
+}
+#tree-root > .tree-row { padding-top: 0; }
+#tree-root > .tree-row > .tree-col { padding-top: 0; }
+#tree-root > .tree-row > .tree-col::before,
+#tree-root > .tree-row > .tree-col::after { display: none; }
 
 /* ADMIN */
 #admin-view{position:relative;z-index:1;padding:1.5rem;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;min-height:560px;box-sizing:border-box}
@@ -126,67 +154,50 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .form-actions{display:flex;gap:.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center}
 .btn-save{padding:.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#0d0a04;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif}
 .btn-save:hover{background:var(--gold2)}
+.btn-save:disabled{opacity: 0.6; cursor: wait;}
 .btn-del{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
 .btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595}
 .btn-cancel{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
-.btn-translate{padding:.28rem .7rem;border-radius:7px;background:rgba(100,160,255,0.08);border:1px solid rgba(100,160,255,0.2);color:#7ab4f5;font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:.04em;transition:all .2s;white-space:nowrap;vertical-align:middle}
-.btn-translate:hover{background:rgba(100,160,255,0.16)}
-.btn-translate:disabled{opacity:.45;cursor:not-allowed}
 .empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:.75rem}
 
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(8,10,15,0.92);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
 .toast.show{opacity:1}
 .sync-pill{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);background:rgba(8,10,15,0.92);border:1px solid var(--border2);padding:.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:.07em;z-index:200;transition:opacity .5s;pointer-events:none;opacity:0}
 
-/* --- FLAWLESS FORKED TREE LINES --- */
-.tree-row {
-  display: flex;
-  justify-content: center;
-  position: relative;
-  padding-top: 30px;
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 600px) {
+  .nav{padding:0 1rem}
+  .nav-brand{font-size:16px}
+  .nav-tab{padding:.75rem .6rem;font-size:10px;letter-spacing:.04em}
+  .lang-btn{padding:.3rem .5rem;font-size:10px}
+  .login-box{width:90vw;padding:2rem 1.25rem}
+  .pin-grid{gap:8px}
+  .pin-key{padding:.7rem;font-size:16px}
+  #tree-view{padding:1.5rem .75rem}
+  .tree-header h1{font-size:26px}
+  .tree-header p{font-size:10px}
+  .tree-container{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #admin-view{ grid-template-columns:1fr; grid-template-rows:auto 1fr; padding:1rem .75rem; gap:1rem; min-height:unset; }
+  .admin-sidebar{max-height:220px;overflow-y:auto}
+  .admin-form-wrap{padding:1.25rem}
+  .form-grid{grid-template-columns:1fr}
+  .fg.full{grid-column:1}
+  .form-actions{flex-wrap:wrap;gap:.5rem}
+  .form-actions button{flex:1;min-width:80px}
+  .fn-bar{flex-wrap:wrap;gap:.5rem}
+  .fn-input{min-width:0;width:100%}
+  .photo-row{flex-direction:column;align-items:center}
+  .photo-inputs{width:100%}
+  .url-row{flex-direction:column}
+  .url-apply{height:36px;width:100%}
+  .toast{bottom:1rem;right:.75rem;left:.75rem;text-align:center}
+  .sync-pill{font-size:10px;top:.5rem}
 }
-.tree-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  /* FIX 3: Added 20px top padding so the profile sits safely BELOW the line */
-  padding: 20px 12px 0; 
+@media (max-width: 380px) {
+  .nav-tab{padding:.7rem .4rem;font-size:9px}
+  .login-box{padding:1.5rem 1rem}
+  .tree-header h1{font-size:22px}
 }
-
-/* Horizontal line across siblings */
-.tree-col::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  height: 2px;
-  background: var(--gold);
-  z-index: 0;
-}
-.tree-col:first-child::before { left: 50%; right: 0; }
-.tree-col:last-child::before { left: 0; right: 50%; }
-.tree-col:not(:first-child):not(:last-child)::before { left: 0; right: 0; }
-.tree-col:only-child::before { display: none; }
-
-/* FIX 3: Vertical drop line stops exactly at 20px, right above the profile */
-.tree-col::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 2px;
-  height: 20px; 
-  background: var(--gold);
-  transform: translateX(-50%);
-  z-index: 0;
-}
-
-/* Root node overrides */
-#tree-root > .tree-row { padding-top: 0; }
-#tree-root > .tree-row > .tree-col { padding-top: 0; }
-#tree-root > .tree-row > .tree-col::before,
-#tree-root > .tree-row > .tree-col::after { display: none; }
-
 </style>
 </head>
 <body>
@@ -312,19 +323,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function initials(n){ return n ? n.split(' ').map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase() : '??'; }
   function dname(m){ return state.lang==='hi' && m.nameHi ? m.nameHi : m.name; }
   
-  // FIXED: Treat undefined as null so Firebase stripping null values doesn't break the root logic
   function getPrimaries(pid){ 
     return state.members.filter(function(m){
+      if(!m) return false;
       var mPid = m.parentId || null;
       var targetPid = pid || null;
       return mPid === targetPid && !m.isSpouse;
     }); 
   }
-  function getSpouse(m){ return m.spouse ? state.members.find(function(x){return x.id===m.spouse;})||null : null; }
-  function getChildren(m){ return state.members.filter(function(x){return x.parentId===m.id && !x.isSpouse;}); }
-  function szFor(g){ return [76,62,52,44,38,32][Math.min(g,5)]; }
-  function fsFor(g){ return [13,12,11,11,11,11][Math.min(g,5)]; }
-  function padFor(g){ return [12,10,8,6,5,4][Math.min(g,5)]; }
+  function getSpouse(m){ return m.spouse ? state.members.find(function(x){return x && x.id===m.spouse;})||null : null; }
+  function getChildren(m){ return state.members.filter(function(x){return x && x.parentId===m.id && !x.isSpouse;}); }
 
   function showToast(msg){
     var t=document.getElementById('toast');
@@ -352,19 +360,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       state.dbReady = true;
       
       if(data){
-        // FIXED: Handle Firebase array quirk (sometimes returns arrays as objects if items are deleted)
         var rawMembers = data.members || [];
         if (!Array.isArray(rawMembers) && typeof rawMembers === 'object') {
           rawMembers = Object.keys(rawMembers).map(function(k){ return rawMembers[k]; });
         }
-        
-        // Remove null objects and explicitly standardize missing parentIds
         state.members = rawMembers.filter(Boolean).map(function(m) {
           if (m.parentId === undefined || m.parentId === '') m.parentId = null;
           return m;
         });
 
-        state.familyName = data.familyName || state.familyName;
+        if(data.familyName) state.familyName = data.familyName;
         state.expanded = data.expanded || {};
       } else {
         state.members = [];
@@ -374,11 +379,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       var bn = document.getElementById('brand-name');
       if(bn) bn.textContent = state.familyName;
 
+      var tv = document.getElementById('tree-view');
       var av = document.getElementById('admin-view');
+      
       if(av && av.style.display !== 'none'){
         renderAdmin();
       } else {
-        document.getElementById('tree-view').style.display = 'block';
+        if(tv && tv.style.display === 'none') tv.style.display = '';
         renderTree();
       }
       showSync('✓ connected');
@@ -406,7 +413,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       document.getElementById('login-overlay').style.display='none';
       document.getElementById('main-nav').style.display='flex';
       applyLang();
-      showLoadingTree();
+      
+      var tv = document.getElementById('tree-view');
+      tv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:.06em">loading family data…</span></div>';
+      
       startSync();
     } else {
       document.getElementById('pin-error').textContent = s('wrongPin');
@@ -435,7 +445,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     document.body.classList.toggle('lang-hi', state.lang==='hi');
   }
 
-  /* ── TREE RENDER ── */
+  /* ── STRICT UNIFORM TREE RENDER ── */
   function makeAvatar(m, sz){
     var av=document.createElement('div');
     av.className='avatar';
@@ -452,13 +462,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function buildCard(m, sz, fs, pad, hasKids, isExp, isSpouse){
     var card=document.createElement('div');
     card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
-    card.style.cssText='padding:'+pad+'px '+Math.max(4,pad-2)+'px';
+    
+    var cardW = sz + (pad * 2);
+    card.style.cssText='padding:'+pad+'px; width:'+cardW+'px; flex-shrink:0;';
+    
     card.appendChild(makeAvatar(m,sz));
     var nm=document.createElement('div');
     nm.className='person-name'+(isSpouse?'':' primary');
-    nm.style.cssText='font-size:'+fs+'px;max-width:'+(sz+24)+'px';
+    nm.style.cssText='font-size:'+fs+'px; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
     nm.textContent=dname(m);
     card.appendChild(nm);
+    
     if(isSpouse){
       var sl=document.createElement('div');
       sl.className='spouse-label';
@@ -484,20 +498,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     return card;
   }
 
-function renderLevel(parent, parentId, gen){
+  function renderLevel(parent, parentId, gen){
     var prim=getPrimaries(parentId);
     if(!prim.length) return;
-    var sz=szFor(gen), fs=fsFor(gen), pad=padFor(gen);
     
-    var sidePad = Math.max(4, pad - 2);
-    var cardW = sz + (sidePad * 2);
+    var sz = 52, fs = 12, pad = 6;
+    var cardW = sz + (pad * 2);
+    var connW = 16;
+    var dummyW = cardW + connW; 
+    var shiftX = (cardW / 2) + (connW / 2);
+    var topStart = Math.round(sz / 2 + pad);
     
-    // FIX 2: Squeeze spouses closer together mathematically
-    var connW = 10; 
-    var overlapMargin = 6; // Negative margin to pull the cards inward
-    var effectiveConnW = connW - (overlapMargin * 2);
-    var dummyW = cardW + effectiveConnW;
-
     var row=document.createElement('div');
     row.className = 'tree-row'; 
 
@@ -516,54 +527,45 @@ function renderLevel(parent, parentId, gen){
         primaryWrap.appendChild(dummy);
       }
       
-      primaryWrap.appendChild(buildCard(m,sz,fs,pad,kids.length>0,exp,false));
+      primaryWrap.appendChild(buildCard(m, sz, fs, pad, kids.length>0, exp, false));
       
       if(sp){
-        var conn=document.createElement('div');
-        // Applying the negative margin to pull them tightly together
-        conn.style.cssText = 'display:flex; align-items:center; padding-top:'+Math.round(sz/2 - 1)+'px; width: '+connW+'px; justify-content: center; flex-shrink: 0; margin: 0 -'+overlapMargin+'px; position: relative; z-index: 0;';
+        var conn = document.createElement('div');
+        conn.style.cssText = 'display:flex; align-items:center; padding-top:'+(topStart - 1)+'px; width:'+connW+'px; justify-content: center; flex-shrink: 0;';
         conn.innerHTML = '<svg width="'+connW+'" height="2"><line x1="0" y1="1" x2="'+connW+'" y2="1" stroke="var(--gold)" stroke-width="2"/></svg>';
-        primaryWrap.appendChild(conn);
         
-        var spCard = buildCard(sp,sz,fs,pad,false,false,true);
-        primaryWrap.appendChild(spCard);
+        primaryWrap.appendChild(conn);
+        primaryWrap.appendChild(buildCard(sp, sz, fs, pad, false, false, true));
       }
       
       col.appendChild(primaryWrap);
       
       if(kids.length && exp){
-        var dropLine = document.createElement('div');
-        
-        // FIX 1: "top" starts exactly at the spouse line, "bottom" stretches to the child's horizontal branch
-        dropLine.style.cssText = 'position: absolute; top: '+Math.round(sz/2)+'px; bottom: -30px; width: 2px; background: var(--gold); z-index: -1;';
-        
-        var cr = document.createElement('div');
-        cr.style.position = 'relative';
-        
-        if (sp) {
-            var shiftX = (cardW / 2) + (effectiveConnW / 2);
-            dropLine.style.left = 'calc(50% + ' + shiftX + 'px)';
-            dropLine.style.transform = 'translateX(-50%)';
-            cr.style.transform = 'translateX(' + shiftX + 'px)';
-        } else {
-            dropLine.style.left = '50%';
-            dropLine.style.transform = 'translateX(-50%)';
-        }
-        
-        primaryWrap.appendChild(dropLine);
-        renderLevel(cr,m.id,gen+1);
-        col.appendChild(cr);
+          var dropLine = document.createElement('div');
+          dropLine.style.cssText = 'position: absolute; bottom: -30px; width: 2px; background: var(--gold); z-index: -1;';
+          
+          var cr = document.createElement('div');
+          cr.style.position = 'relative';
+          
+          if (sp) {
+              dropLine.style.top = topStart + 'px';
+              dropLine.style.left = 'calc(50% + ' + shiftX + 'px)';
+              dropLine.style.transform = 'translateX(-50%)';
+              cr.style.transform = 'translateX(' + shiftX + 'px)';
+          } else {
+              dropLine.style.top = '100%';
+              dropLine.style.left = '50%';
+              dropLine.style.transform = 'translateX(-50%)';
+          }
+          
+          primaryWrap.appendChild(dropLine);
+          renderLevel(cr, m.id, gen+1);
+          col.appendChild(cr);
       }
       
       row.appendChild(col);
     });
     parent.appendChild(row);
-  }
-  
-  function showLoadingTree(){
-    var tv = document.getElementById('tree-view');
-    tv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:.06em">loading family data…</span></div>';
-    tv.style.display = 'block';
   }
 
   function renderTree(){
@@ -575,6 +577,13 @@ function renderLevel(parent, parentId, gen){
     }
     tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1><p>'+s('clickHint')+'</p></div><div class="tree-container"><div id="tree-root" style="display:flex;flex-direction:column;align-items:center;padding:0 1rem 2rem"></div></div>';
     renderLevel(document.getElementById('tree-root'),null,0);
+
+    setTimeout(function() {
+      var selectedNode = document.querySelector('.person-card.selected');
+      if (selectedNode) {
+        selectedNode.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      }
+    }, 50);
   }
 
   /* ── ADMIN RENDER ── */
@@ -582,7 +591,10 @@ function renderLevel(parent, parentId, gen){
     var v=document.getElementById('admin-view');
     v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">'+s('allMembers')+'</div><div id="mlist"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">'+s('addMember')+'</button><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap" id="aform"><div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div></div>';
     var list=document.getElementById('mlist');
-    state.members.filter(function(m){return !m.isSpouse;}).forEach(function(m){
+    
+    var safeMembers = Array.isArray(state.members) ? state.members : [];
+    
+    safeMembers.filter(function(m){return m && !m.isSpouse;}).forEach(function(m){
       var it=document.createElement('div');
       it.className='member-item'+(state.editingId===m.id?' active':'');
       var avHtml=m.photo?'<img src="'+m.photo+'" onerror="this.parentElement.textContent=\''+initials(m.name)+'\'">':initials(m.name);
@@ -590,28 +602,30 @@ function renderLevel(parent, parentId, gen){
       it.onclick=function(){ state.editingId=m.id; state.prevPhoto=m.photo||''; renderAdmin(); renderForm(m); };
       list.appendChild(it);
     });
-    if(state.editingId){ var em=state.members.find(function(x){return x.id===state.editingId;}); if(em) renderForm(em); }
+    if(state.editingId){ var em=safeMembers.find(function(x){return x && x.id===state.editingId;}); if(em) renderForm(em); }
   }
 
   function renderForm(m){
     var area=document.getElementById('aform');
-    var pOpts='<option value="">'+s('rootLevel')+'</option>'+state.members.filter(function(x){return !x.isSpouse&&(!m||x.id!==m.id);}).map(function(p){return '<option value="'+p.id+'"'+(m&&m.parentId===p.id?' selected':'')+'>'+dname(p)+'</option>';}).join('');
-    var spN=m&&m.spouse?(state.members.find(function(x){return x.id===m.spouse;})||{}).name||'':'';
-    var spNHi=m&&m.spouse?(state.members.find(function(x){return x.id===m.spouse;})||{}).nameHi||'':'';
+    var safeMembers = Array.isArray(state.members) ? state.members : [];
+    
+    var pOpts='<option value="">'+s('rootLevel')+'</option>'+safeMembers.filter(function(x){return x && !x.isSpouse&&(!m||x.id!==m.id);}).map(function(p){return '<option value="'+p.id+'"'+(m&&m.parentId===p.id?' selected':'')+'>'+dname(p)+'</option>';}).join('');
+    var spN=m&&m.spouse?(safeMembers.find(function(x){return x && x.id===m.spouse;})||{}).name||'':'';
+    var spNHi=m&&m.spouse?(safeMembers.find(function(x){return x && x.id===m.spouse;})||{}).nameHi||'':'';
     var genOpts=s('genLabels').map(function(g,i){return '<option value="'+i+'"'+(m&&m.generation===i?' selected':'')+'>'+g+'</option>';}).join('');
     var pv=state.prevPhoto;
     area.innerHTML='<div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div>'
       +'<h2>'+(m?s('editMember'):s('newMember'))+'</h2>'
       +'<div class="form-grid">'
       +'<div class="fg full"><label>'+s('photo')+'</label><div class="photo-row"><div class="photo-prev" id="pp">'+(pv?'<img src="'+pv+'">':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>')+'</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="'+s('pasteUrl')+'" value="'+pv+'"><button class="url-apply" onclick="App.applyUrl()">'+s('apply')+'</button></div><label class="upload-lbl" for="p-file">'+s('upload')+'</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>'
-      +'<div class="fg"><label>'+s('firstName')+' (EN) <button class="btn-translate" id="btn-tr-en" onclick="App.translateName(\'en\')" title="Auto-translate to Hindi">EN → हि</button></label><input type="text" id="f-fn" placeholder="First name" value="'+(m?m.name.split(' ')[0]:'')+'"></div>'
+      +'<div class="fg"><label>'+s('firstName')+' (EN)</label><input type="text" id="f-fn" placeholder="First name" value="'+(m?m.name.split(' ')[0]:'')+'"></div>'
       +'<div class="fg"><label>'+s('lastName')+' (EN)</label><input type="text" id="f-ln" placeholder="Last name" value="'+(m?m.name.split(' ').slice(1).join(' '):'')+'"></div>'
-      +'<div class="fg"><label>नाम (हिंदी) <button class="btn-translate" id="btn-tr-hi" onclick="App.translateName(\'hi\')" title="Auto-translate to English">हि → EN</button></label><input type="text" id="f-fn-hi" placeholder="पहला नाम" value="'+(m&&m.nameHi?m.nameHi.split(' ')[0]:'')+'"></div>'
+      +'<div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" placeholder="पहला नाम" value="'+(m&&m.nameHi?m.nameHi.split(' ')[0]:'')+'"></div>'
       +'<div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" placeholder="उपनाम" value="'+(m&&m.nameHi?m.nameHi.split(' ').slice(1).join(' '):'')+'"></div>'
       +'<div class="fg"><label>'+s('parent')+'</label><select id="f-par">'+pOpts+'</select></div>'
       +'<div class="fg"><label>'+s('generation')+'</label><select id="f-gen">'+genOpts+'</select></div>'
-      +'<div class="fg full"><label>'+s('spouseName')+' (EN) <button class="btn-translate" id="btn-tr-sp-en" onclick="App.translateName(\'sp-en\')" title="Auto-translate spouse to Hindi">EN → हि</button></label><input type="text" id="f-sp" placeholder="'+s('blank')+'" value="'+spN+'"></div>'
-      +'<div class="fg full"><label>पति/पत्नी (हिंदी) <button class="btn-translate" id="btn-tr-sp-hi" onclick="App.translateName(\'sp-hi\')" title="Auto-translate spouse to English">हि → EN</button></label><input type="text" id="f-sp-hi" placeholder="खाली छोड़ें" value="'+spNHi+'"></div>'
+      +'<div class="fg full"><label>'+s('spouseName')+' (EN)</label><input type="text" id="f-sp" placeholder="'+s('blank')+'" value="'+spN+'"></div>'
+      +'<div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="खाली छोड़ें" value="'+spNHi+'"></div>'
       +'</div>'
       +'<div class="form-actions">'+(m?'<button class="btn-del" onclick="App.delMember(\''+m.id+'\')">'+s('del')+'</button>':'')+'<button class="btn-cancel" onclick="App.cancelEdit()">'+s('cancel')+'</button><button class="btn-save" onclick="App.saveMember()">'+s('save')+'</button></div>';
   }
@@ -621,8 +635,11 @@ function renderLevel(parent, parentId, gen){
     var val=(document.getElementById('fn-inp')||{}).value;
     if(!val||!val.trim()) return;
     state.familyName=val.trim();
+    var bn=document.getElementById('brand-name');
+    if(bn) bn.textContent=state.familyName;
     saveToFirebase();
     showToast(s('saved'));
+    renderTree();
   }
 
   function startNew(){ state.editingId='__new__'; state.prevPhoto=''; renderAdmin(); renderForm(null); }
@@ -649,37 +666,46 @@ function renderLevel(parent, parentId, gen){
   }
 
   async function saveMember(){
-    // ⚠️ Insert your Google Gemini API Key here again:
-    const GEMINI_API_KEY = AIzaSyBFoZc3fw6yo0L9jGAUR3nJ0LRbq28egvQ ;
+    // ⚠️ Insert your Google Gemini API Key here
+    const GEMINI_API_KEY = 'YOUR_API_KEY_HERE';
+
+    if(!state.members) state.members = [];
+    if(!Array.isArray(state.members)) {
+      state.members = Object.keys(state.members).map(function(k){ return state.members[k]; });
+    }
 
     var fn=(document.getElementById('f-fn')||{}).value||'';
     var ln=(document.getElementById('f-ln')||{}).value||'';
     fn=fn.trim(); ln=ln.trim();
-    if(!fn){ showToast('please enter a name'); return; }
-    var name=ln?fn+' '+ln:fn;
     
     var fnHi=(document.getElementById('f-fn-hi')||{}).value||'';
     var lnHi=(document.getElementById('f-ln-hi')||{}).value||'';
     fnHi=fnHi.trim(); lnHi=lnHi.trim();
+
+    if(!fn && !fnHi){ showToast('Please enter a name'); return; }
+    
+    var name=ln?fn+' '+ln:fn;
     var nameHi=fnHi?(lnHi?fnHi+' '+lnHi:fnHi):'';
     
     var parentId=(document.getElementById('f-par')||{}).value||null;
-    var gen=parseInt((document.getElementById('f-gen')||{}).value||'0');
+    var gen=parseInt((document.getElementById('f-gen')||{}).value||'0') || 0;
+    
     var spN=((document.getElementById('f-sp')||{}).value||'').trim();
     var spNHi=((document.getElementById('f-sp-hi')||{}).value||'').trim();
 
-    // --- NEW: AUTO-TRANSLATE MISSING NAMES BEFORE SAVING ---
-    async function quickTranslate(text) {
+    async function quickTranslate(text, langContext) {
+      if(!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_API_KEY_HERE') return ''; 
       try {
         var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
         var resp = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Transliterate into Hindi (Devanagari script). Return ONLY the translated name. Name: ' + text }] }]
+            contents: [{ parts: [{ text: 'Transliterate the following name into ' + langContext + '. Return ONLY the translated name. Name: ' + text }] }]
           })
         });
         var data = await resp.json();
+        if(data.error) throw new Error(data.error.message);
         return data.candidates[0].content.parts[0].text.trim();
       } catch(e) { 
         console.error('Auto-translate failed', e);
@@ -688,57 +714,73 @@ function renderLevel(parent, parentId, gen){
     }
 
     var btn = document.querySelector('.btn-save');
-    var originalBtnText = btn.textContent;
-    btn.disabled = true;
+    var originalBtnText = btn ? btn.textContent : 'Save';
+    if(btn) btn.disabled = true;
 
     if (name && !nameHi) {
-      btn.textContent = 'Translating...';
-      nameHi = await quickTranslate(name);
+      if(btn) btn.textContent = 'Translating...';
+      nameHi = await quickTranslate(name, 'Hindi (Devanagari script)');
+    } else if (nameHi && !name) {
+      if(btn) btn.textContent = 'Translating...';
+      name = await quickTranslate(nameHi, 'English (Romanized letters)');
     }
+
     if (spN && !spNHi) {
-      btn.textContent = 'Translating...';
-      spNHi = await quickTranslate(spN);
+      if(btn) btn.textContent = 'Translating...';
+      spNHi = await quickTranslate(spN, 'Hindi (Devanagari script)');
+    } else if (spNHi && !spN) {
+      if(btn) btn.textContent = 'Translating...';
+      spN = await quickTranslate(spNHi, 'English (Romanized letters)');
     }
     
-    btn.textContent = originalBtnText;
-    btn.disabled = false;
-    // --------------------------------------------------------
+    if(btn){
+      btn.textContent = originalBtnText;
+      btn.disabled = false;
+    }
+
+    if(!name) name = nameHi;
+    if(!nameHi) nameHi = name;
 
     if(state.editingId==='__new__'){
       var id='m'+Date.now();
       var nm={id:id,name:name,nameHi:nameHi,photo:state.prevPhoto,parentId:parentId,generation:gen,spouse:'',isSpouse:false};
       state.members.push(nm);
-      if(spN){ var sid=id+'s'; nm.spouse=sid; state.members.push({id:sid,name:spN,nameHi:spNHi,photo:'',parentId:null,generation:gen,spouse:id,isSpouse:true}); }
+      if(spN || spNHi){ 
+         var sid=id+'s'; 
+         nm.spouse=sid; 
+         state.members.push({id:sid,name:spN,nameHi:spNHi,photo:'',parentId:null,generation:gen,spouse:id,isSpouse:true}); 
+      }
       state.editingId=id;
     } else {
-      var m=state.members.find(function(x){return x.id===state.editingId;});
+      var m=state.members.find(function(x){return x && x.id===state.editingId;});
       if(m){ m.name=name; m.nameHi=nameHi; m.photo=state.prevPhoto; m.parentId=parentId; m.generation=gen;
-        if(spN){
-          if(m.spouse){ var sp=state.members.find(function(x){return x.id===m.spouse;}); if(sp){sp.name=spN;sp.nameHi=spNHi;} }
+        if(spN || spNHi){
+          if(m.spouse){ var sp=state.members.find(function(x){return x && x.id===m.spouse;}); if(sp){sp.name=spN;sp.nameHi=spNHi;} }
           else{ var sid2=m.id+'s'; m.spouse=sid2; state.members.push({id:sid2,name:spN,nameHi:spNHi,photo:'',parentId:null,generation:gen,spouse:m.id,isSpouse:true}); }
-        } else if(m.spouse){ state.members=state.members.filter(function(x){return x.id!==m.spouse;}); m.spouse=''; }
+        } else if(m.spouse){ state.members=state.members.filter(function(x){return x && x.id!==m.spouse;}); m.spouse=''; }
       }
     }
+    
     saveToFirebase();
     showToast(s('saved'));
     renderAdmin();
+    renderTree();
   }
-  
 
   function delMember(id){
-    var m=state.members.find(function(x){return x.id===id;});
-    if(m&&m.spouse) state.members=state.members.filter(function(x){return x.id!==m.spouse;});
-    state.members.filter(function(x){return x.parentId===id;}).forEach(function(c){c.parentId=null;});
-    state.members=state.members.filter(function(x){return x.id!==id;});
+    var m=state.members.find(function(x){return x && x.id===id;});
+    if(m&&m.spouse) state.members=state.members.filter(function(x){return x && x.id!==m.spouse;});
+    state.members.filter(function(x){return x && x.parentId===id;}).forEach(function(c){c.parentId=null;});
+    state.members=state.members.filter(function(x){return x && x.id!==id;});
     delete state.expanded[id];
     state.editingId=null;
     saveToFirebase();
     showToast(s('deleted'));
+    renderAdmin();
+    renderTree();
   }
 
-  function doLogout(){
-    location.reload();
-  }
+  function doLogout(){ location.reload(); }
 
   function showView(v, btn){
     document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
@@ -754,91 +796,6 @@ function renderLevel(parent, parentId, gen){
     }
   }
 
-  /* ── AUTO TRANSLATE ── */
-  /* ── AUTO TRANSLATE WITH GEMINI ── */
-  async function translateName(dir){
-    // ⚠️ Insert your Google Gemini API Key here:
-    const GEMINI_API_KEY = AIzaSyBFoZc3fw6yo0L9jGAUR3nJ0LRbq28egvQ ;
-
-    var btnId = dir==='en'?'btn-tr-en': dir==='hi'?'btn-tr-hi': dir==='sp-en'?'btn-tr-sp-en':'btn-tr-sp-hi';
-    var btn = document.getElementById(btnId);
-    if(btn){ btn.disabled=true; btn.textContent='…'; }
-
-    var srcText='', targetLang='';
-    if(dir==='en'){
-      var fn=(document.getElementById('f-fn')||{}).value||'';
-      var ln=(document.getElementById('f-ln')||{}).value||'';
-      srcText=(fn+' '+ln).trim();
-      targetLang='Hindi (Devanagari script)';
-    } else if(dir==='hi'){
-      var fn=(document.getElementById('f-fn-hi')||{}).value||'';
-      var ln=(document.getElementById('f-ln-hi')||{}).value||'';
-      srcText=(fn+' '+ln).trim();
-      targetLang='English (romanized)';
-    } else if(dir==='sp-en'){
-      srcText=((document.getElementById('f-sp')||{}).value||'').trim();
-      targetLang='Hindi (Devanagari script)';
-    } else {
-      srcText=((document.getElementById('f-sp-hi')||{}).value||'').trim();
-      targetLang='English (romanized)';
-    }
-
-    if(!srcText){
-      if(btn){ btn.disabled=false; btn.textContent=dir.includes('en')?'EN → हि':'हि → EN'; }
-      showToast('please enter a name first');
-      return;
-    }
-
-    try {
-      var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
-      var promptText = 'You are a transliteration assistant. Transliterate the following name into ' + targetLang + '. Return ONLY the translated name — no explanation, no punctuation, nothing else. If it is already in the target language, return it as-is. Name: ' + srcText;
-
-      var resp = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }]
-        })
-      });
-
-      var data = await resp.json();
-      
-      if (data.error) throw new Error(data.error.message);
-      
-      var result = data.candidates[0].content.parts[0].text.trim();
-      if(!result) throw new Error('empty');
-
-      if(dir==='en'){
-        var parts=result.split(' ');
-        var fEl=document.getElementById('f-fn-hi');
-        var lEl=document.getElementById('f-ln-hi');
-        if(fEl) fEl.value=parts[0]||'';
-        if(lEl) lEl.value=parts.slice(1).join(' ')||'';
-      } else if(dir==='hi'){
-        var parts=result.split(' ');
-        var fEl=document.getElementById('f-fn');
-        var lEl=document.getElementById('f-ln');
-        if(fEl) fEl.value=parts[0]||'';
-        if(lEl) lEl.value=parts.slice(1).join(' ')||'';
-      } else if(dir==='sp-en'){
-        var el=document.getElementById('f-sp-hi');
-        if(el) el.value=result;
-      } else {
-        var el=document.getElementById('f-sp');
-        if(el) el.value=result;
-      }
-      showToast('translated ✓');
-    } catch(e){
-      console.error(e);
-      showToast('translation failed');
-    }
-
-    if(btn){
-      btn.disabled=false;
-      btn.textContent=dir.includes('en')?'EN → हि':'हि → EN';
-    }
-  }
-
   window.App = {
     pinKey: pinKey,
     setLang: setLang,
@@ -850,7 +807,6 @@ function renderLevel(parent, parentId, gen){
     handleFile: handleFile,
     saveMember: saveMember,
     delMember: delMember,
-    translateName: translateName,
     doLogout: doLogout
   };
 })();
