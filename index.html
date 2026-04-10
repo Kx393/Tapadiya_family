@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Tree</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500&family=Noto+Sans+Devanagari:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080a0f;--surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.07);
+  --surface3:rgba(255,255,255,0.10);--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#f0ede8;--text2:#a09a90;--text3:#5a5650;
+  --gold:#c9a96e;--gold2:#e8c98a;--gold-soft:rgba(201,169,110,0.12);
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+.lang-hi *{font-family:'Noto Sans Devanagari',sans-serif}
+.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(201,169,110,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(120,100,200,0.06) 0%,transparent 60%);animation:bgP 12s ease-in-out infinite alternate}
+.bg-canvas::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(201,169,110,0.15) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);opacity:.3;animation:gD 20s linear infinite}
+@keyframes bgP{0%{opacity:.7}100%{opacity:1}}
+@keyframes gD{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:oF linear infinite;opacity:.4}
+.orb1{width:400px;height:400px;background:radial-gradient(circle,rgba(201,169,110,0.2),transparent 70%);top:-100px;left:-100px;animation-duration:25s}
+.orb2{width:300px;height:300px;background:radial-gradient(circle,rgba(100,80,180,0.15),transparent 70%);bottom:10%;right:-50px;animation-duration:30s;animation-delay:-10s}
+.orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,0.12),transparent 70%);top:50%;left:60%;animation-duration:20s;animation-delay:-5s}
+@keyframes oF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(.9)}}
+
+/* NAV */
+.nav{position:relative;z-index:10;display:flex;align-items:center;padding:0 2rem;border-bottom:1px solid var(--border);background:rgba(8,10,15,0.85);backdrop-filter:blur(20px);flex-wrap:wrap}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);letter-spacing:.1em;margin-right:auto;padding:1rem 0;font-style:italic}
+.nav-brand span{font-style:normal;font-weight:500;color:var(--text)}
+.nav-tab{padding:.9rem 1.1rem;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--text3);border:none;background:none;border-bottom:1px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Outfit',sans-serif}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-tab:hover:not(.active){color:var(--text2)}
+.lang-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-left:.5rem}
+.lang-btn{padding:.35rem .75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit',sans-serif;transition:all .2s}
+.lang-btn.active{background:var(--gold);color:#0d0a04;font-weight:500}
+
+/* LOGIN */
+#login-overlay{position:fixed;inset:0;z-index:100;background:rgba(8,10,15,0.97);display:flex;align-items:center;justify-content:center}
+.login-box{background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:320px;text-align:center}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:.25rem}
+.login-logo span{font-style:normal;color:var(--text)}
+.login-sub{font-size:12px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2rem}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:1.5rem}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:1px solid var(--border2);background:transparent;transition:all .2s}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(201,169,110,0.4)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.pin-key{padding:.85rem;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.pin-key:hover{background:var(--surface3);border-color:var(--border2)}
+.pin-key:active{transform:scale(.95)}
+.pin-del{font-size:14px;color:var(--text3)}
+.pin-error{font-size:12px;color:#f09595;margin-top:.5rem;min-height:18px}
+.pin-hint{font-size:11px;color:var(--text3);margin-top:.75rem}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* TREE */
+#tree-view{position:relative;z-index:1;padding:2.5rem 1.5rem;min-height:560px}
+.tree-header{text-align:center;margin-bottom:2.5rem}
+.tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:.05em;line-height:1.2}
+.tree-header h1 em{color:var(--gold);font-style:italic}
+.tree-header p{font-size:12px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem}
+.tree-container{overflow-x:auto;padding-bottom:1rem}
+.person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:background .2s,border .2s,transform .15s;border:1px solid transparent}
+.person-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)}
+.person-card.selected{background:var(--gold-soft);border-color:rgba(201,169,110,0.3)}
+.person-card.spouse-card{cursor:default;opacity:.85}
+.person-card.spouse-card:hover{background:transparent;border-color:transparent;transform:none}
+.avatar{border-radius:50%;border:2px solid var(--border2);flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--text2);overflow:hidden;transition:border-color .2s}
+.person-card:hover .avatar,.person-card.selected .avatar{border-color:var(--gold)}
+.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.person-name{color:var(--text2);margin-top:6px;text-align:center;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em}
+.person-name.primary{color:var(--text);font-weight:500}
+.spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.expand-dot{width:4px;height:4px;border-radius:50%;margin:4px auto 0;background:var(--gold);box-shadow:0 0 6px var(--gold);transition:all .2s}
+.connector-v{width:1px;background:var(--border2);margin:0 auto}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.person-card{animation:fadeIn .25s ease both}
+
+/* ADMIN */
+#admin-view{position:relative;z-index:1;padding:1.5rem;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;min-height:560px}
+.admin-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;overflow-y:auto;max-height:580px}
+.sidebar-title{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem}
+.member-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.member-item:hover,.member-item.active{background:var(--surface2);border-color:var(--border)}
+.mini-av{width:34px;height:34px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);flex-shrink:0;overflow:hidden}
+.mini-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.item-name{font-size:13px;color:var(--text)}
+.item-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.sidebar-btn{width:100%;margin-top:.75rem;padding:.55rem;border-radius:10px;font-size:12px;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;letter-spacing:.04em}
+.btn-add{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.25);color:var(--gold)}
+.btn-add:hover{background:rgba(201,169,110,0.18)}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--text3)}
+.btn-logout:hover{border-color:rgba(220,60,60,0.4);color:#f09595}
+
+.admin-form-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem}
+.admin-form-wrap h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:1.25rem;color:var(--text)}
+.fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.fn-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.fn-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-size:16px;font-family:'Cormorant Garamond',serif;font-style:italic;padding:.2rem .25rem;outline:none;transition:border .2s}
+.fn-input:focus{border-bottom-color:var(--gold)}
+.fn-btn{padding:.3rem .85rem;border-radius:8px;background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap}
+.fn-btn:hover{background:rgba(201,169,110,0.2)}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.fg input,.fg select{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:9px;padding:.5rem .8rem;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border .2s;height:36px}
+.fg input:focus,.fg select:focus{border-color:rgba(201,169,110,0.4)}
+.fg input::placeholder{color:var(--text3)}
+.fg select option{background:#0d0f15}
+.photo-row{display:flex;gap:1rem;align-items:flex-start}
+.photo-prev{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;overflow:hidden}
+.photo-prev img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.photo-inputs{flex:1;display:flex;flex-direction:column;gap:.5rem}
+.url-row{display:flex;gap:.5rem}
+.url-row input{flex:1}
+.url-apply{padding:0 .8rem;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}
+.url-apply:hover{border-color:rgba(201,169,110,.4);color:var(--gold)}
+.upload-lbl{display:block;padding:.45rem .8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center}
+.form-actions{display:flex;gap:.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center}
+.btn-save{padding:.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#0d0a04;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif}
+.btn-save:hover{background:var(--gold2)}
+.btn-del{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
+.btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595}
+.btn-cancel{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
+.empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:.75rem}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(8,10,15,0.92);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+.sync-pill{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);background:rgba(8,10,15,0.92);border:1px solid var(--border2);padding:.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:.07em;z-index:200;transition:opacity .5s;pointer-events:none;opacity:0}
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo"><em>family</em> <span>tree</span></div>
+    <p class="login-sub">admin access</p>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+      <div class="pin-dot" id="pd4"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-key" onclick="App.pinKey('1')">1</button>
+      <button class="pin-key" onclick="App.pinKey('2')">2</button>
+      <button class="pin-key" onclick="App.pinKey('3')">3</button>
+      <button class="pin-key" onclick="App.pinKey('4')">4</button>
+      <button class="pin-key" onclick="App.pinKey('5')">5</button>
+      <button class="pin-key" onclick="App.pinKey('6')">6</button>
+      <button class="pin-key" onclick="App.pinKey('7')">7</button>
+      <button class="pin-key" onclick="App.pinKey('8')">8</button>
+      <button class="pin-key" onclick="App.pinKey('9')">9</button>
+      <button class="pin-key pin-del" onclick="App.pinKey('clear')">clr</button>
+      <button class="pin-key" onclick="App.pinKey('0')">0</button>
+      <button class="pin-key pin-del" onclick="App.pinKey('del')">⌫</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-hint">enter your 5-digit PIN</div>
+  </div>
+</div>
+
+<nav class="nav" id="main-nav" style="display:none">
+  <span class="nav-brand"><em>family</em> <span id="brand-name">tree</span></span>
+  <button class="nav-tab active" id="tab-tree" onclick="App.showView('tree',this)">family tree</button>
+  <button class="nav-tab" id="tab-admin" onclick="App.showView('admin',this)">admin panel</button>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="App.setLang('en')">EN</button>
+    <button class="lang-btn" onclick="App.setLang('hi')">हि</button>
+  </div>
+</nav>
+
+<div id="tree-view" style="display:none"></div>
+<div id="admin-view" style="display:none"></div>
+<div class="toast" id="toast"></div>
+<div class="sync-pill" id="sync-pill"></div>
+
+<script>
+(function() {
+  /* ── FIREBASE ── */
+  const fbConfig = {
+    apiKey: "AIzaSyDviN1RaF9dpUd5ZqFxNNVIDWVYzX9KxPE",
+    authDomain: "family-493f7.firebaseapp.com",
+    databaseURL: "https://family-493f7-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "family-493f7",
+    storageBucket: "family-493f7.firebasestorage.app",
+    messagingSenderId: "677547416268",
+    appId: "1:677547416268:web:b78af5a19bce0106344069"
+  };
+  firebase.initializeApp(fbConfig);
+  const fbDB = firebase.database();
+  const dataRef = fbDB.ref('familyTree');
+
+  /* ── CONSTANTS ── */
+  const PIN = '13579';
+
+  const STRINGS = {
+    en:{
+      familyTitle:function(n){return 'The <em>'+n+'</em> Family'},
+      clickHint:'click a name to expand their lineage',
+      spouse:'spouse',navTree:'family tree',navAdmin:'admin panel',
+      addMember:'+ add new member',logout:'log out',allMembers:'all members',
+      root:'root',descendant:'descendant',editMember:'edit member',newMember:'new member',
+      photo:'photo',firstName:'first name',lastName:'last name',parent:'parent',
+      generation:'generation level',spouseName:'spouse / partner name',
+      rootLevel:'— root (top level) —',
+      genLabels:['root','children','grandchildren','great-grandchildren','gen 4+'],
+      save:'save',cancel:'cancel',del:'delete',selectOrAdd:'select a member or add new',
+      saved:'saved',deleted:'deleted',familyNameLabel:'family name',update:'update',
+      pasteUrl:'paste image URL…',apply:'apply',upload:'upload file',blank:'leave blank if none',
+      wrongPin:'incorrect PIN'
+    },
+    hi:{
+      familyTitle:function(n){return '<em>'+n+'</em> परिवार'},
+      clickHint:'वंशावली देखने के लिए नाम पर क्लिक करें',
+      spouse:'पति/पत्नी',navTree:'परिवार वृक्ष',navAdmin:'व्यवस्थापक',
+      addMember:'+ सदस्य जोड़ें',logout:'लॉग आउट',allMembers:'सभी सदस्य',
+      root:'मूल',descendant:'वंशज',editMember:'सदस्य संपादित करें',newMember:'नया सदस्य',
+      photo:'फ़ोटो',firstName:'पहला नाम',lastName:'अंतिम नाम',parent:'अभिभावक',
+      generation:'पीढ़ी स्तर',spouseName:'पति/पत्नी का नाम',
+      rootLevel:'— मूल (शीर्ष स्तर) —',
+      genLabels:['मूल','बच्चे','पोते-पोती','परपोते-परपोती','पीढ़ी 4+'],
+      save:'सहेजें',cancel:'रद्द करें',del:'हटाएं',selectOrAdd:'सदस्य चुनें या नया जोड़ें',
+      saved:'सहेजा गया',deleted:'हटाया गया',familyNameLabel:'परिवार का नाम',update:'अपडेट',
+      pasteUrl:'छवि URL पेस्ट करें…',apply:'लागू करें',upload:'फ़ाइल अपलोड करें',blank:'खाली छोड़ें',
+      wrongPin:'गलत PIN'
+    }
+  };
+
+  const DEFAULT_MEMBERS = [
+    {id:'m1',name:'Arjun Shah',nameHi:'अर्जुन शाह',spouse:'m1s',photo:'',parentId:null,generation:0},
+    {id:'m1s',name:'Priya Shah',nameHi:'प्रिया शाह',spouse:'m1',photo:'',parentId:null,generation:0,isSpouse:true},
+    {id:'m2',name:'Vikram Shah',nameHi:'विक्रम शाह',spouse:'m2s',photo:'',parentId:null,generation:0},
+    {id:'m2s',name:'Nisha Shah',nameHi:'निशा शाह',spouse:'m2',photo:'',parentId:null,generation:0,isSpouse:true},
+    {id:'m3',name:'Rahul Shah',nameHi:'राहुल शाह',spouse:'m3s',photo:'',parentId:null,generation:0},
+    {id:'m3s',name:'Meera Shah',nameHi:'मीरा शाह',spouse:'m3',photo:'',parentId:null,generation:0,isSpouse:true},
+    {id:'m4',name:'Suresh Shah',nameHi:'सुरेश शाह',spouse:'m4s',photo:'',parentId:null,generation:0},
+    {id:'m4s',name:'Kavya Shah',nameHi:'काव्या शाह',spouse:'m4',photo:'',parentId:null,generation:0,isSpouse:true},
+    {id:'c1',name:'Aditya Shah',nameHi:'आदित्य शाह',spouse:'',photo:'',parentId:'m1',generation:1},
+    {id:'c2',name:'Sneha Shah',nameHi:'स्नेहा शाह',spouse:'c2s',photo:'',parentId:'m1',generation:1},
+    {id:'c2s',name:'Rohan Mehta',nameHi:'रोहन मेहता',spouse:'c2',photo:'',parentId:null,generation:1,isSpouse:true},
+    {id:'c3',name:'Dev Shah',nameHi:'देव शाह',spouse:'',photo:'',parentId:'m2',generation:1},
+    {id:'gc1',name:'Tara Shah',nameHi:'तारा शाह',spouse:'',photo:'',parentId:'c2',generation:2},
+    {id:'gc2',name:'Om Shah',nameHi:'ओम शाह',spouse:'',photo:'',parentId:'c2',generation:2}
+  ];
+
+  /* ── APP STATE ── */
+  var state = {
+    lang: 'en',
+    familyName: 'Shah',
+    pinEntry: '',
+    dbReady: false,
+    members: JSON.parse(JSON.stringify(DEFAULT_MEMBERS)),
+    expanded: {'m1':true,'m2':true},
+    selected: null,
+    editingId: null,
+    prevPhoto: ''
+  };
+
+  /* ── HELPERS ── */
+  function s(key){ return STRINGS[state.lang][key] || STRINGS.en[key]; }
+  function initials(n){ return n.split(' ').map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase(); }
+  function dname(m){ return state.lang==='hi' && m.nameHi ? m.nameHi : m.name; }
+  function getPrimaries(pid){ return state.members.filter(function(m){return m.parentId===(pid||null) && !m.isSpouse;}); }
+  function getSpouse(m){ return m.spouse ? state.members.find(function(x){return x.id===m.spouse;})||null : null; }
+  function getChildren(m){ return state.members.filter(function(x){return x.parentId===m.id && !x.isSpouse;}); }
+  function szFor(g){ return [76,62,52,44,38,32][Math.min(g,5)]; }
+  function fsFor(g){ return [13,12,11,11,11,11][Math.min(g,5)]; }
+  function padFor(g){ return [12,10,8,6,5,4][Math.min(g,5)]; }
+
+  function showToast(msg){
+    var t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2200);
+  }
+  function showSync(msg, col){
+    var p=document.getElementById('sync-pill');
+    p.textContent=msg; p.style.color=col||'var(--gold)'; p.style.opacity='1';
+    clearTimeout(p._t); p._t=setTimeout(function(){p.style.opacity='0';},2500);
+  }
+
+  /* ── FIREBASE ── */
+  function saveToFirebase(){
+    if(!state.dbReady) return;
+    dataRef.set({members:state.members, familyName:state.familyName, v:1})
+      .then(function(){showSync('✓ synced');})
+      .catch(function(){showSync('⚠ sync failed','#f09595');});
+  }
+
+  function startSync(){
+    showSync('connecting…','var(--text3)');
+    dataRef.on('value', function(snap){
+      var data = snap.val();
+      var wasReady = state.dbReady;
+      if(data && data.members && data.members.length){
+        state.members = data.members;
+        if(data.familyName) state.familyName = data.familyName;
+        state.dbReady = true;
+        var bn = document.getElementById('brand-name');
+        if(bn) bn.textContent = state.familyName;
+        var tv = document.getElementById('tree-view');
+        var av = document.getElementById('admin-view');
+        if(tv && tv.style.display!=='none') renderTree();
+        if(av && av.style.display!=='none') renderAdmin();
+        showSync(wasReady ? '↻ updated' : '✓ connected');
+      } else if(!state.dbReady){
+        state.dbReady = true;
+        saveToFirebase();
+        showSync('✓ ready');
+      }
+    }, function(err){
+      showSync('⚠ error','#f09595');
+      console.error(err);
+    });
+  }
+
+  /* ── PIN ── */
+  function pinKey(k){
+    var err = document.getElementById('pin-error');
+    err.textContent = '';
+    if(k==='clear'){ state.pinEntry=''; }
+    else if(k==='del'){ state.pinEntry=state.pinEntry.slice(0,-1); }
+    else if(state.pinEntry.length<5){ state.pinEntry+=k; }
+    updateDots();
+    if(state.pinEntry.length===5){ checkPin(); }
+  }
+  function updateDots(){
+    for(var i=0;i<5;i++){
+      var d=document.getElementById('pd'+i);
+      if(d) d.classList.toggle('filled', i<state.pinEntry.length);
+    }
+  }
+  function checkPin(){
+    if(state.pinEntry===PIN){
+      document.getElementById('login-overlay').style.display='none';
+      document.getElementById('main-nav').style.display='flex';
+      document.getElementById('tree-view').style.display='';
+      renderTree();
+      applyLang();
+      startSync();
+    } else {
+      document.getElementById('pin-error').textContent = s('wrongPin');
+      state.pinEntry='';
+      updateDots();
+      var dots=document.getElementById('pin-dots');
+      dots.style.animation='none';
+      void dots.offsetHeight;
+      dots.style.animation='shake .3s ease';
+    }
+  }
+
+  /* ── LANGUAGE ── */
+  function setLang(l){
+    state.lang=l;
+    document.querySelectorAll('.lang-btn').forEach(function(b,i){
+      b.classList.toggle('active', (i===0&&l==='en')||(i===1&&l==='hi'));
+    });
+    applyLang();
+    var tv=document.getElementById('tree-view');
+    var av=document.getElementById('admin-view');
+    if(tv&&tv.style.display!=='none') renderTree();
+    if(av&&av.style.display!=='none') renderAdmin();
+  }
+  function applyLang(){
+    document.getElementById('tab-tree').textContent=s('navTree');
+    document.getElementById('tab-admin').textContent=s('navAdmin');
+    document.body.classList.toggle('lang-hi', state.lang==='hi');
+  }
+
+  /* ── TREE RENDER ── */
+  function makeAvatar(m, sz){
+    var av=document.createElement('div');
+    av.className='avatar';
+    av.style.cssText='width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*.27)+'px';
+    if(m.photo){
+      var img=document.createElement('img');
+      img.src=m.photo; img.alt=m.name;
+      img.onerror=function(){av.textContent=initials(m.name);};
+      av.appendChild(img);
+    } else { av.textContent=initials(m.name); }
+    return av;
+  }
+
+  function buildCard(m, sz, fs, pad, hasKids, isExp, isSpouse){
+    var card=document.createElement('div');
+    card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
+    card.style.cssText='padding:'+pad+'px '+Math.max(4,pad-2)+'px';
+    card.appendChild(makeAvatar(m,sz));
+    var nm=document.createElement('div');
+    nm.className='person-name'+(isSpouse?'':' primary');
+    nm.style.cssText='font-size:'+fs+'px;max-width:'+(sz+24)+'px';
+    nm.textContent=dname(m);
+    card.appendChild(nm);
+    if(isSpouse){
+      var sl=document.createElement('div');
+      sl.className='spouse-label';
+      sl.textContent=s('spouse');
+      card.appendChild(sl);
+    }
+    if(hasKids&&!isSpouse){
+      var dot=document.createElement('div');
+      dot.className='expand-dot';
+      dot.style.background=isExp?'var(--gold2)':'var(--gold)';
+      card.appendChild(dot);
+    }
+    if(!isSpouse){
+      card.onclick=function(){
+        if(hasKids){
+          if(state.expanded[m.id]) delete state.expanded[m.id];
+          else state.expanded[m.id]=true;
+        }
+        state.selected=m.id;
+        renderTree();
+      };
+    }
+    return card;
+  }
+
+  function renderLevel(parent, parentId, gen){
+    var prim=getPrimaries(parentId);
+    if(!prim.length) return;
+    var sz=szFor(gen), fs=fsFor(gen), pad=padFor(gen);
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;gap:0;justify-content:center;align-items:flex-start;flex-wrap:wrap';
+    prim.forEach(function(m){
+      var col=document.createElement('div');
+      col.style.cssText='display:flex;flex-direction:column;align-items:center';
+      var sp=getSpouse(m), kids=getChildren(m), exp=!!state.expanded[m.id];
+      var couple=document.createElement('div');
+      couple.style.cssText='display:flex;align-items:flex-start;gap:0';
+      couple.appendChild(buildCard(m,sz,fs,pad,kids.length>0,exp,false));
+      if(sp){
+        var conn=document.createElement('div');
+        conn.style.cssText='display:flex;align-items:center;padding-top:'+Math.round(sz/2-4)+'px';
+        conn.innerHTML='<svg width="22" height="2"><line x1="0" y1="1" x2="22" y2="1" stroke="rgba(201,169,110,0.35)" stroke-width="1" stroke-dasharray="3,2"/></svg>';
+        couple.appendChild(conn);
+        couple.appendChild(buildCard(sp,sz,fs,pad,false,false,true));
+      }
+      col.appendChild(couple);
+      if(kids.length&&exp){
+        var vl=document.createElement('div');
+        vl.className='connector-v'; vl.style.height='20px';
+        col.appendChild(vl);
+        var cr=document.createElement('div');
+        cr.style.cssText='display:flex;gap:0;justify-content:center;align-items:flex-start';
+        renderLevel(cr,m.id,gen+1);
+        col.appendChild(cr);
+      }
+      row.appendChild(col);
+    });
+    parent.appendChild(row);
+  }
+
+  function renderTree(){
+    var tv=document.getElementById('tree-view');
+    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1><p>'+s('clickHint')+'</p></div><div class="tree-container"><div id="tree-root" style="display:flex;flex-direction:column;align-items:center;padding:0 1rem 2rem"></div></div>';
+    renderLevel(document.getElementById('tree-root'),null,0);
+  }
+
+  /* ── ADMIN RENDER ── */
+  function renderAdmin(){
+    var v=document.getElementById('admin-view');
+    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">'+s('allMembers')+'</div><div id="mlist"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">'+s('addMember')+'</button><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap" id="aform"><div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div></div>';
+    var list=document.getElementById('mlist');
+    state.members.filter(function(m){return !m.isSpouse;}).forEach(function(m){
+      var it=document.createElement('div');
+      it.className='member-item'+(state.editingId===m.id?' active':'');
+      var avHtml=m.photo?'<img src="'+m.photo+'" onerror="this.parentElement.textContent=\''+initials(m.name)+'\'">':initials(m.name);
+      it.innerHTML='<div class="mini-av">'+avHtml+'</div><div><div class="item-name">'+dname(m)+'</div><div class="item-role">'+(m.parentId?s('descendant'):s('root'))+'</div></div>';
+      it.onclick=function(){ state.editingId=m.id; state.prevPhoto=m.photo||''; renderAdmin(); renderForm(m); };
+      list.appendChild(it);
+    });
+    if(state.editingId){ var em=state.members.find(function(x){return x.id===state.editingId;}); if(em) renderForm(em); }
+  }
+
+  function renderForm(m){
+    var area=document.getElementById('aform');
+    var pOpts='<option value="">'+s('rootLevel')+'</option>'+state.members.filter(function(x){return !x.isSpouse&&(!m||x.id!==m.id);}).map(function(p){return '<option value="'+p.id+'"'+(m&&m.parentId===p.id?' selected':'')+'>'+dname(p)+'</option>';}).join('');
+    var spN=m&&m.spouse?(state.members.find(function(x){return x.id===m.spouse;})||{}).name||'':'';
+    var spNHi=m&&m.spouse?(state.members.find(function(x){return x.id===m.spouse;})||{}).nameHi||'':'';
+    var genOpts=s('genLabels').map(function(g,i){return '<option value="'+i+'"'+(m&&m.generation===i?' selected':'')+'>'+g+'</option>';}).join('');
+    var pv=state.prevPhoto;
+    area.innerHTML='<div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div>'
+      +'<h2>'+(m?s('editMember'):s('newMember'))+'</h2>'
+      +'<div class="form-grid">'
+      +'<div class="fg full"><label>'+s('photo')+'</label><div class="photo-row"><div class="photo-prev" id="pp">'+(pv?'<img src="'+pv+'">':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>')+'</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="'+s('pasteUrl')+'" value="'+pv+'"><button class="url-apply" onclick="App.applyUrl()">'+s('apply')+'</button></div><label class="upload-lbl" for="p-file">'+s('upload')+'</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>'
+      +'<div class="fg"><label>'+s('firstName')+' (EN)</label><input type="text" id="f-fn" placeholder="First name" value="'+(m?m.name.split(' ')[0]:'')+'"></div>'
+      +'<div class="fg"><label>'+s('lastName')+' (EN)</label><input type="text" id="f-ln" placeholder="Last name" value="'+(m?m.name.split(' ').slice(1).join(' '):'')+'"></div>'
+      +'<div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" placeholder="पहला नाम" value="'+(m&&m.nameHi?m.nameHi.split(' ')[0]:'')+'"></div>'
+      +'<div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" placeholder="उपनाम" value="'+(m&&m.nameHi?m.nameHi.split(' ').slice(1).join(' '):'')+'"></div>'
+      +'<div class="fg"><label>'+s('parent')+'</label><select id="f-par">'+pOpts+'</select></div>'
+      +'<div class="fg"><label>'+s('generation')+'</label><select id="f-gen">'+genOpts+'</select></div>'
+      +'<div class="fg full"><label>'+s('spouseName')+' (EN)</label><input type="text" id="f-sp" placeholder="'+s('blank')+'" value="'+spN+'"></div>'
+      +'<div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="खाली छोड़ें" value="'+spNHi+'"></div>'
+      +'</div>'
+      +'<div class="form-actions">'+(m?'<button class="btn-del" onclick="App.delMember(\''+m.id+'\')">'+s('del')+'</button>':'')+'<button class="btn-cancel" onclick="App.cancelEdit()">'+s('cancel')+'</button><button class="btn-save" onclick="App.saveMember()">'+s('save')+'</button></div>';
+  }
+
+  /* ── ACTIONS ── */
+  function updateFamilyName(){
+    var val=(document.getElementById('fn-inp')||{}).value;
+    if(!val||!val.trim()) return;
+    state.familyName=val.trim();
+    var bn=document.getElementById('brand-name');
+    if(bn) bn.textContent=state.familyName;
+    saveToFirebase();
+    showToast(s('saved'));
+    renderTree();
+  }
+
+  function startNew(){ state.editingId='__new__'; state.prevPhoto=''; renderAdmin(); renderForm(null); }
+  function cancelEdit(){ state.editingId=null; renderAdmin(); }
+
+  function applyUrl(){
+    var url=(document.getElementById('p-url')||{}).value||'';
+    url=url.trim(); state.prevPhoto=url;
+    var pp=document.getElementById('pp');
+    if(pp&&url) pp.innerHTML='<img src="'+url+'" onerror="this.parentElement.textContent=\'?\'">';
+  }
+
+  function handleFile(inp){
+    var f=inp.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(e){
+      state.prevPhoto=e.target.result;
+      var pp=document.getElementById('pp');
+      if(pp) pp.innerHTML='<img src="'+e.target.result+'">';
+      var pu=document.getElementById('p-url');
+      if(pu) pu.value='';
+    };
+    r.readAsDataURL(f);
+  }
+
+  function saveMember(){
+    var fn=(document.getElementById('f-fn')||{}).value||'';
+    var ln=(document.getElementById('f-ln')||{}).value||'';
+    fn=fn.trim(); ln=ln.trim();
+    if(!fn){ showToast('please enter a name'); return; }
+    var name=ln?fn+' '+ln:fn;
+    var fnHi=(document.getElementById('f-fn-hi')||{}).value||'';
+    var lnHi=(document.getElementById('f-ln-hi')||{}).value||'';
+    fnHi=fnHi.trim(); lnHi=lnHi.trim();
+    var nameHi=fnHi?(lnHi?fnHi+' '+lnHi:fnHi):'';
+    var parentId=(document.getElementById('f-par')||{}).value||null;
+    var gen=parseInt((document.getElementById('f-gen')||{}).value||'0');
+    var spN=((document.getElementById('f-sp')||{}).value||'').trim();
+    var spNHi=((document.getElementById('f-sp-hi')||{}).value||'').trim();
+    if(state.editingId==='__new__'){
+      var id='m'+Date.now();
+      var nm={id:id,name:name,nameHi:nameHi,photo:state.prevPhoto,parentId:parentId,generation:gen,spouse:'',isSpouse:false};
+      state.members.push(nm);
+      if(spN){ var sid=id+'s'; nm.spouse=sid; state.members.push({id:sid,name:spN,nameHi:spNHi,photo:'',parentId:null,generation:gen,spouse:id,isSpouse:true}); }
+      state.editingId=id;
+    } else {
+      var m=state.members.find(function(x){return x.id===state.editingId;});
+      if(m){ m.name=name; m.nameHi=nameHi; m.photo=state.prevPhoto; m.parentId=parentId; m.generation=gen;
+        if(spN){
+          if(m.spouse){ var sp=state.members.find(function(x){return x.id===m.spouse;}); if(sp){sp.name=spN;sp.nameHi=spNHi;} }
+          else{ var sid2=m.id+'s'; m.spouse=sid2; state.members.push({id:sid2,name:spN,nameHi:spNHi,photo:'',parentId:null,generation:gen,spouse:m.id,isSpouse:true}); }
+        } else if(m.spouse){ state.members=state.members.filter(function(x){return x.id!==m.spouse;}); m.spouse=''; }
+      }
+    }
+    saveToFirebase();
+    showToast(s('saved'));
+    renderAdmin();
+    renderTree();
+  }
+
+  function delMember(id){
+    var m=state.members.find(function(x){return x.id===id;});
+    if(m&&m.spouse) state.members=state.members.filter(function(x){return x.id!==m.spouse;});
+    state.members.filter(function(x){return x.parentId===id;}).forEach(function(c){c.parentId=null;});
+    state.members=state.members.filter(function(x){return x.id!==id;});
+    state.editingId=null;
+    saveToFirebase();
+    showToast(s('deleted'));
+    renderAdmin();
+    renderTree();
+  }
+
+  function doLogout(){
+    state.pinEntry=''; updateDots();
+    document.getElementById('pin-error').textContent='';
+    document.getElementById('login-overlay').style.display='flex';
+    document.getElementById('main-nav').style.display='none';
+    document.getElementById('tree-view').style.display='none';
+    document.getElementById('admin-view').style.display='none';
+    dataRef.off();
+    state.dbReady=false;
+  }
+
+  function showView(v, btn){
+    document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
+    btn.classList.add('active');
+    if(v==='tree'){
+      document.getElementById('tree-view').style.display='';
+      document.getElementById('admin-view').style.display='none';
+      renderTree();
+    } else {
+      document.getElementById('tree-view').style.display='none';
+      document.getElementById('admin-view').style.display='grid';
+      renderAdmin();
+    }
+  }
+
+  /* ── EXPOSE to onclick handlers ── */
+  window.App = {
+    pinKey: pinKey,
+    setLang: setLang,
+    showView: showView,
+    startNew: startNew,
+    cancelEdit: cancelEdit,
+    updateFamilyName: updateFamilyName,
+    applyUrl: applyUrl,
+    handleFile: handleFile,
+    saveMember: saveMember,
+    delMember: delMember,
+    doLogout: doLogout
+  };
+
+})();
+</script>
+</body>
+</html>
