@@ -5,19 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Family Tree</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500&family=Noto+Sans+Devanagari:wght@300;400;500&display=swap" rel="stylesheet">
+
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#080a0f;--surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.07);
-  --surface3:rgba(255,255,255,0.10);--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
-  --text:#f0ede8;--text2:#a09a90;--text3:#5a5650;
-  --gold:#c9a96e;--gold2:#e8c98a;--gold-soft:rgba(201,169,110,0.12);
+
+/* ── THEME ENGINE ── */
+:root {
+  --bg: #080a0f; --surface: rgba(255,255,255,0.04); --surface2: rgba(255,255,255,0.07);
+  --surface3: rgba(255,255,255,0.10); --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+  --text: #f0ede8; --text2: #a09a90; --text3: #5a5650;
+  --gold: #c9a96e; --gold2: #e8c98a; --gold-soft: rgba(201,169,110,0.12);
+  --canvas-filter: none;
 }
-html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+body.theme-light {
+  --bg: #f9f8f6; --surface: #ffffff; --surface2: #f0edea; --surface3: #e6e2dd;
+  --border: #e0ddd9; --border2: #d0cdc9;
+  --text: #2a2825; --text2: #4a4845; --text3: #7a7875;
+  --gold: #b38b4d; --gold2: #967035; --gold-soft: rgba(179,139,77,0.15);
+  --canvas-filter: invert(1) hue-rotate(180deg) opacity(0.3);
+}
+body.theme-vintage {
+  --bg: #eaddcf; --surface: #f4ecd8; --surface2: #e8dcc4; --surface3: #dfd1b3;
+  --border: #d4c4b4; --border2: #c2b09d;
+  --text: #4a3b2c; --text2: #5c4d3c; --text3: #7a6b5c;
+  --gold: #9e643c; --gold2: #7d4d2b; --gold-soft: rgba(158,100,60,0.15);
+  --canvas-filter: sepia(0.4) opacity(0.4);
+}
+
+html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden; transition: background 0.3s, color 0.3s;}
 .lang-hi *{font-family:'Noto Sans Devanagari',sans-serif}
-.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+
+.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none; filter: var(--canvas-filter); transition: filter 0.3s;}
 .bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(201,169,110,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(120,100,200,0.06) 0%,transparent 60%);animation:bgP 12s ease-in-out infinite alternate}
 .bg-canvas::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(201,169,110,0.15) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);opacity:.3;animation:gD 20s linear infinite}
 @keyframes bgP{0%{opacity:.7}100%{opacity:1}}
@@ -28,8 +50,23 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,0.12),transparent 70%);top:50%;left:60%;animation-duration:20s;animation-delay:-5s}
 @keyframes oF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(.9)}}
 
+/* STYLED DROPDOWNS */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a96e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 32px !important;
+}
+select option {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
 /* NAV */
-.nav{position:relative;z-index:10;display:flex;align-items:center;padding:0 2rem;border-bottom:1px solid var(--border);background:rgba(8,10,15,0.85);backdrop-filter:blur(20px);flex-wrap:wrap}
+.nav{position:relative;z-index:10;display:flex;align-items:center;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--bg);backdrop-filter:blur(20px);flex-wrap:wrap; opacity:0.95;}
 .nav-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);letter-spacing:.1em;margin-right:auto;padding:1rem 0;font-style:italic}
 .nav-brand span{font-style:normal;font-weight:500;color:var(--text)}
 .nav-tab{padding:.9rem 1.1rem;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--text3);border:none;background:none;border-bottom:1px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Outfit',sans-serif}
@@ -37,16 +74,15 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .nav-tab:hover:not(.active){color:var(--text2)}
 .lang-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-left:.5rem}
 .lang-btn{padding:.35rem .75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit',sans-serif;transition:all .2s}
-.lang-btn.active{background:var(--gold);color:#0d0a04;font-weight:500}
+.lang-btn.active{background:var(--gold);color:#ffffff;font-weight:500}
 
 /* AUTHENTICATION OVERLAY */
-#login-overlay, #waiting-overlay{position:fixed;inset:0;z-index:100;background:rgba(8,10,15,0.97);display:flex;align-items:center;justify-content:center; flex-direction:column;}
-.login-box{background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:340px;text-align:center}
+#login-overlay, #waiting-overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center; flex-direction:column;}
+.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:340px;text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
 .login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:.25rem}
 .login-logo span{font-style:normal;color:var(--text)}
 .login-sub{font-size:12px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2rem}
-
-.auth-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; color: var(--text); font-size: 14px; font-family: 'Outfit', sans-serif; outline: none; margin-bottom: 1rem; transition: border 0.2s;}
+.auth-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; color: var(--text); font-size: 14px; font-family: 'Outfit', sans-serif; outline: none; margin-bottom: 1rem; transition: border 0.2s;}
 .auth-input:focus { border-color: var(--gold); }
 .auth-btn { width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--gold); border: none; color: #0d0a04; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.2s; margin-bottom: 0.5rem;}
 .auth-btn:hover { background: var(--gold2); }
@@ -54,17 +90,25 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .auth-btn-sec:hover { border-color: var(--gold); color: var(--gold); }
 .auth-error { color: #f09595; font-size: 12px; margin-bottom: 1rem; min-height: 15px; }
 
-/* TREE */
-#tree-view{position:relative;z-index:1;padding:2.5rem 1.5rem;min-height:560px}
-.tree-header{text-align:center;margin-bottom:2.5rem}
+/* TREE VIEWER & TOOLBAR */
+#tree-view{position:relative;z-index:1;padding:1.5rem 1.5rem;min-height:560px}
+.tree-header{text-align:center;margin-bottom:1.5rem}
 .tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:.05em;line-height:1.2}
 .tree-header h1 em{color:var(--gold);font-style:italic}
 .tree-header p{font-size:12px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem}
 
-.tree-container{overflow-x:auto;padding-bottom:2rem; width:100%; text-align:center; -webkit-overflow-scrolling:touch;}
-#tree-root { min-width: max-content; padding-top: 1rem; display: inline-flex; flex-direction: column; align-items: center; margin: 0 auto; }
+.tree-toolbar { display: flex; justify-content: center; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap; }
+.tool-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 20px; font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; width: 200px; transition: border 0.2s; }
+.tool-input:focus { border-color: var(--gold); }
+.tool-select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 20px; font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; cursor: pointer; }
+.tool-btn { background: var(--gold-soft); border: 1px solid rgba(201,169,110,0.3); color: var(--gold); padding: 0.5rem 1.2rem; border-radius: 20px; font-family: 'Outfit', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:500;}
+.tool-btn:hover { background: var(--gold); color: #fff; }
 
-.person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:background .2s,border .2s,transform .15s;border:1px solid transparent}
+/* THE BULLETPROOF SCROLL FIX: Text-align allows perfect centering when small, but natural left-pinning when large */
+.tree-container { overflow-x: auto; padding-bottom: 2rem; width: 100%; text-align: center; -webkit-overflow-scrolling: touch; transition: opacity 0.3s; }
+#tree-root { display: inline-flex; flex-direction: column; align-items: center; padding: 1rem 2rem; min-width: max-content; background: transparent; border-radius: 12px; text-align: left; }
+
+.person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:all .3s;border:1px solid transparent}
 .person-card:hover:not(.view-only){background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)}
 .person-card.selected{background:var(--gold-soft);border-color:rgba(201,169,110,0.3)}
 .person-card.spouse-card{cursor:default;opacity:.85}
@@ -73,9 +117,22 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .person-card:hover:not(.view-only) .avatar,.person-card.selected .avatar{border-color:var(--gold)}
 .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 
-.person-name{color:var(--text2);text-align:center;line-height:1.2;}
-.person-name.primary{color:var(--text);font-weight:500}
+/* THE ULTRA-THICK TEXT HALO MASK */
+.person-name span, .spouse-label span, .date-label {
+  position: relative;
+  z-index: 5;
+  text-shadow: 
+    -3px -3px 0 var(--bg), 3px -3px 0 var(--bg), 
+    -3px 3px 0 var(--bg), 3px 3px 0 var(--bg),
+    -3px 0 0 var(--bg), 3px 0 0 var(--bg),
+    0 -3px 0 var(--bg), 0 3px 0 var(--bg),
+    0 0 10px var(--bg), 0 0 15px var(--bg);
+}
+
+.person-name{color:var(--text2);text-align:center;}
+.person-name.primary{color:var(--text);font-weight:500;}
 .spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;}
+.date-label{font-size:10px;color:var(--text3); margin-top:2px; font-family:'Outfit';}
 .expand-dot{width:4px;height:4px;border-radius:50%;margin:0 auto;background:var(--gold);box-shadow:0 0 6px var(--gold);transition:all .2s}
 
 /* --- TIGHT, GAPLESS TREE LINES --- */
@@ -110,8 +167,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .sidebar-btn{width:100%;margin-top:.75rem;padding:.55rem;border-radius:10px;font-size:12px;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;letter-spacing:.04em}
 .btn-add{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.25);color:var(--gold)}
 .btn-add:hover{background:rgba(201,169,110,0.18)}
-.btn-logout{background:transparent;border:1px solid var(--border);color:var(--text3); margin-top: auto;}
-.btn-logout:hover{border-color:rgba(220,60,60,0.4);color:#f09595}
 
 .admin-form-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem}
 .admin-form-wrap h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:1.25rem;color:var(--text)}
@@ -133,13 +188,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .btn-revoke:hover { border-color: rgba(242,80,80,0.4); color: #f09595; }
 
 /* SHARE LINK GENERATOR */
-.share-generator { margin-top: 2rem; padding: 1.5rem; background: rgba(201,169,110,0.05); border: 1px solid rgba(201,169,110,0.2); border-radius: 12px; }
+.share-generator { margin-top: 2rem; padding: 1.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; }
 .share-generator h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--gold); font-size: 20px; margin-bottom: 10px; }
 .share-generator p { font-size: 12px; color: var(--text3); margin-bottom: 15px; }
 .share-controls { display: flex; gap: 10px; align-items: center; }
-.share-select { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; }
-.share-btn { padding: 0.5rem 1.2rem; background: var(--gold); color: #0d0a04; border: none; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-.share-btn:hover { background: var(--gold2); }
+.share-select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; cursor: pointer; transition: border 0.2s; }
+.share-select:focus { border-color: var(--gold); }
+.share-btn { padding: 0.6rem 1.4rem; background: var(--gold-soft); color: var(--gold); border: 1px solid rgba(201,169,110,0.3); border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.share-btn:hover { background: var(--gold); color: #fff; }
 
 /* FORM STYLES */
 .fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
@@ -153,10 +209,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .fg{display:flex;flex-direction:column;gap:6px}
 .fg.full{grid-column:1/-1}
 .fg label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.1em;text-transform:uppercase}
-.fg input,.fg select{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:9px;padding:.5rem .8rem;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border .2s;height:36px}
+.fg input,.fg select{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.5rem .8rem;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border .2s;height:36px}
 .fg input:focus,.fg select:focus{border-color:rgba(201,169,110,0.4)}
 .fg input::placeholder{color:var(--text3)}
-.fg select option{background:#0d0f15}
+.fg select option{background:var(--bg)}
 .photo-row{display:flex;gap:1rem;align-items:flex-start}
 .photo-prev{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;overflow:hidden}
 .photo-prev img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -167,7 +223,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .url-apply:hover{border-color:rgba(201,169,110,.4);color:var(--gold)}
 .upload-lbl{display:block;padding:.45rem .8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center}
 .form-actions{display:flex;gap:.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center}
-.btn-save{padding:.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#0d0a04;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif; transition:all 0.2s;}
+.btn-save{padding:.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#ffffff;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif; transition:all 0.2s;}
 .btn-save:hover:not(:disabled){background:var(--gold2)}
 .btn-save:disabled{opacity: 0.5; cursor: not-allowed;}
 .btn-del{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
@@ -175,9 +231,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .btn-cancel{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}
 .empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:.75rem}
 
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(8,10,15,0.92);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999; box-shadow: 0 4px 15px rgba(0,0,0,0.3);}
 .toast.show{opacity:1}
-.sync-pill{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);background:rgba(8,10,15,0.92);border:1px solid var(--border2);padding:.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:.07em;z-index:200;transition:opacity .5s;pointer-events:none;opacity:0}
+.sync-pill{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border2);padding:.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:.07em;z-index:200;transition:opacity .5s;pointer-events:none;opacity:0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
 
 /* ── MOBILE RESPONSIVE ── */
 @media (max-width: 768px) {
@@ -192,6 +248,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   .login-box{width:90vw;padding:2rem 1.25rem}
   #tree-view{padding:1.5rem 0} 
   .tree-header h1{font-size:26px}
+  
   .tree-container{text-align:left; padding: 0 1rem 2rem 1rem;} 
   .tree-col { padding: 20px 16px 0; } 
   .admin-form-wrap{padding:1.25rem}
@@ -208,6 +265,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   .toast{bottom:1rem;right:.75rem;left:.75rem;text-align:center}
   .user-card { flex-direction: column; align-items: flex-start; gap: 10px; }
   .share-controls { flex-direction: column; align-items: stretch; }
+  .tree-toolbar { flex-direction: column; align-items: stretch; padding: 0 1rem;}
+  .tool-input, .tool-select, .tool-btn { width: 100%; }
 }
 @media (max-width: 380px) {
   .nav-tab{padding:.7rem .4rem;font-size:9px}
@@ -256,8 +315,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   <button class="nav-tab" id="tab-auth" onclick="App.showView('auth',this)" style="display:none;">auth panel</button>
   
   <div class="lang-toggle">
+    <select id="theme-picker" class="tool-select" style="margin-right:10px; border-radius:20px; background:transparent; border-color:transparent; color:var(--text3);" onchange="App.setTheme(this.value)">
+      <option value="dark">🌙 Dark</option>
+      <option value="light">☀️ Light</option>
+      <option value="vintage">📜 Vintage</option>
+    </select>
     <button class="lang-btn active" onclick="App.setLang('en')">EN</button>
-    <button class="lang-btn" onclick="App.setLang('hi')">हि</button>
+    <button class="lang-btn" onclick="App.setLang('hi')" style="border-right:1px solid var(--border); border-radius:0;">हि</button>
+    <button class="lang-btn" onclick="App.doLogout()" style="color: #f09595; padding-left: 1rem;">🚪 Exit</button>
   </div>
 </nav>
 
@@ -278,13 +343,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     projectId: "family-493f7",
     storageBucket: "family-493f7.firebasestorage.app",
     messagingSenderId: "677547416268",
-    appId: "1:677547416268:web:b78af5a19bce0106344069"
+    appId: "1:677547416268:web:b78af5a19bce0106344069"-
   };
   firebase.initializeApp(fbConfig);
   const fbDB = firebase.database();
   const dataRef = fbDB.ref('familyTree');
   const usersRef = fbDB.ref('familyTreeUsers');
-  const linksRef = fbDB.ref('sharedLinks'); // NEW: Database for temporary links
+  const linksRef = fbDB.ref('sharedLinks');
 
   /* ── MASTER ADMIN CREDENTIALS ── */
   const MASTER_USER = 'Kx393';
@@ -295,7 +360,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       familyTitle:function(n){return 'The <em>'+n+'</em> Family'},
       clickHint:'click a name to expand their lineage',
       spouse:'spouse',navTree:'family tree',navAdmin:'admin panel',
-      addMember:'+ add new member',logout:'log out',allMembers:'all members',
+      addMember:'+ add new member',allMembers:'all members',
       root:'root',descendant:'descendant',editMember:'edit member',newMember:'new member',
       photo:'photo',firstName:'first name',lastName:'last name',parent:'parent',
       generation:'generation level',spouseName:'spouse / partner name',
@@ -309,7 +374,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       familyTitle:function(n){return '<em>'+n+'</em> परिवार'},
       clickHint:'वंशावली देखने के लिए नाम पर क्लिक करें',
       spouse:'पति/पत्नी',navTree:'परिवार वृक्ष',navAdmin:'व्यवस्थापक',
-      addMember:'+ सदस्य जोड़ें',logout:'लॉग आउट',allMembers:'सभी सदस्य',
+      addMember:'+ सदस्य जोड़ें',allMembers:'सभी सदस्य',
       root:'मूल',descendant:'वंशज',editMember:'सदस्य संपादित करें',newMember:'नया सदस्य',
       photo:'फ़ोटो',firstName:'पहला नाम',lastName:'अंतिम नाम',parent:'अभिभावक',
       generation:'पीढ़ी स्तर',spouseName:'पति/पत्नी का नाम',
@@ -324,6 +389,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   /* ── APP STATE ── */
   var state = {
     lang: 'en',
+    theme: 'dark',
     familyName: 'Shah',
     dbReady: false,
     members: [],
@@ -335,7 +401,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     editingId: null,
     prevPhoto: '',
     prevPhotoSpouse: '',
-    isViewOnly: false // NEW: Flag to lock UI for guests
+    isViewOnly: false,
+    searchQuery: '', 
+    filterMode: 'all' 
   };
 
   /* ── SECURITY HELPER ── */
@@ -343,18 +411,29 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       return state.currentUser && state.currentUser.role === 'admin' && !state.isViewOnly;
   }
 
-  /* ── RESPONSIVE DYNAMIC MATH ENGINE ── */
+  /* ── THEME ENGINE ── */
+  function setTheme(t) {
+      state.theme = t;
+      document.body.className = '';
+      if(t !== 'dark') document.body.classList.add('theme-' + t);
+      localStorage.setItem('famTheme', t);
+  }
+  var savedTheme = localStorage.getItem('famTheme');
+  if(savedTheme) {
+      document.getElementById('theme-picker').value = savedTheme;
+      setTheme(savedTheme);
+  }
+
+  /* ── RESPONSIVE MATH W/ TIGHT SPOUSE GAPS ── */
   function getSizes() {
     var w = window.innerWidth;
+    // Reverted the connW to keep spouses tightly packed together
     if (w <= 480) return { sz: 44, fs: 10, pad: 4, cardW: 52, connW: 12 }; 
     if (w <= 768) return { sz: 48, fs: 11, pad: 5, cardW: 58, connW: 14 }; 
     return { sz: 52, fs: 12, pad: 6, cardW: 64, connW: 16 };               
   }
-
   window.addEventListener('resize', function() {
-    if(state.dbReady && document.getElementById('tree-view').style.display !== 'none') {
-      renderTree(); 
-    }
+    if(state.dbReady && document.getElementById('tree-view').style.display !== 'none') renderTree(); 
   });
 
   /* ── HELPERS ── */
@@ -365,9 +444,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function getPrimaries(pid){ 
     return state.members.filter(function(m){
       if(!m) return false;
-      var mPid = m.parentId || null;
-      var targetPid = pid || null;
-      return mPid === targetPid && !m.isSpouse;
+      return (m.parentId || null) === (pid || null) && !m.isSpouse;
     }); 
   }
   function getSpouse(m){ return m.spouse ? state.members.find(function(x){return x && x.id===m.spouse;})||null : null; }
@@ -379,7 +456,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2200);
   }
   function showSync(msg, col){
-    if(state.isViewOnly) return; // Hide sync messages from guests
+    if(state.isViewOnly) return; 
     var p=document.getElementById('sync-pill');
     p.textContent=msg; p.style.color=col||'var(--gold)'; p.style.opacity='1';
     clearTimeout(p._t); p._t=setTimeout(function(){p.style.opacity='0';},2500);
@@ -390,19 +467,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     if(!state.dbReady || state.isViewOnly) return;
     try {
       var cleanPayload = JSON.parse(JSON.stringify({members:state.members, familyName:state.familyName, expanded:state.expanded, v:1}));
-      dataRef.set(cleanPayload)
-        .then(function(){showSync('✓ synced');})
-        .catch(function(err){ console.error(err); showSync('⚠ sync failed','#f09595');});
-    } catch(e) {
-      console.error("Firebase payload error: ", e);
-      showSync('⚠ data error','#f09595');
-    }
+      dataRef.set(cleanPayload).then(function(){showSync('✓ synced');}).catch(function(err){ showSync('⚠ sync failed','#f09595');});
+    } catch(e) { showSync('⚠ data error','#f09595'); }
   }
 
   function startSync(){
     showSync('connecting…','var(--text3)');
     
-    // 1. Sync Tree Data
     dataRef.on('value', function(snap){
       var data = snap.val();
       state.dbReady = true;
@@ -439,39 +510,23 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       showSync('✓ connected');
     });
 
-    // 2. LIVE ACTIVE SESSION MONITORING (Skip if view-only guest)
     if (!state.isViewOnly) {
       usersRef.on('value', function(snap){
         state.users = snap.val() || {};
-        
-        if (state.currentUser) {
-          if (state.currentUser.username === MASTER_USER) {
-             // Immune
-          } else {
+        if (state.currentUser && state.currentUser.username !== MASTER_USER) {
              var dbUserKey = Object.keys(state.users).find(k => state.users[k].username === state.currentUser.username);
              var dbUser = dbUserKey ? state.users[dbUserKey] : null;
 
-             if (!dbUser) {
-                doLogout();
-                return;
-             }
+             if (!dbUser) { doLogout(); return; }
 
              var needsUpdate = false;
-             if (state.currentUser.status !== dbUser.status) {
-                state.currentUser.status = dbUser.status;
-                needsUpdate = true;
-             }
-             if (state.currentUser.role !== dbUser.role) {
-                state.currentUser.role = dbUser.role;
-                needsUpdate = true;
-             }
+             if (state.currentUser.status !== dbUser.status) { state.currentUser.status = dbUser.status; needsUpdate = true; }
+             if (state.currentUser.role !== dbUser.role) { state.currentUser.role = dbUser.role; needsUpdate = true; }
 
              if (needsUpdate) {
                 localStorage.setItem('famUser', JSON.stringify(state.currentUser));
-                
-                if (state.currentUser.status === 'approved') {
-                   unlockApp(); 
-                } else {
+                if (state.currentUser.status === 'approved') { unlockApp(); } 
+                else {
                    document.getElementById('main-nav').style.display = 'none';
                    document.getElementById('tree-view').style.display = 'none';
                    document.getElementById('admin-view').style.display = 'none';
@@ -479,9 +534,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
                    document.getElementById('waiting-overlay').style.display = 'flex';
                 }
              }
-          }
         }
-
         var authV = document.getElementById('auth-view');
         if(authV && authV.style.display !== 'none' && isAdmin()) renderAuthPanel();
       });
@@ -490,7 +543,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   /* ── AUTHENTICATION ENGINE ── */
   function checkLocalAuth() {
-    // URL Check First: Is this a shared link guest?
     const urlParams = new URLSearchParams(window.location.search);
     const shareToken = urlParams.get('share');
     
@@ -504,27 +556,23 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
        linksRef.child(shareToken).once('value').then(function(snap) {
            var linkData = snap.val();
            if (linkData && linkData.expiresAt > Date.now()) {
-               // SUCCESS! Link is valid.
                state.isViewOnly = true;
                unlockApp();
            } else {
-               // FAIL! Link expired or invalid.
                document.getElementById('auth-error').textContent = "This shared link has expired or is invalid.";
                document.getElementById('btn-login-toggle').style.display = 'block';
                document.getElementById('btn-login-toggle').textContent = "Return to Login";
                document.getElementById('btn-login-toggle').onclick = function() { window.location.href = window.location.pathname; };
            }
        });
-       return; // Stop normal auth flow
+       return;
     }
 
-    // Normal Auth Flow
     var saved = localStorage.getItem('famUser');
     if (saved) {
       state.currentUser = JSON.parse(saved);
-      if (state.currentUser.status === 'approved') {
-         unlockApp();
-      } else {
+      if (state.currentUser.status === 'approved') unlockApp();
+      else {
          document.getElementById('login-overlay').style.display = 'none';
          document.getElementById('waiting-overlay').style.display = 'flex';
          startSync(); 
@@ -605,19 +653,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('waiting-overlay').style.display = 'none';
     
-    if (state.isViewOnly) {
-        // GUEST MODE: Hide the entire navigation bar
-        document.getElementById('main-nav').style.display = 'none';
-    } else {
-        // MEMBER/ADMIN MODE: Show navigation
-        document.getElementById('main-nav').style.display = 'flex';
-        document.getElementById('tab-admin').style.display = 'none';
-        document.getElementById('tab-auth').style.display = 'none';
+    document.getElementById('main-nav').style.display = 'flex';
+    document.getElementById('tab-admin').style.display = 'none';
+    document.getElementById('tab-auth').style.display = 'none';
 
-        if (isAdmin()) {
-           document.getElementById('tab-admin').style.display = 'block';
-           document.getElementById('tab-auth').style.display = 'block';
-        }
+    if (isAdmin()) {
+       document.getElementById('tab-admin').style.display = 'block';
+       document.getElementById('tab-auth').style.display = 'block';
     }
 
     applyLang();
@@ -636,20 +678,138 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     } else {
         var activeTab = document.querySelector('.nav-tab.active');
         if(activeTab && !state.isViewOnly) showView(activeTab.id.replace('tab-', ''), activeTab);
-        else if (state.isViewOnly) renderTree();
+        else renderTree();
     }
   }
 
   function doLogout(){ 
     localStorage.removeItem('famUser');
-    window.location.href = window.location.pathname; // Strips out ?share= URL params securely
+    window.location.href = window.location.pathname; 
   }
+
+  /* ── HIGH RES EXPORT ENGINE ── */
+  function exportTree() {
+      showToast("Generating Poster... Please wait.");
+      var root = document.getElementById('tree-root');
+      var originalBg = root.style.background;
+      var originalPadding = root.style.padding;
+      
+      var compStyle = getComputedStyle(document.body);
+      root.style.background = compStyle.getPropertyValue('--bg').trim();
+      root.style.padding = "40px"; 
+      
+      html2canvas(root, {
+          scale: 2, 
+          backgroundColor: root.style.background,
+          logging: false
+      }).then(function(canvas) {
+          var link = document.createElement('a');
+          link.download = state.familyName + '_Family_Tree.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          
+          root.style.background = originalBg; 
+          root.style.padding = originalPadding;
+          showToast("Poster Exported!");
+      }).catch(function(err) {
+          console.error(err);
+          root.style.background = originalBg;
+          root.style.padding = originalPadding;
+          showToast("Export failed.");
+      });
+  }
+
+  /* ── SMART SEARCH & FILTER LOGIC ── */
+  function handleSearch(val) {
+      state.searchQuery = val.toLowerCase();
+      applySearchAndFilter();
+  }
+  function handleFilter(val) {
+      state.filterMode = val;
+      if (val === 'lineage' && !state.selected) {
+         showToast("Click a family member to trace their lineage!");
+      }
+      applySearchAndFilter();
+  }
+  
+  function applySearchAndFilter() {
+      var firstMatch = null;
+      var cards = document.querySelectorAll('.person-card');
+      
+      var lineageIds = new Set();
+      if (state.filterMode === 'lineage' && state.selected) {
+          var curr = state.members.find(m => m.id === state.selected);
+          if (curr && curr.isSpouse) {
+              curr = state.members.find(m => m.id === curr.spouse);
+          }
+          if (curr) {
+              lineageIds.add(curr.id);
+              if (curr.spouse) lineageIds.add(curr.spouse);
+
+              var ptr = state.members.find(m => m.id === curr.parentId);
+              while (ptr) {
+                  lineageIds.add(ptr.id);
+                  if (ptr.spouse) lineageIds.add(ptr.spouse);
+                  ptr = state.members.find(m => m.id === ptr.parentId);
+              }
+
+              var stack = [curr.id];
+              while (stack.length > 0) {
+                  var curId = stack.pop();
+                  lineageIds.add(curId);
+                  var person = state.members.find(m => m.id === curId);
+                  if (person && person.spouse) lineageIds.add(person.spouse);
+
+                  var kids = state.members.filter(m => m.parentId === curId && !m.isSpouse);
+                  kids.forEach(k => stack.push(k.id));
+              }
+          }
+      }
+
+      cards.forEach(function(card) {
+          var name = card.getAttribute('data-name').toLowerCase();
+          var isDead = card.getAttribute('data-dead') === 'true';
+          var memberId = card.getAttribute('data-id');
+          
+          var matchesSearch = state.searchQuery === '' || name.includes(state.searchQuery);
+          var matchesFilter = true;
+
+          if (state.filterMode === 'living') matchesFilter = !isDead;
+          else if (state.filterMode === 'deceased') matchesFilter = isDead;
+          else if (state.filterMode === 'lineage') {
+              if (state.selected) matchesFilter = lineageIds.has(memberId);
+          }
+
+          if (matchesSearch && matchesFilter) {
+              card.style.opacity = '1';
+              card.style.transform = 'scale(1)';
+              if (state.searchQuery !== '') {
+                  card.style.boxShadow = '0 0 20px var(--gold)';
+                  card.style.borderColor = 'var(--gold)';
+                  if(!firstMatch) firstMatch = card;
+              } else {
+                  card.style.boxShadow = 'none';
+                  card.style.borderColor = 'transparent';
+              }
+          } else {
+              card.style.opacity = '0.15';
+              card.style.transform = 'scale(0.95)';
+              card.style.boxShadow = 'none';
+              card.style.borderColor = 'transparent';
+          }
+      });
+
+      if (firstMatch && state.searchQuery !== '') {
+          firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      }
+  }
+
 
   /* ── LANGUAGE ── */
   function setLang(l){
     state.lang=l;
     document.querySelectorAll('.lang-btn').forEach(function(b,i){
-      b.classList.toggle('active', (i===0&&l==='en')||(i===1&&l==='hi'));
+      if(i < 2) b.classList.toggle('active', (i===0&&l==='en')||(i===1&&l==='hi'));
     });
     applyLang();
     var tv=document.getElementById('tree-view');
@@ -683,15 +843,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function buildCard(m, sz, fs, pad, cardW, hasKids, isExp, isSpouse){
     var card=document.createElement('div');
     
-    // GUEST MODE: Remove cursor hover effects and selection states if view only
     if(state.isViewOnly) {
-       card.className='person-card'+(isSpouse?' spouse-card':'');
+       card.className='person-card view-only'+(isSpouse?' spouse-card':'');
        card.style.cursor = 'default';
-       // Expand the whole tree automatically for guests since they can't click
-       isExp = true; 
     } else {
        card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
     }
+
+    card.setAttribute('data-id', m.id);
+    card.setAttribute('data-name', dname(m) + " " + (m.nameHi || ""));
+    card.setAttribute('data-dead', m.deathYear ? 'true' : 'false');
 
     card.style.cssText='padding:'+pad+'px; width:'+cardW+'px; min-width:'+cardW+'px; flex-shrink:0; display:flex; flex-direction:column; align-items:center;';
     card.appendChild(makeAvatar(m,sz));
@@ -701,8 +862,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     nm.style.cssText='font-size:'+fs+'px; margin-top:6px; width:100%; display:flex; justify-content:center; overflow:visible;';
     
     var span = document.createElement('span');
-    span.style.cssText = 'white-space:nowrap; margin: 0 -100px; text-align:center; line-height:1.2;';
-    span.textContent = dname(m);
+    span.style.cssText = 'display:block; margin: 0 -30px; text-align:center; line-height:1.1;';
+    // THE FIX: Automatically converts spaces into line breaks to stack the words!
+    span.innerHTML = dname(m).replace(/ /g, '<br>');
     nm.appendChild(span);
     card.appendChild(nm);
     
@@ -711,13 +873,25 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       sl.className='spouse-label';
       sl.style.cssText = 'width:100%; display:flex; justify-content:center; overflow:visible; margin-top:2px;';
       var slSpan = document.createElement('span');
-      slSpan.style.cssText = 'white-space:nowrap; margin: 0 -100px; text-align:center;';
+      slSpan.style.cssText = 'display:block; margin: 0 -30px; text-align:center;';
       slSpan.textContent = s('spouse');
       sl.appendChild(slSpan);
       card.appendChild(sl);
     }
+
+    if(m.birthYear || m.deathYear) {
+      var dt = document.createElement('div');
+      dt.className = 'date-label';
+      var by = m.birthYear ? m.birthYear.trim() : '';
+      var dy = m.deathYear ? m.deathYear.trim() : '';
+      var dateString = '';
+      if(by && dy) dateString = by + ' - ' + dy;
+      else if(by && !dy) dateString = by + ' - Present';
+      else if(!by && dy) dateString = 'Died: ' + dy;
+      dt.textContent = dateString;
+      card.appendChild(dt);
+    }
     
-    // Hide dots for guests
     if(hasKids && !isSpouse && !state.isViewOnly){
       var dot=document.createElement('div');
       dot.className='expand-dot';
@@ -726,10 +900,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       card.appendChild(dot);
     }
 
-    // Disable clicks for guests
-    if(!isSpouse && !state.isViewOnly){
+    if(!isSpouse){
       card.onclick=function(){
-        if(hasKids){
+        // Allow clicks even in view-only for the Lineage Tracing tool
+        if(hasKids && !state.isViewOnly){
           if(state.expanded[m.id]) delete state.expanded[m.id];
           else state.expanded[m.id]=true;
         }
@@ -755,8 +929,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       var col=document.createElement('div');
       col.className = 'tree-col'; 
       
-      // If View-Only, expand all nodes automatically so the guest sees everyone.
-      var sp=getSpouse(m), kids=getChildren(m), exp = state.isViewOnly ? true : !!state.expanded[m.id];
+      // AUTO EXPAND FOR LINEAGE TRACING AND GUESTS
+      var sp=getSpouse(m), kids=getChildren(m), exp = (state.isViewOnly || state.filterMode === 'lineage') ? true : !!state.expanded[m.id];
       
       var primaryWrap = document.createElement('div');
       primaryWrap.style.cssText = 'display: flex; align-items: flex-start; position: relative; z-index: 2;';
@@ -808,16 +982,34 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       return;
     }
     
-    // Hide "Click a name" hint if view only
-    var hintText = state.isViewOnly ? '' : '<p>'+s('clickHint')+'</p>';
+    var hintText = state.isViewOnly ? '<p>Click a relative to view details</p>' : '<p>'+s('clickHint')+'</p>';
     
-    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1>'+hintText+'</div><div class="tree-container"><div id="tree-root"></div></div>';
+    var toolsHTML = `
+      <div class="tree-toolbar">
+         <input type="text" class="tool-input" id="tree-search" placeholder="Search a name..." onkeyup="App.handleSearch(this.value)">
+         <select class="tool-select" id="filter-dropdown" onchange="App.handleFilter(this.value)">
+            <option value="all">Filter: Everyone</option>
+            <option value="living">Living Members</option>
+            <option value="deceased">Deceased Members</option>
+            <option value="lineage">Direct Lineage</option>
+         </select>
+         <button class="tool-btn" onclick="App.exportTree()">Export Poster</button>
+      </div>
+    `;
+
+    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1>'+hintText+'</div>'+toolsHTML+'<div class="tree-container"><div id="tree-root"></div></div>';
+    
+    document.getElementById('filter-dropdown').value = state.filterMode;
+    document.getElementById('tree-search').value = state.searchQuery;
+
     renderLevel(document.getElementById('tree-root'),null,0);
 
     setTimeout(function() {
-      var selectedNode = document.querySelector('.person-card.selected');
-      if (selectedNode) {
-        selectedNode.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      if(state.searchQuery !== '' || state.filterMode !== 'all') {
+          applySearchAndFilter();
+      } else {
+          var selectedNode = document.querySelector('.person-card.selected');
+          if (selectedNode) selectedNode.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       }
     }, 50);
   }
@@ -827,7 +1019,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     if(!isAdmin()) return; 
 
     var v=document.getElementById('admin-view');
-    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">'+s('allMembers')+'</div><div id="mlist"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">'+s('addMember')+'</button><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap" id="aform"><div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div></div>';
+    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">'+s('allMembers')+'</div><div id="mlist"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">'+s('addMember')+'</button></div><div class="admin-form-wrap" id="aform"><div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div></div>';
     var list=document.getElementById('mlist');
     var safeMembers = Array.isArray(state.members) ? state.members : [];
     
@@ -859,6 +1051,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     var genOpts=s('genLabels').map(function(g,i){return '<option value="'+i+'"'+(m&&m.generation===i?' selected':'')+'>'+g+'</option>';}).join('');
     var pv = state.prevPhoto; var pvSp = state.prevPhotoSpouse;
     
+    var bYear = m ? (m.birthYear || '') : '';
+    var dYear = m ? (m.deathYear || '') : '';
+    
     area.innerHTML='<div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div>'
       +'<h2>'+(m?s('editMember'):s('newMember'))+'</h2>'
       +'<div class="form-grid">'
@@ -867,6 +1062,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       +'<div class="fg"><label>'+s('lastName')+' (EN)</label><input type="text" id="f-ln" placeholder="Last name" value="'+(m?m.name.split(' ').slice(1).join(' '):'')+'"></div>'
       +'<div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" placeholder="पहला नाम" value="'+(m&&m.nameHi?m.nameHi.split(' ')[0]:'')+'"></div>'
       +'<div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" placeholder="उपनाम" value="'+(m&&m.nameHi?m.nameHi.split(' ').slice(1).join(' '):'')+'"></div>'
+      +'<div class="fg"><label>Birth Year</label><input type="text" id="f-by" placeholder="e.g. 1950" value="'+bYear+'"></div>'
+      +'<div class="fg"><label>Death Year</label><input type="text" id="f-dy" placeholder="Leave blank if living" value="'+dYear+'"></div>'
       +'<div class="fg"><label>'+s('parent')+'</label><select id="f-par">'+pOpts+'</select></div>'
       +'<div class="fg"><label>'+s('generation')+'</label><select id="f-gen">'+genOpts+'</select></div>'
       +'<div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label>'+s('spouseName')+' (EN)</label><input type="text" id="f-sp" placeholder="'+s('blank')+'" value="'+spN+'"></div>'
@@ -905,7 +1102,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
     if(!hasUsers) userCardsHTML = '<div class="empty-state"><span>No registered users yet.</span></div>';
 
-    // NEW: View-Only Link Generator UI
     var linkGeneratorHTML = `
       <div class="share-generator">
          <h3>Generate View-Only Link</h3>
@@ -921,7 +1117,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       </div>
     `;
 
-    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">Security & Access</div><p style="font-size:12px; color:var(--text3); line-height:1.4;">Any Admin can view this panel. Approve family members below to grant them instant access, or promote them to Admin.</p><button class="sidebar-btn btn-logout" onclick="App.doLogout()">'+s('logout')+'</button></div><div class="admin-form-wrap"><h2>Authentication Panel</h2><div style="margin-top: 1.5rem;">'+userCardsHTML+'</div>'+linkGeneratorHTML+'</div>';
+    v.innerHTML='<div class="admin-sidebar"><div class="sidebar-title">Security & Access</div><p style="font-size:12px; color:var(--text3); line-height:1.4;">Any Admin can view this panel. Approve family members below to grant them instant access, or promote them to Admin.</p></div><div class="admin-form-wrap"><h2>Authentication Panel</h2><div style="margin-top: 1.5rem;">'+userCardsHTML+'</div>'+linkGeneratorHTML+'</div>';
   }
 
   function modifyUser(key, action) {
@@ -938,24 +1134,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function generateShareLink() {
      if(!isAdmin()) return;
      var hours = parseInt(document.getElementById('share-expiry').value) || 1;
-     
-     // Generate a random 9 character token
      var token = 'share_' + Math.random().toString(36).substr(2, 9);
-     var expiresAt = Date.now() + (hours * 60 * 60 * 1000); // Convert hours to ms
+     var expiresAt = Date.now() + (hours * 60 * 60 * 1000); 
 
-     // Save to Firebase
      linksRef.child(token).set({
          expiresAt: expiresAt,
          createdBy: state.currentUser.username
      }).then(function() {
-         // Create the full URL
          var url = window.location.origin + window.location.pathname + '?share=' + token;
-         
-         // Copy to clipboard
          navigator.clipboard.writeText(url).then(function() {
              showToast("Link copied! Valid for " + hours + " hr(s).");
          }).catch(function() {
-             // Fallback for older browsers
              prompt("Copy this link:", url);
          });
      });
@@ -1045,6 +1234,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     if(!fn && !fnHi){ showToast('Please enter a name'); return; }
     
     var name=ln?fn+' '+ln:fn; var nameHi=fnHi?(lnHi?fnHi+' '+lnHi:fnHi):'';
+    
+    var bYear = (document.getElementById('f-by')||{}).value||''; bYear = bYear.trim();
+    var dYear = (document.getElementById('f-dy')||{}).value||''; dYear = dYear.trim();
+
     var parentId=(document.getElementById('f-par')||{}).value||null;
     var gen=parseInt((document.getElementById('f-gen')||{}).value||'0') || 0;
     var spN=((document.getElementById('f-sp')||{}).value||'').trim();
@@ -1076,13 +1269,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
     if(state.editingId==='__new__'){
       var id='m'+Date.now();
-      var nm={id:id,name:name,nameHi:nameHi,photo:state.prevPhoto,parentId:parentId,generation:gen,spouse:'',isSpouse:false};
+      var nm={id:id,name:name,nameHi:nameHi,photo:state.prevPhoto,parentId:parentId,generation:gen,spouse:'',isSpouse:false, birthYear:bYear, deathYear:dYear};
       state.members.push(nm);
       if(spN || spNHi){ var sid=id+'s'; nm.spouse=sid; state.members.push({id:sid,name:spN,nameHi:spNHi,photo:state.prevPhotoSpouse,parentId:null,generation:gen,spouse:id,isSpouse:true}); }
       state.editingId=id;
     } else {
       var m=state.members.find(function(x){return x && x.id===state.editingId;});
-      if(m){ m.name=name; m.nameHi=nameHi; m.photo=state.prevPhoto; m.parentId=parentId; m.generation=gen;
+      if(m){ m.name=name; m.nameHi=nameHi; m.photo=state.prevPhoto; m.parentId=parentId; m.generation=gen; m.birthYear=bYear; m.deathYear=dYear;
         if(spN || spNHi){
           if(m.spouse){ var sp=state.members.find(function(x){return x && x.id===m.spouse;}); if(sp){sp.name=spN; sp.nameHi=spNHi; sp.photo=state.prevPhotoSpouse;} }
           else{ var sid2=m.id+'s'; m.spouse=sid2; state.members.push({id:sid2,name:spN,nameHi:spNHi,photo:state.prevPhotoSpouse,parentId:null,generation:gen,spouse:m.id,isSpouse:true}); }
@@ -1145,7 +1338,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     delMember: delMember,
     doLogout: doLogout,
     modifyUser: modifyUser,
-    generateShareLink: generateShareLink // NEW EXPORT
+    generateShareLink: generateShareLink,
+    exportTree: exportTree, 
+    handleSearch: handleSearch, 
+    handleFilter: handleFilter, 
+    setTheme: setTheme 
   };
 
   // Check on load
