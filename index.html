@@ -294,31 +294,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     }
   };
 
-  const DEFAULT_MEMBERS = [
-    {id:'m1',name:'Arjun Shah',nameHi:'अर्जुन शाह',spouse:'m1s',photo:'',parentId:null,generation:0},
-    {id:'m1s',name:'Priya Shah',nameHi:'प्रिया शाह',spouse:'m1',photo:'',parentId:null,generation:0,isSpouse:true},
-    {id:'m2',name:'Vikram Shah',nameHi:'विक्रम शाह',spouse:'m2s',photo:'',parentId:null,generation:0},
-    {id:'m2s',name:'Nisha Shah',nameHi:'निशा शाह',spouse:'m2',photo:'',parentId:null,generation:0,isSpouse:true},
-    {id:'m3',name:'Rahul Shah',nameHi:'राहुल शाह',spouse:'m3s',photo:'',parentId:null,generation:0},
-    {id:'m3s',name:'Meera Shah',nameHi:'मीरा शाह',spouse:'m3',photo:'',parentId:null,generation:0,isSpouse:true},
-    {id:'m4',name:'Suresh Shah',nameHi:'सुरेश शाह',spouse:'m4s',photo:'',parentId:null,generation:0},
-    {id:'m4s',name:'Kavya Shah',nameHi:'काव्या शाह',spouse:'m4',photo:'',parentId:null,generation:0,isSpouse:true},
-    {id:'c1',name:'Aditya Shah',nameHi:'आदित्य शाह',spouse:'',photo:'',parentId:'m1',generation:1},
-    {id:'c2',name:'Sneha Shah',nameHi:'स्नेहा शाह',spouse:'c2s',photo:'',parentId:'m1',generation:1},
-    {id:'c2s',name:'Rohan Mehta',nameHi:'रोहन मेहता',spouse:'c2',photo:'',parentId:null,generation:1,isSpouse:true},
-    {id:'c3',name:'Dev Shah',nameHi:'देव शाह',spouse:'',photo:'',parentId:'m2',generation:1},
-    {id:'gc1',name:'Tara Shah',nameHi:'तारा शाह',spouse:'',photo:'',parentId:'c2',generation:2},
-    {id:'gc2',name:'Om Shah',nameHi:'ओम शाह',spouse:'',photo:'',parentId:'c2',generation:2}
-  ];
-
   /* ── APP STATE ── */
   var state = {
     lang: 'en',
     familyName: 'Shah',
     pinEntry: '',
     dbReady: false,
-    members: JSON.parse(JSON.stringify(DEFAULT_MEMBERS)),
-    expanded: {'m1':true,'m2':true},
+    members: [],
+    expanded: {},
     selected: null,
     editingId: null,
     prevPhoto: ''
@@ -326,9 +309,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 
   /* ── HELPERS ── */
   function s(key){ return STRINGS[state.lang][key] || STRINGS.en[key]; }
-  function initials(n){ return n.split(' ').map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase(); }
+  function initials(n){ return n ? n.split(' ').map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase() : '??'; }
   function dname(m){ return state.lang==='hi' && m.nameHi ? m.nameHi : m.name; }
-  function getPrimaries(pid){ return state.members.filter(function(m){return m.parentId===(pid||null) && !m.isSpouse;}); }
+  
+  // FIXED: Treat undefined as null so Firebase stripping null values doesn't break the root logic
+  function getPrimaries(pid){ 
+    return state.members.filter(function(m){
+      var mPid = m.parentId || null;
+      var targetPid = pid || null;
+      return mPid === targetPid && !m.isSpouse;
+    }); 
+  }
   function getSpouse(m){ return m.spouse ? state.members.find(function(x){return x.id===m.spouse;})||null : null; }
   function getChildren(m){ return state.members.filter(function(x){return x.parentId===m.id && !x.isSpouse;}); }
   function szFor(g){ return [76,62,52,44,38,32][Math.min(g,5)]; }
@@ -358,42 +349,39 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     showSync('connecting…','var(--text3)');
     dataRef.on('value', function(snap){
       var data = snap.val();
-      var wasReady = state.dbReady;
       state.dbReady = true;
+      
       if(data){
-        // Use saved members array; treat missing/null as empty list
-        state.members = (data.members && data.members.length) ? data.members : [];
-        if(data.familyName) state.familyName = data.familyName;
-        // Replace expanded entirely from saved data (don't merge — avoids stale keys)
-        state.expanded = {};
-        if(data.expanded){
-          var saved = data.expanded;
-          // Only keep expanded keys that still exist in members
-          var memberIds = {};
-          state.members.forEach(function(m){ memberIds[m.id]=true; });
-          Object.keys(saved).forEach(function(k){ if(saved[k] && memberIds[k]) state.expanded[k]=true; });
+        // FIXED: Handle Firebase array quirk (sometimes returns arrays as objects if items are deleted)
+        var rawMembers = data.members || [];
+        if (!Array.isArray(rawMembers) && typeof rawMembers === 'object') {
+          rawMembers = Object.keys(rawMembers).map(function(k){ return rawMembers[k]; });
         }
+        
+        // Remove null objects and explicitly standardize missing parentIds
+        state.members = rawMembers.filter(Boolean).map(function(m) {
+          if (m.parentId === undefined || m.parentId === '') m.parentId = null;
+          return m;
+        });
+
+        state.familyName = data.familyName || state.familyName;
+        state.expanded = data.expanded || {};
       } else {
-        // Database is empty (all members deleted or fresh DB)
         state.members = [];
         state.expanded = {};
       }
+
       var bn = document.getElementById('brand-name');
       if(bn) bn.textContent = state.familyName;
-      var tv = document.getElementById('tree-view');
+
       var av = document.getElementById('admin-view');
-      var isAdminActive = av && av.style.display !== 'none';
-      if(isAdminActive){
+      if(av && av.style.display !== 'none'){
         renderAdmin();
       } else {
+        document.getElementById('tree-view').style.display = 'block';
         renderTree();
-        // Reveal tree-view now that it has real content (first load keeps it hidden until here)
-        if(tv && tv.style.display === 'none') tv.style.display = '';
       }
-      showSync(wasReady ? '↻ updated' : '✓ connected');
-    }, function(err){
-      showSync('⚠ error','#f09595');
-      console.error(err);
+      showSync('✓ connected');
     });
   }
 
@@ -418,8 +406,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       document.getElementById('login-overlay').style.display='none';
       document.getElementById('main-nav').style.display='flex';
       applyLang();
-      showLoadingTree(); // populates innerHTML while still hidden
-      startSync();       // will reveal tree-view once data arrives
+      showLoadingTree();
+      startSync();
     } else {
       document.getElementById('pin-error').textContent = s('wrongPin');
       state.pinEntry='';
@@ -438,10 +426,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       b.classList.toggle('active', (i===0&&l==='en')||(i===1&&l==='hi'));
     });
     applyLang();
-    var tv=document.getElementById('tree-view');
-    var av=document.getElementById('admin-view');
-    if(tv&&tv.style.display!=='none') renderTree();
-    if(av&&av.style.display!=='none') renderAdmin();
+    if (document.getElementById('admin-view').style.display !== 'none') renderAdmin();
+    else renderTree();
   }
   function applyLang(){
     document.getElementById('tab-tree').textContent=s('navTree');
@@ -536,6 +522,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   function showLoadingTree(){
     var tv = document.getElementById('tree-view');
     tv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:.06em">loading family data…</span></div>';
+    tv.style.display = 'block';
   }
 
   function renderTree(){
@@ -593,11 +580,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     var val=(document.getElementById('fn-inp')||{}).value;
     if(!val||!val.trim()) return;
     state.familyName=val.trim();
-    var bn=document.getElementById('brand-name');
-    if(bn) bn.textContent=state.familyName;
     saveToFirebase();
     showToast(s('saved'));
-    renderTree();
   }
 
   function startNew(){ state.editingId='__new__'; state.prevPhoto=''; renderAdmin(); renderForm(null); }
@@ -637,6 +621,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     var gen=parseInt((document.getElementById('f-gen')||{}).value||'0');
     var spN=((document.getElementById('f-sp')||{}).value||'').trim();
     var spNHi=((document.getElementById('f-sp-hi')||{}).value||'').trim();
+
     if(state.editingId==='__new__'){
       var id='m'+Date.now();
       var nm={id:id,name:name,nameHi:nameHi,photo:state.prevPhoto,parentId:parentId,generation:gen,spouse:'',isSpouse:false};
@@ -654,8 +639,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     }
     saveToFirebase();
     showToast(s('saved'));
-    renderAdmin();
-    renderTree();
   }
 
   function delMember(id){
@@ -663,24 +646,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     if(m&&m.spouse) state.members=state.members.filter(function(x){return x.id!==m.spouse;});
     state.members.filter(function(x){return x.parentId===id;}).forEach(function(c){c.parentId=null;});
     state.members=state.members.filter(function(x){return x.id!==id;});
-    // Remove stale expanded key for deleted member
     delete state.expanded[id];
     state.editingId=null;
     saveToFirebase();
     showToast(s('deleted'));
-    renderAdmin();
-    renderTree();
   }
 
   function doLogout(){
-    state.pinEntry=''; updateDots();
-    document.getElementById('pin-error').textContent='';
-    document.getElementById('login-overlay').style.display='flex';
-    document.getElementById('main-nav').style.display='none';
-    document.getElementById('tree-view').style.display='none';
-    document.getElementById('admin-view').style.display='none';
-    dataRef.off();
-    state.dbReady=false;
+    location.reload();
   }
 
   function showView(v, btn){
@@ -688,7 +661,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     btn.classList.add('active');
     if(v==='tree'){
       document.getElementById('admin-view').style.display='none';
-      document.getElementById('tree-view').style.display='';
+      document.getElementById('tree-view').style.display='block';
       renderTree();
     } else {
       document.getElementById('tree-view').style.display='none';
@@ -773,7 +746,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     }
   }
 
-
   window.App = {
     pinKey: pinKey,
     setLang: setLang,
@@ -785,10 +757,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     handleFile: handleFile,
     saveMember: saveMember,
     delMember: delMember,
-    doLogout: doLogout,
-    translateName: translateName
+    translateName: translateName,
+    doLogout: doLogout
   };
-
 })();
 </script>
 </body>
