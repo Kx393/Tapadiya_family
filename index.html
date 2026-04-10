@@ -63,7 +63,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:.05em;line-height:1.2}
 .tree-header h1 em{color:var(--gold);font-style:italic}
 .tree-header p{font-size:12px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem}
-.tree-container{overflow-x:auto;padding-bottom:1rem}
+.tree-container{overflow-x:auto;padding-bottom:2rem; width:100%; display:flex; justify-content:center; -webkit-overflow-scrolling:touch;}
+#tree-root { min-width: max-content; padding-top: 1rem; }
+
 .person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:background .2s,border .2s,transform .15s;border:1px solid transparent}
 .person-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)}
 .person-card.selected{background:var(--gold-soft);border-color:rgba(201,169,110,0.3)}
@@ -72,46 +74,38 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .avatar{border-radius:50%;border:2px solid var(--border2);flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--text2);overflow:hidden;transition:border-color .2s}
 .person-card:hover .avatar,.person-card.selected .avatar{border-color:var(--gold)}
 .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.person-name{color:var(--text2);margin-top:6px;text-align:center;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em}
-.person-name.primary{color:var(--text);font-weight:500}
-.spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
-.expand-dot{width:4px;height:4px;border-radius:50%;margin:4px auto 0;background:var(--gold);box-shadow:0 0 6px var(--gold);transition:all .2s}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.person-card{animation:fadeIn .25s ease both}
 
-/* --- FLAWLESS FORKED TREE LINES --- */
-.tree-row {
-  display: flex;
-  justify-content: center;
-  position: relative;
-  padding-top: 30px; 
-}
-.tree-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  padding: 20px 10px 0; 
-}
-.tree-col::before {
-  content: ''; position: absolute; top: 0; height: 2px; background: var(--gold); z-index: 0;
-}
-.tree-col:first-child::before { left: 50%; right: 0; }
-.tree-col:last-child::before { left: 0; right: 50%; }
-.tree-col:not(:first-child):not(:last-child)::before { left: 0; right: 0; }
+/* Negative Margins to allow names to stretch without pushing layout apart */
+.person-name{color:var(--text2);text-align:center;line-height:1.2;}
+.person-name.primary{color:var(--text);font-weight:500}
+.spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;}
+.expand-dot{width:4px;height:4px;border-radius:50%;margin:0 auto;background:var(--gold);box-shadow:0 0 6px var(--gold);transition:all .2s}
+
+/* --- TIGHT, GAPLESS TREE LINES --- */
+.tree-row { display: flex; justify-content: center; position: relative; padding-top: 30px; }
+/* Added padding side to side so overflowing text doesn't touch */
+.tree-col { display: flex; flex-direction: column; align-items: center; position: relative; padding: 20px 24px 0; } 
+
+.tree-col::before { content: ''; position: absolute; top: 0; height: 2px; background: var(--gold); z-index: 0; }
+.tree-col:first-child::before { left: calc(50% - var(--shift-x, 0px)); right: 0; }
+.tree-col:last-child::before { left: 0; right: calc(50% + var(--shift-x, 0px)); }
+.tree-col:not(:first-child):not(:last-child)::before { left: 0; right: 0; width: 100%; }
 .tree-col:only-child::before { display: none; }
-.tree-col::after {
-  content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 20px; background: var(--gold); transform: translateX(-50%); z-index: 0;
-}
+
+.tree-col::after { content: ''; position: absolute; top: 0; left: calc(50% - var(--shift-x, 0px)); width: 2px; height: 20px; background: var(--gold); transform: translateX(-50%); z-index: 0; }
+
 #tree-root > .tree-row { padding-top: 0; }
 #tree-root > .tree-row > .tree-col { padding-top: 0; }
 #tree-root > .tree-row > .tree-col::before,
 #tree-root > .tree-row > .tree-col::after { display: none; }
 
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.person-card{animation:fadeIn .25s ease both}
+
 /* ADMIN */
 #admin-view{position:relative;z-index:1;padding:1.5rem;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;min-height:560px;box-sizing:border-box}
-.admin-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;overflow-y:auto;max-height:580px}
+.admin-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;overflow-y:auto;max-height:650px}
 .sidebar-title{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem}
 .member-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:all .15s;border:1px solid transparent}
 .member-item:hover,.member-item.active{background:var(--surface2);border-color:var(--border)}
@@ -165,6 +159,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
 .sync-pill{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);background:rgba(8,10,15,0.92);border:1px solid var(--border2);padding:.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:.07em;z-index:200;transition:opacity .5s;pointer-events:none;opacity:0}
 
 /* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  #admin-view{ grid-template-columns:1fr; grid-template-rows:auto 1fr; padding:1rem .75rem; gap:1rem; }
+  .admin-sidebar{max-height:220px;}
+}
 @media (max-width: 600px) {
   .nav{padding:0 1rem}
   .nav-brand{font-size:16px}
@@ -173,12 +171,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   .login-box{width:90vw;padding:2rem 1.25rem}
   .pin-grid{gap:8px}
   .pin-key{padding:.7rem;font-size:16px}
-  #tree-view{padding:1.5rem .75rem}
+  #tree-view{padding:1.5rem 0} 
   .tree-header h1{font-size:26px}
-  .tree-header p{font-size:10px}
-  .tree-container{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  #admin-view{ grid-template-columns:1fr; grid-template-rows:auto 1fr; padding:1rem .75rem; gap:1rem; min-height:unset; }
-  .admin-sidebar{max-height:220px;overflow-y:auto}
+  .tree-container{justify-content:flex-start; padding: 0 1rem 2rem 1rem;} 
+  .tree-col { padding: 20px 16px 0; } /* Slightly tighter on phones */
   .admin-form-wrap{padding:1.25rem}
   .form-grid{grid-template-columns:1fr}
   .fg.full{grid-column:1}
@@ -191,7 +187,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   .url-row{flex-direction:column}
   .url-apply{height:36px;width:100%}
   .toast{bottom:1rem;right:.75rem;left:.75rem;text-align:center}
-  .sync-pill{font-size:10px;top:.5rem}
 }
 @media (max-width: 380px) {
   .nav-tab{padding:.7rem .4rem;font-size:9px}
@@ -270,7 +265,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   const dataRef = fbDB.ref('familyTree');
 
   /* ── CONSTANTS ── */
-  const PIN = '12345';
+  const PIN = '13579';
 
   const STRINGS = {
     en:{
@@ -315,8 +310,24 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     expanded: {},
     selected: null,
     editingId: null,
-    prevPhoto: ''
+    prevPhoto: '',
+    prevPhotoSpouse: '' 
   };
+
+  /* ── RESPONSIVE DYNAMIC MATH ENGINE ── */
+  function getSizes() {
+    var w = window.innerWidth;
+    // cardW matches avatar precisely. No invisible boxes.
+    if (w <= 480) return { sz: 44, fs: 10, pad: 4, cardW: 52, connW: 12 }; // Phone
+    if (w <= 768) return { sz: 48, fs: 11, pad: 5, cardW: 58, connW: 14 }; // Tablet
+    return { sz: 52, fs: 12, pad: 6, cardW: 64, connW: 16 };               // Desktop
+  }
+
+  window.addEventListener('resize', function() {
+    if(state.dbReady && document.getElementById('tree-view').style.display !== 'none') {
+      renderTree(); 
+    }
+  });
 
   /* ── HELPERS ── */
   function s(key){ return STRINGS[state.lang][key] || STRINGS.en[key]; }
@@ -357,8 +368,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     showSync('connecting…','var(--text3)');
     dataRef.on('value', function(snap){
       var data = snap.val();
+      var wasReady = state.dbReady;
       state.dbReady = true;
-      
       if(data){
         var rawMembers = data.members || [];
         if (!Array.isArray(rawMembers) && typeof rawMembers === 'object') {
@@ -370,7 +381,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
         });
 
         if(data.familyName) state.familyName = data.familyName;
-        state.expanded = data.expanded || {};
+        
+        state.expanded = {};
+        if(data.expanded){
+          var saved = data.expanded;
+          var memberIds = {};
+          state.members.forEach(function(m){ memberIds[m.id]=true; });
+          Object.keys(saved).forEach(function(k){ if(saved[k] && memberIds[k]) state.expanded[k]=true; });
+        }
       } else {
         state.members = [];
         state.expanded = {};
@@ -388,7 +406,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
         if(tv && tv.style.display === 'none') tv.style.display = '';
         renderTree();
       }
-      showSync('✓ connected');
+      showSync(wasReady ? '↻ updated' : '✓ connected');
+    }, function(err){
+      showSync('⚠ error','#f09595');
+      console.error(err);
     });
   }
 
@@ -413,10 +434,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       document.getElementById('login-overlay').style.display='none';
       document.getElementById('main-nav').style.display='flex';
       applyLang();
-      
       var tv = document.getElementById('tree-view');
       tv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:.06em">loading family data…</span></div>';
-      
       startSync();
     } else {
       document.getElementById('pin-error').textContent = s('wrongPin');
@@ -436,8 +455,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       b.classList.toggle('active', (i===0&&l==='en')||(i===1&&l==='hi'));
     });
     applyLang();
-    if (document.getElementById('admin-view').style.display !== 'none') renderAdmin();
-    else renderTree();
+    var tv=document.getElementById('tree-view');
+    var av=document.getElementById('admin-view');
+    if(tv&&tv.style.display!=='none') renderTree();
+    if(av&&av.style.display!=='none') renderAdmin();
   }
   function applyLang(){
     document.getElementById('tab-tree').textContent=s('navTree');
@@ -445,7 +466,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     document.body.classList.toggle('lang-hi', state.lang==='hi');
   }
 
-  /* ── STRICT UNIFORM TREE RENDER ── */
+  /* ── RESPONSIVE TREE RENDER ── */
   function makeAvatar(m, sz){
     var av=document.createElement('div');
     av.className='avatar';
@@ -459,30 +480,41 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     return av;
   }
 
-  function buildCard(m, sz, fs, pad, hasKids, isExp, isSpouse){
+  function buildCard(m, sz, fs, pad, cardW, hasKids, isExp, isSpouse){
     var card=document.createElement('div');
     card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
     
-    var cardW = sz + (pad * 2);
-    card.style.cssText='padding:'+pad+'px; width:'+cardW+'px; flex-shrink:0;';
-    
+    // Tight box matches avatar size exactly
+    card.style.cssText='padding:'+pad+'px; width:'+cardW+'px; min-width:'+cardW+'px; flex-shrink:0; display:flex; flex-direction:column; align-items:center;';
     card.appendChild(makeAvatar(m,sz));
+    
     var nm=document.createElement('div');
     nm.className='person-name'+(isSpouse?'':' primary');
-    nm.style.cssText='font-size:'+fs+'px; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
-    nm.textContent=dname(m);
+    nm.style.cssText='font-size:'+fs+'px; margin-top:6px; width:100%; display:flex; justify-content:center; overflow:visible;';
+    
+    var span = document.createElement('span');
+    // Negative margin lets long text stretch out onto one line without breaking CSS boxes
+    span.style.cssText = 'white-space:nowrap; margin: 0 -100px; text-align:center; line-height:1.2;';
+    span.textContent = dname(m);
+    nm.appendChild(span);
     card.appendChild(nm);
     
     if(isSpouse){
       var sl=document.createElement('div');
       sl.className='spouse-label';
-      sl.textContent=s('spouse');
+      sl.style.cssText = 'width:100%; display:flex; justify-content:center; overflow:visible; margin-top:2px;';
+      var slSpan = document.createElement('span');
+      slSpan.style.cssText = 'white-space:nowrap; margin: 0 -100px; text-align:center;';
+      slSpan.textContent = s('spouse');
+      sl.appendChild(slSpan);
       card.appendChild(sl);
     }
+    
     if(hasKids&&!isSpouse){
       var dot=document.createElement('div');
       dot.className='expand-dot';
       dot.style.background=isExp?'var(--gold2)':'var(--gold)';
+      dot.style.marginTop='4px';
       card.appendChild(dot);
     }
     if(!isSpouse){
@@ -502,11 +534,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     var prim=getPrimaries(parentId);
     if(!prim.length) return;
     
-    var sz = 52, fs = 12, pad = 6;
-    var cardW = sz + (pad * 2);
-    var connW = 16;
-    var dummyW = cardW + connW; 
-    var shiftX = (cardW / 2) + (connW / 2);
+    var sizes = getSizes();
+    var sz = sizes.sz, fs = sizes.fs, pad = sizes.pad, cardW = sizes.cardW, connW = sizes.connW;
     var topStart = Math.round(sz / 2 + pad);
     
     var row=document.createElement('div');
@@ -521,13 +550,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       var primaryWrap = document.createElement('div');
       primaryWrap.style.cssText = 'display: flex; align-items: flex-start; position: relative; z-index: 2;';
       
-      if(sp){
-        var dummy = document.createElement('div');
-        dummy.style.cssText = 'width: ' + dummyW + 'px; flex-shrink: 0;';
-        primaryWrap.appendChild(dummy);
-      }
-      
-      primaryWrap.appendChild(buildCard(m, sz, fs, pad, kids.length>0, exp, false));
+      primaryWrap.appendChild(buildCard(m, sz, fs, pad, cardW, kids.length>0, exp, false));
       
       if(sp){
         var conn = document.createElement('div');
@@ -535,7 +558,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
         conn.innerHTML = '<svg width="'+connW+'" height="2"><line x1="0" y1="1" x2="'+connW+'" y2="1" stroke="var(--gold)" stroke-width="2"/></svg>';
         
         primaryWrap.appendChild(conn);
-        primaryWrap.appendChild(buildCard(sp, sz, fs, pad, false, false, true));
+        primaryWrap.appendChild(buildCard(sp, sz, fs, pad, cardW, false, false, true));
+        
+        // CSS Variable shifts the horizontal branches perfectly without pushing elements
+        var shiftX = (cardW + connW) / 2;
+        col.style.setProperty('--shift-x', shiftX + 'px');
+      } else {
+        col.style.setProperty('--shift-x', '0px');
       }
       
       col.appendChild(primaryWrap);
@@ -544,19 +573,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
           var dropLine = document.createElement('div');
           dropLine.style.cssText = 'position: absolute; bottom: -30px; width: 2px; background: var(--gold); z-index: -1;';
           
+          dropLine.style.top = sp ? topStart + 'px' : '100%';
+          dropLine.style.left = '50%';
+          dropLine.style.transform = 'translateX(-50%)';
+          
           var cr = document.createElement('div');
           cr.style.position = 'relative';
-          
-          if (sp) {
-              dropLine.style.top = topStart + 'px';
-              dropLine.style.left = 'calc(50% + ' + shiftX + 'px)';
-              dropLine.style.transform = 'translateX(-50%)';
-              cr.style.transform = 'translateX(' + shiftX + 'px)';
-          } else {
-              dropLine.style.top = '100%';
-              dropLine.style.left = '50%';
-              dropLine.style.transform = 'translateX(-50%)';
-          }
           
           primaryWrap.appendChild(dropLine);
           renderLevel(cr, m.id, gen+1);
@@ -575,7 +597,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>'+s('selectOrAdd')+'</span></div>';
       return;
     }
-    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1><p>'+s('clickHint')+'</p></div><div class="tree-container"><div id="tree-root" style="display:flex;flex-direction:column;align-items:center;padding:0 1rem 2rem"></div></div>';
+    tv.innerHTML='<div class="tree-header"><h1>'+s('familyTitle')(state.familyName)+'</h1><p>'+s('clickHint')+'</p></div><div class="tree-container"><div id="tree-root" style="display:flex;flex-direction:column;align-items:center;"></div></div>';
     renderLevel(document.getElementById('tree-root'),null,0);
 
     setTimeout(function() {
@@ -599,7 +621,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       it.className='member-item'+(state.editingId===m.id?' active':'');
       var avHtml=m.photo?'<img src="'+m.photo+'" onerror="this.parentElement.textContent=\''+initials(m.name)+'\'">':initials(m.name);
       it.innerHTML='<div class="mini-av">'+avHtml+'</div><div><div class="item-name">'+dname(m)+'</div><div class="item-role">'+(m.parentId?s('descendant'):s('root'))+'</div></div>';
-      it.onclick=function(){ state.editingId=m.id; state.prevPhoto=m.photo||''; renderAdmin(); renderForm(m); };
+      
+      it.onclick=function(){ 
+        state.editingId = m.id; 
+        state.prevPhoto = m.photo || ''; 
+        var spouseObj = getSpouse(m);
+        state.prevPhotoSpouse = spouseObj ? (spouseObj.photo || '') : ''; 
+        renderAdmin(); 
+        renderForm(m); 
+      };
+      
       list.appendChild(it);
     });
     if(state.editingId){ var em=safeMembers.find(function(x){return x && x.id===state.editingId;}); if(em) renderForm(em); }
@@ -613,19 +644,28 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     var spN=m&&m.spouse?(safeMembers.find(function(x){return x && x.id===m.spouse;})||{}).name||'':'';
     var spNHi=m&&m.spouse?(safeMembers.find(function(x){return x && x.id===m.spouse;})||{}).nameHi||'':'';
     var genOpts=s('genLabels').map(function(g,i){return '<option value="'+i+'"'+(m&&m.generation===i?' selected':'')+'>'+g+'</option>';}).join('');
-    var pv=state.prevPhoto;
+    
+    var pv = state.prevPhoto;
+    var pvSp = state.prevPhotoSpouse;
+    
     area.innerHTML='<div class="fn-bar"><span class="fn-label">'+s('familyNameLabel')+'</span><input class="fn-input" id="fn-inp" value="'+state.familyName+'"><button class="fn-btn" onclick="App.updateFamilyName()">'+s('update')+'</button></div>'
       +'<h2>'+(m?s('editMember'):s('newMember'))+'</h2>'
       +'<div class="form-grid">'
-      +'<div class="fg full"><label>'+s('photo')+'</label><div class="photo-row"><div class="photo-prev" id="pp">'+(pv?'<img src="'+pv+'">':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>')+'</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="'+s('pasteUrl')+'" value="'+pv+'"><button class="url-apply" onclick="App.applyUrl()">'+s('apply')+'</button></div><label class="upload-lbl" for="p-file">'+s('upload')+'</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>'
+      
+      +'<div class="fg full"><label>'+s('photo')+' (Primary)</label><div class="photo-row"><div class="photo-prev" id="pp">'+(pv?'<img src="'+pv+'">':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>')+'</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="'+s('pasteUrl')+'" value="'+pv+'"><button class="url-apply" onclick="App.applyUrl()">'+s('apply')+'</button></div><label class="upload-lbl" for="p-file">'+s('upload')+'</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>'
+      
       +'<div class="fg"><label>'+s('firstName')+' (EN)</label><input type="text" id="f-fn" placeholder="First name" value="'+(m?m.name.split(' ')[0]:'')+'"></div>'
       +'<div class="fg"><label>'+s('lastName')+' (EN)</label><input type="text" id="f-ln" placeholder="Last name" value="'+(m?m.name.split(' ').slice(1).join(' '):'')+'"></div>'
       +'<div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" placeholder="पहला नाम" value="'+(m&&m.nameHi?m.nameHi.split(' ')[0]:'')+'"></div>'
       +'<div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" placeholder="उपनाम" value="'+(m&&m.nameHi?m.nameHi.split(' ').slice(1).join(' '):'')+'"></div>'
       +'<div class="fg"><label>'+s('parent')+'</label><select id="f-par">'+pOpts+'</select></div>'
       +'<div class="fg"><label>'+s('generation')+'</label><select id="f-gen">'+genOpts+'</select></div>'
-      +'<div class="fg full"><label>'+s('spouseName')+' (EN)</label><input type="text" id="f-sp" placeholder="'+s('blank')+'" value="'+spN+'"></div>'
+      
+      +'<div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label>'+s('spouseName')+' (EN)</label><input type="text" id="f-sp" placeholder="'+s('blank')+'" value="'+spN+'"></div>'
       +'<div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="खाली छोड़ें" value="'+spNHi+'"></div>'
+      
+      +'<div class="fg full"><label>Spouse Photo / पति/पत्नी का फोटो</label><div class="photo-row"><div class="photo-prev" id="pp-sp">'+(pvSp?'<img src="'+pvSp+'">':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>')+'</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="'+s('pasteUrl')+'" value="'+pvSp+'"><button class="url-apply" onclick="App.applyUrlSp()">'+s('apply')+'</button></div><label class="upload-lbl" for="p-file-sp">'+s('upload')+'</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>'
+      
       +'</div>'
       +'<div class="form-actions">'+(m?'<button class="btn-del" onclick="App.delMember(\''+m.id+'\')">'+s('del')+'</button>':'')+'<button class="btn-cancel" onclick="App.cancelEdit()">'+s('cancel')+'</button><button class="btn-save" onclick="App.saveMember()">'+s('save')+'</button></div>';
   }
@@ -642,16 +682,22 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     renderTree();
   }
 
-  function startNew(){ state.editingId='__new__'; state.prevPhoto=''; renderAdmin(); renderForm(null); }
+  function startNew(){ 
+    state.editingId='__new__'; 
+    state.prevPhoto=''; 
+    state.prevPhotoSpouse=''; 
+    renderAdmin(); 
+    renderForm(null); 
+  }
   function cancelEdit(){ state.editingId=null; renderAdmin(); }
 
+  // PRIMARY PHOTO LOGIC
   function applyUrl(){
     var url=(document.getElementById('p-url')||{}).value||'';
     url=url.trim(); state.prevPhoto=url;
     var pp=document.getElementById('pp');
     if(pp&&url) pp.innerHTML='<img src="'+url+'" onerror="this.parentElement.textContent=\'?\'">';
   }
-
   function handleFile(inp){
     var f=inp.files[0]; if(!f) return;
     var r=new FileReader();
@@ -660,6 +706,26 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       var pp=document.getElementById('pp');
       if(pp) pp.innerHTML='<img src="'+e.target.result+'">';
       var pu=document.getElementById('p-url');
+      if(pu) pu.value='';
+    };
+    r.readAsDataURL(f);
+  }
+
+  // SPOUSE PHOTO LOGIC
+  function applyUrlSp(){
+    var url=(document.getElementById('p-url-sp')||{}).value||'';
+    url=url.trim(); state.prevPhotoSpouse=url;
+    var pp=document.getElementById('pp-sp');
+    if(pp&&url) pp.innerHTML='<img src="'+url+'" onerror="this.parentElement.textContent=\'?\'">';
+  }
+  function handleFileSp(inp){
+    var f=inp.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(e){
+      state.prevPhotoSpouse=e.target.result;
+      var pp=document.getElementById('pp-sp');
+      if(pp) pp.innerHTML='<img src="'+e.target.result+'">';
+      var pu=document.getElementById('p-url-sp');
       if(pu) pu.value='';
     };
     r.readAsDataURL(f);
@@ -748,15 +814,21 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
       if(spN || spNHi){ 
          var sid=id+'s'; 
          nm.spouse=sid; 
-         state.members.push({id:sid,name:spN,nameHi:spNHi,photo:'',parentId:null,generation:gen,spouse:id,isSpouse:true}); 
+         state.members.push({id:sid,name:spN,nameHi:spNHi,photo:state.prevPhotoSpouse,parentId:null,generation:gen,spouse:id,isSpouse:true}); 
       }
       state.editingId=id;
     } else {
       var m=state.members.find(function(x){return x && x.id===state.editingId;});
       if(m){ m.name=name; m.nameHi=nameHi; m.photo=state.prevPhoto; m.parentId=parentId; m.generation=gen;
         if(spN || spNHi){
-          if(m.spouse){ var sp=state.members.find(function(x){return x && x.id===m.spouse;}); if(sp){sp.name=spN;sp.nameHi=spNHi;} }
-          else{ var sid2=m.id+'s'; m.spouse=sid2; state.members.push({id:sid2,name:spN,nameHi:spNHi,photo:'',parentId:null,generation:gen,spouse:m.id,isSpouse:true}); }
+          if(m.spouse){ 
+            var sp=state.members.find(function(x){return x && x.id===m.spouse;}); 
+            if(sp){sp.name=spN; sp.nameHi=spNHi; sp.photo=state.prevPhotoSpouse;} 
+          }
+          else{ 
+            var sid2=m.id+'s'; m.spouse=sid2; 
+            state.members.push({id:sid2,name:spN,nameHi:spNHi,photo:state.prevPhotoSpouse,parentId:null,generation:gen,spouse:m.id,isSpouse:true}); 
+          }
         } else if(m.spouse){ state.members=state.members.filter(function(x){return x && x.id!==m.spouse;}); m.spouse=''; }
       }
     }
@@ -805,6 +877,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     updateFamilyName: updateFamilyName,
     applyUrl: applyUrl,
     handleFile: handleFile,
+    applyUrlSp: applyUrlSp,
+    handleFileSp: handleFileSp,
     saveMember: saveMember,
     delMember: delMember,
     doLogout: doLogout
