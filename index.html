@@ -174,7 +174,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   #tree-view{padding:1.5rem 0} 
   .tree-header h1{font-size:26px}
   .tree-container{justify-content:flex-start; padding: 0 1rem 2rem 1rem;} 
-  .tree-col { padding: 20px 16px 0; } /* Slightly tighter on phones */
+  .tree-col { padding: 20px 16px 0; } /* Tighter gaps on phones */
   .admin-form-wrap{padding:1.25rem}
   .form-grid{grid-template-columns:1fr}
   .fg.full{grid-column:1}
@@ -317,7 +317,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   /* ── RESPONSIVE DYNAMIC MATH ENGINE ── */
   function getSizes() {
     var w = window.innerWidth;
-    // cardW matches avatar precisely. No invisible boxes.
+    // cardW matches avatar perfectly. No invisible boxes.
     if (w <= 480) return { sz: 44, fs: 10, pad: 4, cardW: 52, connW: 12 }; // Phone
     if (w <= 768) return { sz: 48, fs: 11, pad: 5, cardW: 58, connW: 14 }; // Tablet
     return { sz: 52, fs: 12, pad: 6, cardW: 64, connW: 16 };               // Desktop
@@ -484,7 +484,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
     var card=document.createElement('div');
     card.className='person-card'+(isSpouse?' spouse-card':'')+(m.id===state.selected?' selected':'');
     
-    // Tight box matches avatar size exactly
+    // Tight box matches avatar size perfectly. Flex-direction sets up the centering.
     card.style.cssText='padding:'+pad+'px; width:'+cardW+'px; min-width:'+cardW+'px; flex-shrink:0; display:flex; flex-direction:column; align-items:center;';
     card.appendChild(makeAvatar(m,sz));
     
@@ -694,19 +694,40 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   // PRIMARY PHOTO LOGIC
   function applyUrl(){
     var url=(document.getElementById('p-url')||{}).value||'';
-    url=url.trim(); state.prevPhoto=url;
+    url=url.trim(); 
+    // Prevent accidental wipe if they already uploaded a file and clicked apply on an empty box
+    if (url === '' && state.prevPhoto && state.prevPhoto.startsWith('data:image')) return;
+    state.prevPhoto=url;
     var pp=document.getElementById('pp');
-    if(pp&&url) pp.innerHTML='<img src="'+url+'" onerror="this.parentElement.textContent=\'?\'">';
+    if(pp){
+      if(url) pp.innerHTML='<img src="'+url+'" onerror="this.parentElement.textContent=\'?\'">';
+      else pp.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+    }
   }
+
   function handleFile(inp){
     var f=inp.files[0]; if(!f) return;
     var r=new FileReader();
     r.onload=function(e){
-      state.prevPhoto=e.target.result;
-      var pp=document.getElementById('pp');
-      if(pp) pp.innerHTML='<img src="'+e.target.result+'">';
-      var pu=document.getElementById('p-url');
-      if(pu) pu.value='';
+      var img = new Image();
+      img.onload = function() {
+        // Automatically compress the image to a tiny size so Firebase never crashes
+        var canvas = document.createElement('canvas');
+        var MAX = 160; 
+        var w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } 
+        else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var tinyUrl = canvas.toDataURL('image/jpeg', 0.8);
+        
+        state.prevPhoto=tinyUrl;
+        var pp=document.getElementById('pp');
+        if(pp) pp.innerHTML='<img src="'+tinyUrl+'">';
+        var pu=document.getElementById('p-url');
+        if(pu) pu.value=''; // Clear the URL box automatically
+      };
+      img.src = e.target.result;
     };
     r.readAsDataURL(f);
   }
@@ -714,19 +735,38 @@ html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif
   // SPOUSE PHOTO LOGIC
   function applyUrlSp(){
     var url=(document.getElementById('p-url-sp')||{}).value||'';
-    url=url.trim(); state.prevPhotoSpouse=url;
+    url=url.trim(); 
+    if (url === '' && state.prevPhotoSpouse && state.prevPhotoSpouse.startsWith('data:image')) return;
+    state.prevPhotoSpouse=url;
     var pp=document.getElementById('pp-sp');
-    if(pp&&url) pp.innerHTML='<img src="'+url+'" onerror="this.parentElement.textContent=\'?\'">';
+    if(pp){
+      if(url) pp.innerHTML='<img src="'+url+'" onerror="this.parentElement.textContent=\'?\'">';
+      else pp.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+    }
   }
+
   function handleFileSp(inp){
     var f=inp.files[0]; if(!f) return;
     var r=new FileReader();
     r.onload=function(e){
-      state.prevPhotoSpouse=e.target.result;
-      var pp=document.getElementById('pp-sp');
-      if(pp) pp.innerHTML='<img src="'+e.target.result+'">';
-      var pu=document.getElementById('p-url-sp');
-      if(pu) pu.value='';
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var MAX = 160; 
+        var w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } 
+        else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var tinyUrl = canvas.toDataURL('image/jpeg', 0.8);
+        
+        state.prevPhotoSpouse=tinyUrl;
+        var pp=document.getElementById('pp-sp');
+        if(pp) pp.innerHTML='<img src="'+tinyUrl+'">';
+        var pu=document.getElementById('p-url-sp');
+        if(pu) pu.value='';
+      };
+      img.src = e.target.result;
     };
     r.readAsDataURL(f);
   }
