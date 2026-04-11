@@ -8,29 +8,56 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#080a0f;--surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.07);--surface3:rgba(255,255,255,0.1);--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0ede8;--text2:#a09a90;--text3:#5a5650;--gold:#c9a96e;--gold2:#e8c98a;--gold-soft:rgba(201,169,110,0.12);--canvas-filter:none}body.theme-light{--bg:#f9f8f6;--surface:#fff;--surface2:#f0edea;--surface3:#e6e2dd;--border:#e0ddd9;--border2:#d0cdc9;--text:#2a2825;--text2:#4a4845;--text3:#7a7875;--gold:#b38b4d;--gold2:#967035;--gold-soft:rgba(179,139,77,0.15);--canvas-filter:invert(1) hue-rotate(180deg) opacity(0.3)}body.theme-vintage{--bg:#eaddcf;--surface:#f4ecd8;--surface2:#e8dcc4;--surface3:#dfd1b3;--border:#d4c4b4;--border2:#c2b09d;--text:#4a3b2c;--text2:#5c4d3c;--text3:#7a6b5c;--gold:#9e643c;--gold2:#7d4d2b;--gold-soft:rgba(158,100,60,0.15);--canvas-filter:sepia(0.4) opacity(0.4)}
-html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}.lang-hi *{font-family:'Noto Sans Devanagari',sans-serif}.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;filter:var(--canvas-filter);transition:opacity .5s}.bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(201,169,110,0.07) 0,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(120,100,200,0.06) 0,transparent 60%);animation:bgP 12s ease-in-out infinite alternate}.bg-canvas::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(201,169,110,0.15) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,#000 0,transparent 100%);opacity:.3;animation:gD 20s linear infinite}@keyframes bgP{0%{opacity:.7}100%{opacity:1}}@keyframes gD{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:oF linear infinite;opacity:.4}.orb1{width:400px;height:400px;background:radial-gradient(circle,rgba(201,169,110,0.2),transparent 70%);top:-100px;left:-100px;animation-duration:25s}.orb2{width:300px;height:300px;background:radial-gradient(circle,rgba(100,80,180,0.15),transparent 70%);bottom:10%;right:-50px;animation-duration:30s;animation-delay:-10s}.orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,0.12),transparent 70%);top:50%;left:60%;animation-duration:20s;animation-delay:-5s}@keyframes oF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(.9)}}
-.custom-bg{position:fixed;inset:0;z-index:0;opacity:0;transition:opacity .5s;pointer-events:none;overflow:hidden}.custom-bg-layer{position:absolute;inset:0;background-repeat:no-repeat}
+/* --- CORE STYLES --- */
+*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#080a0f;--surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.07);--surface3:rgba(255,255,255,0.1);--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0ede8;--text2:#a09a90;--text3:#5a5650;--gold:#c9a96e;--gold2:#e8c98a;--gold-soft:rgba(201,169,110,0.12);--canvas-filter:none}body.theme-light{--bg:#f9f8f6;--surface:#ffffff;--surface2:#f0edea;--surface3:#e6e2dd;--border:#e0ddd9;--border2:#d0cdc9;--text:#2a2825;--text2:#4a4845;--text3:#7a7875;--gold:#b38b4d;--gold2:#967035;--gold-soft:rgba(179,139,77,0.15);--canvas-filter:invert(1) hue-rotate(180deg) opacity(0.3)}body.theme-vintage{--bg:#eaddcf;--surface:#f4ecd8;--surface2:#e8dcc4;--surface3:#dfd1b3;--border:#d4c4b4;--border2:#c2b09d;--text:#4a3b2c;--text2:#5c4d3c;--text3:#7a6b5c;--gold:#9e643c;--gold2:#7d4d2b;--gold-soft:rgba(158,100,60,0.15);--canvas-filter:sepia(0.4) opacity(0.4)}
+html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;position:relative;overflow-x:hidden;transition:background 0.3s,color 0.3s}.lang-hi *{font-family:'Noto Sans Devanagari',sans-serif}
+
+.bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;filter:var(--canvas-filter);transition:opacity 0.5s}.bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(201,169,110,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(120,100,200,0.06) 0%,transparent 60%);animation:bgP 12s ease-in-out infinite alternate}.bg-canvas::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(201,169,110,0.15) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);opacity:.3;animation:gD 20s linear infinite}@keyframes bgP{0%{opacity:.7}100%{opacity:1}}@keyframes gD{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:oF linear infinite;opacity:.4}.orb1{width:400px;height:400px;background:radial-gradient(circle,rgba(201,169,110,0.2),transparent 70%);top:-100px;left:-100px;animation-duration:25s}.orb2{width:300px;height:300px;background:radial-gradient(circle,rgba(100,80,180,0.15),transparent 70%);bottom:10%;right:-50px;animation-duration:30s;animation-delay:-10s}.orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,0.12),transparent 70%);top:50%;left:60%;animation-duration:20s;animation-delay:-5s}@keyframes oF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(0.9)}}
+.custom-bg{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:0;opacity:0;transition:opacity 0.5s;pointer-events:none;overflow:hidden}.custom-bg-layer{position:absolute;inset:0;background-repeat:no-repeat}
+.custom-text-container{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:0;opacity:0;transition:opacity 0.5s;pointer-events:none;overflow:hidden} .custom-text-layer{position:absolute;transform:translate(-50%,-50%);white-space:pre-wrap;text-align:center;font-family:'Cormorant Garamond',serif;text-shadow:2px 2px 8px rgba(0,0,0,0.8);line-height:1.1;pointer-events:none}
+
 select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a96e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:32px!important}select option{background-color:var(--bg);color:var(--text)}
-.nav{position:relative;z-index:10;display:flex;align-items:center;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--bg);backdrop-filter:blur(20px);flex-wrap:wrap;opacity:.95}.nav-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);letter-spacing:.1em;margin-right:auto;padding:1rem 0;font-style:italic}.nav-brand span{font-style:normal;font-weight:500;color:var(--text)}.nav-tab{padding:.9rem 1.1rem;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--text3);border:none;background:none;border-bottom:1px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'Outfit',sans-serif}.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)}.nav-tab:hover:not(.active){color:var(--text2)}.lang-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-left:.5rem}.lang-btn{padding:.35rem .75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit',sans-serif;transition:all .2s}.lang-btn.active{background:var(--gold);color:#fff;font-weight:500}
-#login-overlay,#waiting-overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:340px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2)}.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:.25rem}.login-logo span{font-style:normal;color:var(--text)}.login-sub{font-size:12px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2rem}.auth-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;color:var(--text);font-size:14px;font-family:'Outfit',sans-serif;outline:none;margin-bottom:1rem;transition:border .2s}.auth-input:focus{border-color:var(--gold)}.auth-btn{width:100%;padding:.8rem;border-radius:10px;background:var(--gold);border:none;color:#0d0a04;font-size:14px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;margin-bottom:.5rem}.auth-btn:hover:not(:disabled){background:var(--gold2)}.auth-btn:disabled{opacity:.6;cursor:not-allowed}.auth-btn-sec{width:100%;padding:.8rem;border-radius:10px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s}.auth-btn-sec:hover{border-color:var(--gold);color:var(--gold)}.auth-error{color:#f09595;font-size:12px;margin-bottom:1rem;min-height:15px}
-#tree-view{position:relative;z-index:1;padding:1.5rem;min-height:560px}.tree-header{text-align:center;margin-bottom:1.5rem}.tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:.05em;line-height:1.2}.tree-header h1 em{color:var(--gold);font-style:italic}.tree-header p{font-size:12px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem}.tree-toolbar{display:flex;justify-content:center;gap:10px;margin-bottom:2rem;flex-wrap:wrap}.tool-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.5rem 1rem;border-radius:20px;font-family:'Outfit',sans-serif;font-size:12px;outline:none;width:200px;transition:border .2s}.tool-input:focus{border-color:var(--gold)}.tool-btn{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:.5rem 1.2rem;border-radius:20px;font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:500}.tool-btn:hover{background:var(--gold);color:#fff}.tree-container{display:flex;overflow-x:auto;padding-bottom:4rem;width:100%;-webkit-overflow-scrolling:touch;transition:opacity .3s}.tree-container::before,.tree-container::after{content:'';margin:auto}#tree-root{position:relative;display:flex;flex-direction:column;align-items:center;padding:1rem 2rem;min-width:max-content;background:transparent;border-radius:12px;z-index:2}
-.person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:all .3s;border:1px solid transparent}.person-card:hover:not(.view-only){background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)}.person-card.selected{background:var(--gold-soft);border-color:rgba(201,169,110,0.3)}.person-card.spouse-card{opacity:.85}.avatar{border-radius:50%;border:2px solid var(--border2);flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--text2);overflow:hidden;transition:border-color .2s}.person-card:hover:not(.view-only) .avatar,.person-card.selected .avatar{border-color:var(--gold)}.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}.person-name span,.spouse-label span,.date-label{position:relative;z-index:5;text-shadow:-3px -3px 0 var(--bg),3px -3px 0 var(--bg),-3px 3px 0 var(--bg),3px 3px 0 var(--bg),-3px 0 0 var(--bg),3px 0 0 var(--bg),0 -3px 0 var(--bg),0 3px 0 var(--bg),0 0 10px var(--bg),0 0 15px var(--bg)}.person-name{color:var(--text2);text-align:center}.person-name.primary{color:var(--text);font-weight:500}.spouse-label{font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}.date-label{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Outfit'}.expand-btn{width:16px;height:16px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;cursor:pointer;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);z-index:10;box-shadow:0 0 6px var(--gold);border:2px solid var(--bg);transition:all .2s}.expand-btn:hover{transform:translateX(-50%) scale(1.2)}
-.tree-row{display:flex;justify-content:center;position:relative;padding-top:30px}.tree-col{display:flex;flex-direction:column;align-items:center;position:relative;padding:20px 24px 0}.tree-col::before{content:'';position:absolute;top:0;height:2px;background:var(--gold);z-index:0}.tree-col:first-child::before{left:calc(50% - var(--shift-x,0px));right:0}.tree-col:last-child::before{left:0;right:calc(50% + var(--shift-x,0px))}.tree-col:not(:first-child):not(:last-child)::before{left:0;right:0;width:100%}.tree-col:only-child::before{display:none}.tree-col::after{content:'';position:absolute;top:0;left:calc(50% - var(--shift-x,0px));width:2px;height:20px;background:var(--gold);transform:translateX(-50%);z-index:0}#tree-root>.tree-row{padding-top:0}#tree-root>.tree-row>.tree-col{padding-top:0}#tree-root>.tree-row>.tree-col::before,#tree-root>.tree-row>.tree-col::after{display:none}@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.person-card{animation:fadeIn .25s ease both}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}.modal-overlay.show{opacity:1;pointer-events:auto}.modal-content{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2rem;width:90%;max-width:400px;max-height:85vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform .3s;box-shadow:0 15px 40px rgba(0,0,0,0.4);text-align:center}.modal-overlay.show .modal-content{transform:translateY(0)}.modal-close{position:absolute;top:15px;right:15px;background:transparent;border:none;color:var(--text3);font-size:24px;cursor:pointer;transition:color .2s}.modal-close:hover{color:var(--gold)}.modal-av{width:100px;height:100px;border-radius:50%;margin:0 auto 1rem;border:2px solid var(--gold);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden}.modal-av img{width:100%;height:100%;object-fit:cover}.modal-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold);margin-bottom:5px;line-height:1.1}.modal-dates{font-size:12px;color:var(--text3);margin-bottom:1.5rem;letter-spacing:.05em}.modal-details{text-align:left;background:var(--surface);padding:1rem;border-radius:12px;border:1px solid var(--border2)}.modal-row{margin-bottom:.75rem;font-size:14px}.modal-row:last-child{margin-bottom:0}.modal-row span{display:block;font-size:10px;text-transform:uppercase;color:var(--text3);letter-spacing:.08em;margin-bottom:2px}.modal-row div{color:var(--text)}.modal-private{font-style:italic;color:var(--text2);font-size:13px;text-align:center;padding:1rem 0}
-.modal-gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-top:10px;scroll-behavior:smooth}.modal-gallery::-webkit-scrollbar{height:6px}.modal-gallery::-webkit-scrollbar-track{background:var(--surface2);border-radius:3px}.modal-gallery::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}.modal-gallery img{height:100px;border-radius:8px;border:1px solid var(--border);object-fit:cover;cursor:pointer;transition:border-color .2s}.modal-gallery img:hover{border-color:var(--gold)}
-#admin-view,#auth-view{position:relative;z-index:1;padding:1.5rem;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;min-height:560px;box-sizing:border-box}.admin-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;overflow-y:auto;max-height:800px;display:flex;flex-direction:column}.sidebar-title{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem}.member-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:all .15s;border:1px solid transparent}.member-item:hover,.member-item.active{background:var(--surface2);border-color:var(--border)}.mini-av{width:34px;height:34px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);flex-shrink:0;overflow:hidden}.mini-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}.item-name{font-size:13px;color:var(--text)}.item-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-.sidebar-btn{width:100%;margin-top:.75rem;padding:.55rem;border-radius:10px;font-size:12px;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;letter-spacing:.04em}.btn-add{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.25);color:var(--gold)}.btn-add:hover{background:rgba(201,169,110,0.18)}.admin-form-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem}.admin-form-wrap h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:1.25rem;color:var(--text)}
-.bg-editor{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:1.5rem;display:flex;flex-direction:column;gap:.75rem}.bg-editor h4{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);margin-bottom:5px;font-weight:400}.drop-zone{border:2px dashed var(--border2);border-radius:8px;padding:1.5rem 1rem;text-align:center;color:var(--text3);font-size:12px;transition:all .2s;cursor:pointer}.drop-zone.dragover{border-color:var(--gold);background:var(--surface2);color:var(--gold)}.slider-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.slider-row label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;width:40px}.slider-row input[type="range"]{flex:1;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}.slider-row input[type="range"]::-webkit-slider-runnable-track{background:var(--border2);height:4px;border-radius:2px}.slider-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:-4px;background-color:var(--gold);height:12px;width:12px;border-radius:50%}
-.user-card{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);padding:1rem;border-radius:12px;margin-bottom:1rem}.user-info strong{font-size:16px;color:var(--text);display:block;margin-bottom:4px}.user-info span{font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:4px}.status-pending{background:rgba(240,150,100,0.15);color:#f0a864;border:1px solid rgba(240,150,100,0.3)}.status-approved{background:rgba(100,200,120,0.15);color:#64c878;border:1px solid rgba(100,200,120,0.3)}.status-admin{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3)}.auth-actions{display:flex;gap:.5rem}.auth-act-btn{padding:.4rem .8rem;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid transparent;transition:all .2s}.btn-approve{background:rgba(100,200,120,0.15);color:#64c878;border-color:rgba(100,200,120,0.3)}.btn-approve:hover{background:rgba(100,200,120,0.25)}.btn-promote{background:var(--gold-soft);color:var(--gold);border-color:rgba(201,169,110,0.3)}.btn-promote:hover{background:rgba(201,169,110,0.25)}.btn-revoke{background:transparent;border-color:var(--border2);color:var(--text3)}.btn-revoke:hover{border-color:rgba(242,80,80,0.4);color:#f09595}
-.share-generator{margin-top:2rem;padding:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px}.share-generator h3{font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--gold);font-size:20px;margin-bottom:10px}.share-generator p{font-size:12px;color:var(--text3);margin-bottom:15px}.share-controls{display:flex;gap:10px;align-items:center}.share-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.6rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border .2s}.share-select:focus{border-color:var(--gold)}.share-btn{padding:.6rem 1.4rem;background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}.share-btn:hover{background:var(--gold);color:#fff}
-.fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}.fn-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}.fn-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-size:16px;font-family:'Cormorant Garamond',serif;font-style:italic;padding:.2rem .25rem;outline:none;transition:border .2s}.fn-input:focus{border-bottom-color:var(--gold)}.fn-btn{padding:.3rem .85rem;border-radius:8px;background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap}.fn-btn:hover{background:rgba(201,169,110,0.2)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.fg{display:flex;flex-direction:column;gap:6px}.fg.full{grid-column:1/-1}.fg label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.1em;text-transform:uppercase}.fg input,.fg select{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.5rem .8rem;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border .2s;height:36px}.fg input:focus,.fg select:focus{border-color:rgba(201,169,110,0.4)}.photo-row{display:flex;gap:1rem;align-items:flex-start}.photo-prev{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;overflow:hidden}.photo-prev img{width:100%;height:100%;object-fit:cover;border-radius:50%}.photo-inputs{flex:1;display:flex;flex-direction:column;gap:.5rem}.url-row{display:flex;gap:.5rem}.url-row input{flex:1}.url-apply{padding:0 .8rem;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}.url-apply:hover{border-color:rgba(201,169,110,.4);color:var(--gold)}.upload-lbl{display:block;padding:.45rem .8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center}.form-actions{display:flex;gap:.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center}.btn-save{padding:.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s}.btn-save:hover:not(:disabled){background:var(--gold2)}.btn-save:disabled{opacity:.5;cursor:not-allowed}.btn-del{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}.btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595}.btn-cancel{padding:.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif}.empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:.75rem}.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 4px 15px rgba(0,0,0,0.3)}.toast.show{opacity:1}.sync-pill{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border2);padding:.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:.07em;z-index:200;transition:opacity .5s;pointer-events:none;opacity:0;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
-@media(max-width:768px){#admin-view,#auth-view{grid-template-columns:1fr;grid-template-rows:auto 1fr;padding:1rem .75rem;gap:1rem}.admin-sidebar{max-height:auto}}@media(max-width:600px){.nav{padding:0 1rem}.nav-brand{font-size:16px}.nav-tab{padding:.75rem .6rem;font-size:10px;letter-spacing:.04em}.lang-btn{padding:.3rem .5rem;font-size:10px}.login-box{width:90vw;padding:2rem 1.25rem}#tree-view{padding:1.5rem 0}.tree-header h1{font-size:26px}.tree-container{text-align:left;padding:0 1rem 4rem 1rem}#tree-root{margin:0!important}.tree-col{padding:20px 16px 0}.admin-form-wrap{padding:1.25rem}.form-grid{grid-template-columns:1fr}.fg.full{grid-column:1}.form-actions{flex-wrap:wrap;gap:.5rem}.form-actions button{flex:1;min-width:80px}.fn-bar{flex-wrap:wrap;gap:.5rem}.photo-row{flex-direction:column;align-items:center}.photo-inputs{width:100%}.url-row{flex-direction:column}.url-apply{height:36px;width:100%}.toast{bottom:1rem;right:.75rem;left:.75rem;text-align:center}.user-card{flex-direction:column;align-items:flex-start;gap:10px}.share-controls{flex-direction:column;align-items:stretch}.tree-toolbar{flex-direction:column;align-items:stretch;padding:0 1rem}.tool-input,.tool-btn{width:100%}}@media(max-width:380px){.nav-tab{padding:.7rem .4rem;font-size:9px}.login-box{padding:1.5rem 1rem}.tree-header h1{font-size:22px}}
-</style></head>
+
+.nav{position:relative;z-index:10;display:flex;align-items:center;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--bg);backdrop-filter:blur(20px);flex-wrap:wrap;opacity:0.95}.nav-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);letter-spacing:0.1em;margin-right:auto;padding:1rem 0;font-style:italic}.nav-brand span{font-style:normal;font-weight:500;color:var(--text)}.nav-tab{padding:0.9rem 1.1rem;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;color:var(--text2);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:'Outfit'}.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)} .nav-tab:hover:not(.active){color:var(--text)}.lang-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-left:0.5rem}.lang-btn{padding:0.35rem 0.75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit';transition:all 0.2s}.lang-btn.active{background:var(--gold);color:#ffffff;font-weight:500}.tool-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit';font-size:13px;outline:none;width:250px;transition:border 0.2s} .tool-input:focus{border-color:var(--gold)}.tool-btn{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.6rem 1.4rem;border-radius:8px;font-family:'Outfit';font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500} .tool-btn:hover{background:var(--gold);color:#fff}
+
+#login-overlay,#waiting-overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:340px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2)}.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:0.25rem} .login-logo span{font-style:normal;color:var(--text)}.login-sub{font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}.auth-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;color:var(--text);font-size:14px;font-family:'Outfit';outline:none;margin-bottom:1rem;transition:border 0.2s} .auth-input:focus{border-color:var(--gold)}.auth-btn{width:100%;padding:0.8rem;border-radius:10px;background:var(--gold);border:none;color:#000;font-size:14px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s;margin-bottom:0.5rem} .auth-btn:hover:not(:disabled){background:var(--gold2)} .auth-btn:disabled{opacity:0.6;cursor:not-allowed}.auth-btn-sec{width:100%;padding:0.8rem;border-radius:10px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit';transition:all 0.2s} .auth-btn-sec:hover{border-color:var(--gold);color:var(--gold)}.auth-error{color:#f09595;font-size:12px;margin-bottom:1rem;min-height:15px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s} .modal-overlay.show{opacity:1;pointer-events:auto}.modal-content{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2rem;width:90%;max-width:400px;max-height:85vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform 0.3s;box-shadow:0 15px 40px rgba(0,0,0,0.4);text-align:center} .modal-overlay.show .modal-content{transform:translateY(0)}.modal-close{position:absolute;top:15px;right:15px;background:transparent;border:none;color:var(--text3);font-size:24px;cursor:pointer;transition:color 0.2s} .modal-close:hover{color:var(--gold)}.modal-av{width:100px;height:100px;border-radius:50%;margin:0 auto 1rem;border:2px solid var(--gold);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden} .modal-av img{width:100%;height:100%;object-fit:cover}.modal-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold);margin-bottom:5px;line-height:1.1} .modal-dates{font-size:12px;color:var(--text3);margin-bottom:1.5rem;letter-spacing:0.05em}.modal-details{text-align:left;background:var(--surface);padding:1rem;border-radius:12px;border:1px solid var(--border2)} .modal-row{margin-bottom:0.75rem;font-size:14px} .modal-row:last-child{margin-bottom:0} .modal-row span{display:block;font-size:10px;text-transform:uppercase;color:var(--text3);letter-spacing:0.08em;margin-bottom:2px} .modal-row div{color:var(--text)} .modal-private{font-style:italic;color:var(--text2);font-size:13px;text-align:center;padding:1rem 0}.modal-gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-top:10px;scroll-behavior:smooth} .modal-gallery::-webkit-scrollbar{height:6px} .modal-gallery::-webkit-scrollbar-track{background:var(--surface2);border-radius:3px} .modal-gallery::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px} .modal-gallery img{height:100px;border-radius:8px;border:1px solid var(--border);object-fit:cover;transition:border-color 0.2s} .modal-gallery img:hover{border-color:var(--gold)}
+
+#tree-view{position:relative;z-index:1;padding:1.5rem;min-height:560px}.tree-header{text-align:center;margin-bottom:1.5rem} .tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:0.05em;line-height:1.2} .tree-header h1 em{color:var(--gold);font-style:italic} .tree-header p{font-size:12px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.5rem}.tree-toolbar{display:flex;justify-content:center;gap:10px;margin-bottom:2rem;flex-wrap:wrap}.tree-container{display:flex;overflow-x:auto;padding-bottom:4rem;width:100%;-webkit-overflow-scrolling:touch;transition:opacity 0.3s} .tree-container::before,.tree-container::after{content:'';margin:auto}#tree-root{position:relative;display:flex;flex-direction:column;align-items:center;padding:1rem 2rem;min-width:max-content;background:transparent;border-radius:12px;z-index:2}
+.person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:all 0.3s;border:1px solid transparent} .person-card:hover:not(.view-only){background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)} .person-card.spouse-card{opacity:0.85}.avatar{border-radius:50%;border:2px solid var(--border2);flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--text2);overflow:hidden;transition:border-color 0.2s} .person-card:hover:not(.view-only) .avatar{border-color:var(--gold)} .avatar img{width:100%;height:100%;object-fit:cover}
+.person-name span,.spouse-label span,.date-label{position:relative;z-index:5;text-shadow:-3px -3px 0 var(--bg),3px -3px 0 var(--bg),-3px 3px 0 var(--bg),3px 3px 0 var(--bg),-3px 0 0 var(--bg),3px 0 0 var(--bg),0 -3px 0 var(--bg),0 3px 0 var(--bg),0 0 10px var(--bg),0 0 15px var(--bg)}.person-name{color:var(--text2);text-align:center} .person-name.primary{color:var(--text);font-weight:500}.spouse-label{font-size:9px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase}.date-label{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Outfit'}.expand-btn{width:16px;height:16px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;cursor:pointer;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);z-index:10;box-shadow:0 0 6px var(--gold);border:2px solid var(--bg);transition:all 0.2s} .expand-btn:hover{transform:translateX(-50%) scale(1.2)}.tree-row{display:flex;justify-content:center;position:relative;padding-top:30px} .tree-col{display:flex;flex-direction:column;align-items:center;position:relative;padding:20px 24px 0} .tree-col::before{content:'';position:absolute;top:0;height:2px;background:var(--gold);z-index:0} .tree-col:first-child::before{left:calc(50% - var(--shift-x,0px));right:0} .tree-col:last-child::before{left:0;right:calc(50% + var(--shift-x,0px))} .tree-col:not(:first-child):not(:last-child)::before{left:0;right:0;width:100%} .tree-col:only-child::before{display:none} .tree-col::after{content:'';position:absolute;top:0;left:calc(50% - var(--shift-x,0px));width:2px;height:20px;background:var(--gold);transform:translateX(-50%);z-index:0} #tree-root>.tree-row{padding-top:0} #tree-root>.tree-row>.tree-col{padding-top:0} #tree-root>.tree-row>.tree-col::before, #tree-root>.tree-row>.tree-col::after{display:none} @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}} .person-card{animation:fadeIn 0.25s ease both}
+
+#admin-view,#auth-view,#design-view{position:relative;z-index:1;padding:1.5rem;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;min-height:560px;box-sizing:border-box}
+.admin-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;overflow-y:auto;max-height:85vh;display:flex;flex-direction:column}
+.sidebar-title{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1rem}
+.member-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:all 0.15s;border:1px solid transparent} .member-item:hover,.member-item.active{background:var(--surface2);border-color:var(--border)}
+.mini-av{width:34px;height:34px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);flex-shrink:0;overflow:hidden} .mini-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.item-name{font-size:13px;color:var(--text)} .item-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+.sidebar-btn{width:100%;margin-top:0.75rem;padding:0.55rem;border-radius:10px;font-size:12px;cursor:pointer;transition:all 0.2s;font-family:'Outfit';letter-spacing:0.04em} .btn-add{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.25);color:var(--gold)} .btn-add:hover{background:rgba(201,169,110,0.18)}
+.admin-form-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem} .admin-form-wrap h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:1.25rem;color:var(--text)}
+
+.bg-editor{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:0.75rem} .bg-editor h4{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);margin-bottom:5px;font-weight:400}
+.drop-zone{border:2px dashed var(--border2);border-radius:8px;padding:1.5rem 1rem;text-align:center;color:var(--text3);font-size:12px;transition:all 0.2s;cursor:pointer;background:var(--bg)} .drop-zone.dragover{border-color:var(--gold);background:var(--surface3);color:var(--gold)}
+.slider-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px} .slider-row label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;width:40px} .slider-row input[type="range"]{flex:1;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer} .slider-row input[type="range"]::-webkit-slider-runnable-track{background:var(--border2);height:4px;border-radius:2px} .slider-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:-4px;background-color:var(--gold);height:12px;width:12px;border-radius:50%}
+
+.user-card{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);padding:1rem;border-radius:12px;margin-bottom:1rem} .user-info strong{font-size:16px;color:var(--text);display:block;margin-bottom:4px} .user-info span{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:2px 6px;border-radius:4px} .status-pending{background:rgba(240,150,100,0.15);color:#f0a864;border:1px solid rgba(240,150,100,0.3)} .status-approved{background:rgba(100,200,120,0.15);color:#64c878;border:1px solid rgba(100,200,120,0.3)} .status-admin{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3)} .auth-actions{display:flex;gap:0.5rem} .auth-act-btn{padding:0.4rem 0.8rem;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Outfit';border:1px solid transparent;transition:all 0.2s} .btn-approve{background:rgba(100,200,120,0.15);color:#64c878;border-color:rgba(100,200,120,0.3)} .btn-promote{background:var(--gold-soft);color:var(--gold);border-color:rgba(201,169,110,0.3)} .btn-revoke{background:transparent;border-color:var(--border2);color:var(--text3)} .share-generator{margin-top:2rem;padding:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px} .share-generator h3{font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--gold);font-size:20px;margin-bottom:10px} .share-generator p{font-size:12px;color:var(--text3);margin-bottom:15px} .share-controls{display:flex;gap:10px;align-items:center} .share-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border 0.2s} .share-select:focus{border-color:var(--gold)} .share-btn{padding:0.6rem 1.4rem;background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s} .share-btn:hover{background:var(--gold);color:#fff}
+
+.fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem} .fn-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap} .fn-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-size:16px;font-family:'Cormorant Garamond',serif;font-style:italic;padding:0.2rem 0.25rem;outline:none;transition:border 0.2s} .fn-input:focus{border-bottom-color:var(--gold)} .fn-btn{padding:0.3rem 0.85rem;border-radius:8px;background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);font-size:12px;cursor:pointer;font-family:'Outfit';white-space:nowrap} .fn-btn:hover{background:rgba(201,169,110,0.2)} .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem} .fg{display:flex;flex-direction:column;gap:6px} .fg.full{grid-column:1/-1} .fg label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.1em;text-transform:uppercase} .fg input,.fg select{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0.5rem 0.8rem;color:var(--text);font-size:13px;font-family:'Outfit';outline:none;transition:border 0.2s;height:36px} .fg input:focus,.fg select:focus{border-color:rgba(201,169,110,0.4)} .photo-row{display:flex;gap:1rem;align-items:flex-start} .photo-prev{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;overflow:hidden} .photo-prev img{width:100%;height:100%;object-fit:cover;border-radius:50%} .photo-inputs{flex:1;display:flex;flex-direction:column;gap:0.5rem} .url-row{display:flex;gap:0.5rem} .url-row input{flex:1} .url-apply{padding:0 0.8rem;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'Outfit'} .upload-lbl{display:block;padding:0.45rem 0.8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center} .form-actions{display:flex;gap:0.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center} .btn-save{padding:0.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#000;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s} .btn-save:hover:not(:disabled){background:var(--gold2)} .btn-save:disabled{opacity:0.5;cursor:not-allowed} .btn-del{padding:0.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'} .btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595} .btn-cancel{padding:0.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'} .empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:0.75rem} .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;box-shadow:0 4px 15px rgba(0,0,0,0.3)} .toast.show{opacity:1} .sync-pill{position:fixed;top:0.75rem;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border2);padding:0.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:0.07em;z-index:200;transition:opacity 0.5s;pointer-events:none;opacity:0;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+@media (max-width: 768px) { #admin-view, #auth-view, #design-view { grid-template-columns: 1fr; grid-template-rows: auto 1fr; padding: 1rem 0.75rem; gap: 1rem; } .admin-sidebar { max-height: none; } }
+@media (max-width: 600px) { .nav { padding: 0 1rem; } .nav-brand { font-size: 16px; } .nav-tab { padding: 0.75rem 0.6rem; font-size: 10px; letter-spacing: 0.04em; } .lang-btn { padding: 0.3rem 0.5rem; font-size: 10px; } .login-box { width: 90vw; padding: 2rem 1.25rem; } #tree-view { padding: 1.5rem 0; } .tree-header h1 { font-size: 26px; } .tree-container { text-align: left; padding: 0 1rem 4rem 1rem; } #tree-root { margin: 0 !important; } .tree-col { padding: 20px 16px 0; } .admin-form-wrap { padding: 1.25rem; } .form-grid { grid-template-columns: 1fr; } .fg.full { grid-column: 1; } .form-actions { flex-wrap: wrap; gap: 0.5rem; } .form-actions button { flex: 1; min-width: 80px; } .fn-bar { flex-wrap: wrap; gap: 0.5rem; } .photo-row { flex-direction: column; align-items: center; } .photo-inputs { width: 100%; } .url-row { flex-direction: column; } .url-apply { height: 36px; width: 100%; } .toast { bottom: 1rem; right: 0.75rem; left: 0.75rem; text-align: center; } .user-card { flex-direction: column; align-items: flex-start; gap: 10px; } .share-controls { flex-direction: column; align-items: stretch; } .tree-toolbar { flex-direction: column; align-items: stretch; padding: 0 1rem; } .tool-input, .tool-btn { width: 100%; } }
+@media (max-width: 380px) { .nav-tab { padding: 0.7rem 0.4rem; font-size: 9px; } .login-box { padding: 1.5rem 1rem; } .tree-header h1 { font-size: 22px; } }
+</style>
+</head>
 <body>
-<div class="bg-canvas"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+</div>
+
 <div class="custom-bg" id="custom-bg"></div>
+<div class="custom-text-container" id="custom-text-container"></div>
 
 <div id="login-overlay">
   <div class="login-box">
@@ -47,7 +74,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 <div id="waiting-overlay" style="display:none;">
   <div class="login-box">
     <div class="login-logo"><em>family</em> <span>tree</span></div>
-    <div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite; margin: 20px auto;"></div>
+    <div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite; margin: 20px auto;"></div>
     <h3 style="font-family:'Outfit'; font-weight:400; color:var(--gold); margin-bottom: 10px;">Account Pending</h3>
     <p style="font-size:13px; color:var(--text3); line-height: 1.4; margin-bottom: 20px;">Your account has been created successfully. You are currently waiting for an Admin to approve your access.</p>
     <button class="auth-btn-sec" onclick="App.doLogout()">Log Out</button>
@@ -68,10 +95,14 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   <span class="nav-brand"><em>family</em> <span id="brand-name">tree</span></span>
   <button class="nav-tab active" id="tab-tree" onclick="App.showView('tree',this)">family tree</button>
   <button class="nav-tab" id="tab-admin" onclick="App.showView('admin',this)" style="display:none;">admin panel</button>
+  <button class="nav-tab" id="tab-design" onclick="App.showView('design',this)" style="display:none;">themes & designs</button>
   <button class="nav-tab" id="tab-auth" onclick="App.showView('auth',this)" style="display:none;">auth panel</button>
+  
   <div class="lang-toggle">
     <select id="theme-picker" class="tool-select" style="margin-right:10px; border-radius:20px; background:transparent; border-color:transparent; color:var(--text3);" onchange="App.setTheme(this.value)">
-      <option value="dark">🌙 Dark</option><option value="light">☀️ Light</option><option value="vintage">📜 Vintage</option>
+      <option value="dark">🌙 Dark</option>
+      <option value="light">☀️ Light</option>
+      <option value="vintage">📜 Vintage</option>
     </select>
     <button class="lang-btn active" onclick="App.setLang('en')">EN</button>
     <button class="lang-btn" onclick="App.setLang('hi')" style="border-right:1px solid var(--border); border-radius:0;">हि</button>
@@ -79,115 +110,250 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   </div>
 </nav>
 
-<div id="tree-view" style="display:none"></div><div id="admin-view" style="display:none"></div><div id="auth-view" style="display:none"></div>
-<div class="toast" id="toast"></div><div class="sync-pill" id="sync-pill"></div>
+<div id="tree-view" style="display:none"></div>
+<div id="admin-view" style="display:none"></div>
+<div id="design-view" style="display:none"></div>
+<div id="auth-view" style="display:none"></div>
+
+<div class="toast" id="toast"></div>
+<div class="sync-pill" id="sync-pill"></div>
 
 <script>
 (function() {
-  const fbConfig = { apiKey: "AIzaSyDviN1RaF9dpUd5ZqFxNNVIDWVYzX9KxPE", authDomain: "family-493f7.firebaseapp.com", databaseURL: "https://family-493f7-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "family-493f7", storageBucket: "family-493f7.firebasestorage.app", messagingSenderId: "677547416268", appId: "1:677547416268:web:b78af5a19bce0106344069" };
-  firebase.initializeApp(fbConfig); const db = firebase.database(), dataRef = db.ref('familyTree'), usersRef = db.ref('familyTreeUsers'), linksRef = db.ref('sharedLinks');
-  const MASTER_USER = 'Kx393', MASTER_PASS = 'sumedh_is_the_goat';
-
-  const sText = {
-    en:{ fam:'The <em>$1</em> Family', hint:'click a name to view details', sp:'spouse', add:'+ add new member', all:'all members', root:'root', desc:'descendant', edit:'edit member', new:'new member', par:'parent', gen:'generation level', spN:'spouse name', sv:'save', del:'delete', can:'cancel', sel:'select a member or add new', sved:'saved', dlted:'deleted', fn:'family name', up:'update', pUrl:'paste image URL…', app:'apply', upl:'upload file', bl:'leave blank if none' },
-    hi:{ fam:'<em>$1</em> परिवार', hint:'विवरण देखने के लिए नाम पर क्लिक करें', sp:'पति/पत्नी', add:'+ सदस्य जोड़ें', all:'सभी सदस्य', root:'मूल', desc:'वंशज', edit:'संपादित करें', new:'नया सदस्य', par:'अभिभावक', gen:'पीढ़ी स्तर', spN:'पति/पत्नी का नाम', sv:'सहेजें', del:'हटाएं', can:'रद्द करें', sel:'सदस्य चुनें या नया जोड़ें', sved:'सहेजा गया', dlted:'हटाया गया', fn:'परिवार का नाम', up:'अपडेट', pUrl:'URL पेस्ट करें…', app:'लागू करें', upl:'अपलोड करें', bl:'खाली छोड़ें' }
+  const fbConfig = {
+    apiKey: "AIzaSyDviN1RaF9dpUd5ZqFxNNVIDWVYzX9KxPE",
+    authDomain: "family-493f7.firebaseapp.com",
+    databaseURL: "https://family-493f7-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "family-493f7",
+    storageBucket: "family-493f7.firebasestorage.app",
+    messagingSenderId: "677547416268",
+    appId: "1:677547416268:web:b78af5a19bce0106344069"
   };
-  function s(k, v){ let t = sText[state.lang][k] || sText['en'][k]; return v ? t.replace('$1', v) : t; }
-
-  var state = { lang: 'en', theme: 'dark', familyName: 'Shah', bgLayers: [], dbReady: false, members: [], expanded: {}, users: {}, currentUser: null, authMode: 'login', selected: null, editingId: null, prevPhoto: '', prevPhotoSpouse: '', prevGallery: [], isViewOnly: false, searchQuery: '', filterMode: 'all' };
   
-  function isAdmin() { return state.currentUser && state.currentUser.role === 'admin' && !state.isViewOnly; }
-  
-  function setTheme(t) { state.theme = t; document.body.className = ''; if(t!=='dark') document.body.classList.add('theme-'+t); localStorage.setItem('famTheme', t); }
-  var savedTheme = localStorage.getItem('famTheme'); if(savedTheme) { document.getElementById('theme-picker').value = savedTheme; setTheme(savedTheme); }
+  firebase.initializeApp(fbConfig);
+  const db = firebase.database();
+  const dataRef = db.ref('familyTree');
+  const usersRef = db.ref('familyTreeUsers');
+  const linksRef = db.ref('sharedLinks');
 
-  /* BACKGROUND ENGINE */
-  function applyBgSettings() {
-      var customBg = document.getElementById('custom-bg'); customBg.innerHTML = '';
-      if (state.bgLayers && state.bgLayers.length > 0) {
-          state.bgLayers.forEach(l => {
-              var d = document.createElement('div'); d.className = 'custom-bg-layer';
-              d.style.backgroundImage = `url(${l.url})`; d.style.backgroundSize = `${l.zoom||100}%`; d.style.backgroundPosition = `${l.x||50}% ${l.y||50}%`;
-              customBg.appendChild(d);
-          });
-          document.querySelectorAll('.orb').forEach(o => o.style.display = 'none');
-      } else { document.querySelectorAll('.orb').forEach(o => o.style.display = 'block'); }
+  const MASTER_USER = 'Kx393'; 
+  const MASTER_PASS = 'sumedh_is_the_goat';
+
+  const STRINGS = {
+    en:{
+      navTree: 'family tree', navAdmin: 'admin panel', navDesign: 'themes & designs',
+      fam:'The <em>$1</em> Family', hint:'Click a name to view details', sp:'spouse', add:'+ add new member', all:'all members', 
+      root:'root', desc:'descendant', edit:'edit member', new:'new member', par:'parent', gen:'generation level', spN:'spouse name', 
+      sv:'save', del:'delete', can:'cancel', sel:'select a member or add new', sved:'saved', dlted:'deleted', fn:'family name', up:'update', 
+      pUrl:'paste image URL…', app:'apply', upl:'upload file', bl:'leave blank if none',
+      rootLevel: '— root (top level) —', genLabels: ['root', 'children', 'grandchildren', 'great-grandchildren', 'gen 4+'],
+      photo: 'photo', firstName: 'first name', lastName: 'last name'
+    },
+    hi:{
+      navTree: 'परिवार वृक्ष', navAdmin: 'व्यवस्थापक', navDesign: 'थीम और डिज़ाइन',
+      fam:'<em>$1</em> परिवार', hint:'विवरण देखने के लिए नाम पर क्लिक करें', sp:'पति/पत्नी', add:'+ सदस्य जोड़ें', all:'सभी सदस्य', 
+      root:'मूल', desc:'वंशज', edit:'संपादित करें', new:'नया सदस्य', par:'अभिभावक', gen:'पीढ़ी स्तर', spN:'पति/पत्नी का नाम', 
+      sv:'सहेजें', del:'हटाएं', can:'रद्द करें', sel:'सदस्य चुनें या नया जोड़ें', sved:'सहेजा गया', dlted:'हटाया गया', fn:'परिवार का नाम', 
+      up:'अपडेट', pUrl:'URL पेस्ट करें…', app:'लागू करें', upl:'अपलोड करें', bl:'खाली छोड़ें',
+      rootLevel: '— मूल (शीर्ष स्तर) —', genLabels: ['मूल', 'बच्चे', 'पोते-पोती', 'परपोते-परपोती', 'पीढ़ी 4+'],
+      photo: 'फ़ोटो', firstName: 'पहला नाम', lastName: 'अंतिम नाम'
+    }
+  };
+
+  const getEl = id => document.getElementById(id);
+  const s = (k, v) => { let t = STRINGS[state.lang][k] || STRINGS['en'][k]; return v ? t.replace('$1', v) : t; };
+
+  let state = {
+    lang: 'en', theme: 'dark', familyName: 'Shah', bgLayers: [], textLayers: [], dbReady: false, members: [],
+    expanded: {}, users: {}, currentUser: null, authMode: 'login', selected: null, editingId: null,
+    prevPhoto: '', prevPhotoSpouse: '', prevGallery: [], isViewOnly: false, searchQuery: ''
+  };
+
+  const isAdmin = () => state.currentUser && state.currentUser.role === 'admin' && !state.isViewOnly;
+
+  function setTheme(t) {
+    state.theme = t; document.body.className = '';
+    if(t !== 'dark') document.body.classList.add('theme-' + t);
+    localStorage.setItem('famTheme', t);
   }
+  let savedTheme = localStorage.getItem('famTheme');
+  if(savedTheme) { getEl('theme-picker').value = savedTheme; setTheme(savedTheme); }
+
+  /* --- MULTI-LAYER BACKGROUND ENGINE --- */
+  function applyBgSettings() {
+    const bgContainer = getEl('custom-bg');
+    const cv = document.querySelector('.bg-canvas');
+    bgContainer.innerHTML = '';
+    let bgHTMLContent = '';
+    
+    if (state.bgLayers && state.bgLayers.length > 0) {
+      state.bgLayers.forEach(l => {
+        bgHTMLContent += `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${l.zoom || 100}%; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`;
+      });
+      bgContainer.innerHTML = bgHTMLContent;
+      document.querySelectorAll('.orb').forEach(o => o.style.display = 'none');
+      
+      let activeTabBtn = document.querySelector('.nav-tab.active');
+      if (activeTabBtn && activeTabBtn.id === 'tab-tree') {
+          bgContainer.style.opacity = '1';
+          if(cv) cv.style.opacity = '0';
+      }
+    } else {
+      bgContainer.style.opacity = '0';
+      if(cv) cv.style.opacity = '1';
+      document.querySelectorAll('.orb').forEach(o => o.style.display = 'block');
+    }
+  }
+
   function handleDropZoneOver(e) { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
   function handleDropZoneLeave(e) { e.preventDefault(); e.currentTarget.classList.remove('dragover'); }
-  function handleDropZoneDrop(e) { e.preventDefault(); e.currentTarget.classList.remove('dragover'); var f = e.dataTransfer.files[0]; if(f) processBgFile(f); }
-  function handleBgFile(inp) { var f = inp.files[0]; if(f) processBgFile(f); }
+  function handleDropZoneDrop(e) { e.preventDefault(); e.currentTarget.classList.remove('dragover'); let f = e.dataTransfer.files[0]; if(f) processBgFile(f); }
+  function handleBgFile(inp) { let f = inp.files[0]; if(f) processBgFile(f); }
+  
   function processBgFile(file) {
-      var btn = document.getElementById('btn-save-bg'); if (btn) { btn.disabled = true; btn.textContent = 'Processing...'; }
-      var r = new FileReader(); r.onload = e => {
-          var img = new Image(); img.onload = () => {
-              var c = document.createElement('canvas'); var M = 1600; var w = img.width, h = img.height;
-              if (w > h) { if (w > M) { h *= M / w; w = M; } } else { if (h > M) { w *= M / h; h = M; } }
-              c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h);
-              if (!state.bgLayers) state.bgLayers = [];
-              state.bgLayers.push({ id: 'bg'+Date.now(), url: c.toDataURL('image/jpeg', 0.8), zoom: 100, x: 50, y: 50 });
-              applyBgSettings(); renderAdmin(); 
-          }; img.src = e.target.result;
-      }; r.readAsDataURL(file);
+    let btn = getEl('btn-save-bg'); if(btn) { btn.disabled = true; btn.textContent = 'Processing...'; }
+    let r = new FileReader();
+    r.onload = e => {
+      let img = new Image();
+      img.onload = () => {
+        let c = document.createElement('canvas'), M = 1600, w = img.width, h = img.height;
+        if(w > h) { if(w > M) { h *= M/w; w = M; } } else { if(h > M) { w *= M/h; h = M; } }
+        c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h);
+        if(!state.bgLayers) state.bgLayers = [];
+        state.bgLayers.push({ id: 'bg'+Date.now(), url: c.toDataURL('image/jpeg', 0.8), zoom: 100, x: 50, y: 50 });
+        applyBgSettings(); refreshStudioPreview(); renderDesignStudio();
+      };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(file);
   }
-  function updateLayer(id, p, v) { var l = state.bgLayers.find(x => x.id === id); if(l) { l[p] = v; applyBgSettings(); } }
-  function removeLayer(id) { state.bgLayers = state.bgLayers.filter(x => x.id !== id); applyBgSettings(); renderAdmin(); }
+  function updateLayer(id, p, v) { let l = state.bgLayers.find(x => x.id === id); if(l) { l[p] = v; applyBgSettings(); refreshStudioPreview(); } }
+  function removeLayer(id) { state.bgLayers = state.bgLayers.filter(x => x.id !== id); applyBgSettings(); renderDesignStudio(); }
   function saveBgSettings() { if(isAdmin()) { saveToFirebase(); showToast('Backgrounds saved!'); } }
+  function clearBgSettings() {
+      if(!isAdmin()) return;
+      state.bgLayers = [];
+      saveToFirebase(); applyBgSettings(); renderDesignStudio(); showToast('All layers cleared');
+  }
 
-  /* MULTI-GALLERY */
+  /* --- CUSTOM TEXT OVERLAY ENGINE --- */
+  function applyTextSettings() {
+    const container = getEl('custom-text-container');
+    if(!container) return;
+    container.innerHTML = '';
+    if (state.textLayers && state.textLayers.length > 0) {
+      state.textLayers.forEach(l => {
+        let d = document.createElement('div');
+        d.className = 'custom-text-layer';
+        d.style.cssText = `left: ${l.x||50}%; top: ${l.y||50}%; font-size: ${l.size||40}px; color: ${l.color||'#c9a96e'};`;
+        d.innerHTML = l.text.replace(/\n/g, '<br>');
+        container.appendChild(d);
+      });
+      let activeTabBtn = document.querySelector('.nav-tab.active');
+      if (activeTabBtn && activeTabBtn.id === 'tab-tree') container.style.opacity = '1';
+    } else {
+      container.style.opacity = '0';
+    }
+  }
+  
+  function addTextLayer() {
+    let input = getEl('new-text-input');
+    let val = input.value.trim();
+    if(!val) return;
+    if(!state.textLayers) state.textLayers = [];
+    state.textLayers.push({ id: 'txt'+Date.now(), text: val, size: 60, x: 50, y: 15, color: '#c9a96e' });
+    input.value = '';
+    applyTextSettings(); renderDesignStudio();
+  }
+  function updateTextLayer(id, p, v) { let l = state.textLayers.find(x => x.id === id); if(l) { l[p] = v; applyTextSettings(); refreshStudioPreview(); } }
+  function removeTextLayer(id) { state.textLayers = state.textLayers.filter(x => x.id !== id); applyTextSettings(); renderDesignStudio(); }
+  function saveTextSettings() { if(isAdmin()) { saveToFirebase(); showToast('Text saved!'); } }
+
+  /* --- MULTI-GALLERY UPLOADER --- */
   function handleGalleryFiles(inp) {
-      var files = inp.files; if (!files || !files.length) return;
-      var btn = document.querySelector('.btn-save'); if(btn) { btn.disabled = true; btn.textContent = 'Processing...'; }
-      var p = 0;
-      for (let i = 0; i < files.length; i++) {
-          let r = new FileReader(); r.onload = e => {
-              let img = new Image(); img.onload = () => {
-                  let c = document.createElement('canvas'); let M = 800; let w = img.width, h = img.height;
-                  if(w>h){if(w>M){h*=M/w;w=M}}else{if(h>M){w*=M/h;h=M}}
-                  c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
-                  state.prevGallery.push(c.toDataURL('image/jpeg', 0.7)); p++;
-                  if(p === files.length) { if(btn) { btn.disabled = false; btn.textContent = s('sv'); } renderGalleryPreviews(); }
-              }; img.src = e.target.result;
-          }; r.readAsDataURL(files[i]);
-      }
+    let files = inp.files; if(!files || !files.length) return;
+    let btn = document.querySelector('.btn-save'); if(btn) { btn.disabled = true; btn.textContent = 'Processing...'; }
+    let processed = 0;
+    for(let i=0; i<files.length; i++) {
+      let r = new FileReader();
+      r.onload = e => {
+        let img = new Image();
+        img.onload = () => {
+          let c = document.createElement('canvas'), M = 800, w = img.width, h = img.height;
+          if(w>h) { if(w>M){h*=M/w; w=M;} } else { if(h>M){w*=M/h; h=M;} }
+          c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h);
+          state.prevGallery.push(c.toDataURL('image/jpeg', 0.7)); processed++;
+          if(processed === files.length) { if(btn) { btn.disabled = false; btn.textContent = s('sv'); } renderGalleryPreviews(); }
+        };
+        img.src = e.target.result;
+      };
+      r.readAsDataURL(files[i]);
+    }
   }
   function renderGalleryPreviews() {
-      var c = document.getElementById('gallery-previews'); if(!c) return;
-      c.innerHTML = state.prevGallery.map((src, i) => `<div style="position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);flex-shrink:0;"><img src="${src}" style="width:100%;height:100%;object-fit:cover;"><div onclick="App.removeGalleryImg(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);color:#fff;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;">×</div></div>`).join('');
+    let c = getEl('gallery-previews'); if(!c) return;
+    c.innerHTML = state.prevGallery.map((src, i) => `<div style="position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1px solid var(--border2); flex-shrink:0;"><img src="${src}" style="width:100%; height:100%; object-fit:cover;"><div onclick="App.removeGalleryImg(${i})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.7); color:#fff; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:10px;">×</div></div>`).join('');
   }
   function removeGalleryImg(i) { state.prevGallery.splice(i, 1); renderGalleryPreviews(); }
 
-  /* CORE UTILS */
-  function getSizes() { var w = window.innerWidth; if(w<=480) return {sz:44,fs:10,pad:4,cardW:52,connW:12}; if(w<=768) return {sz:48,fs:11,pad:5,cardW:58,connW:14}; return {sz:52,fs:12,pad:6,cardW:64,connW:16}; }
-  window.addEventListener('resize', () => { if(state.dbReady && document.getElementById('tree-view').style.display !== 'none') renderTree(); });
-  function initials(n){ return n ? n.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase() : '??'; }
-  function dname(m){ return state.lang==='hi'&&m.nameHi ? m.nameHi : m.name; }
-  function getPrimaries(pid){ return state.members.filter(m => m && (m.parentId||null) === (pid||null) && !m.isSpouse); }
-  function getSpouse(m){ return m.spouse ? state.members.find(x => x && x.id === m.spouse) || null : null; }
-  function getChildren(m){ return state.members.filter(x => x && x.parentId === m.id && !x.isSpouse); }
-  function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
-  function showSync(msg, col){ if(state.isViewOnly) return; var p=document.getElementById('sync-pill'); p.textContent=msg; p.style.color=col||'var(--gold)'; p.style.opacity='1'; clearTimeout(p._t); p._t=setTimeout(()=>p.style.opacity='0',2500); }
+  /* --- CORE UTILS --- */
+  function getSizes() {
+    let w = window.innerWidth;
+    if(w <= 480) return {sz:44, fs:10, pad:4, cardW:52, connW:12}; 
+    if(w <= 768) return {sz:48, fs:11, pad:5, cardW:58, connW:14}; 
+    return {sz:52, fs:12, pad:6, cardW:64, connW:16};               
+  }
+  window.addEventListener('resize', () => { if(state.dbReady && getEl('tree-view').style.display !== 'none') renderTree(); });
+  
+  const initials = n => n ? n.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase() : '??';
+  const dname = m => state.lang==='hi' && m.nameHi ? m.nameHi : m.name;
+  const getPrimaries = pid => state.members.filter(m => m && (m.parentId||null) === (pid||null) && !m.isSpouse);
+  const getSpouse = m => m.spouse ? state.members.find(x => x && x.id === m.spouse) || null : null;
+  const getChildren = m => state.members.filter(x => x && x.parentId === m.id && !x.isSpouse);
+  
+  function showToast(msg) {
+    let t = getEl('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function showSync(msg, col) {
+    if(state.isViewOnly) return; 
+    let p = getEl('sync-pill'); p.textContent = msg; p.style.color = col || 'var(--gold)'; p.style.opacity = '1';
+    clearTimeout(p._t); p._t = setTimeout(() => p.style.opacity = '0', 2500);
+  }
 
-  /* SYNC */
+  /* --- DATA SYNC --- */
   function saveToFirebase(){
     if(!state.dbReady || state.isViewOnly) return;
-    try { dataRef.set(JSON.parse(JSON.stringify({members:state.members, familyName:state.familyName, bgLayers:state.bgLayers, v:1}))).then(()=>showSync('✓ synced')).catch(()=>showSync('⚠ sync failed','#f09595')); } catch(e){ showSync('⚠ data error','#f09595'); }
+    try {
+      let payload = JSON.parse(JSON.stringify({members: state.members, familyName: state.familyName, bgLayers: state.bgLayers, textLayers: state.textLayers, v: 1}));
+      dataRef.set(payload).then(() => showSync('✓ synced')).catch(() => showSync('⚠ sync failed', '#f09595'));
+    } catch(e) { showSync('⚠ data error', '#f09595'); }
   }
+
   function startSync(){
-    showSync('connecting…','var(--text3)');
+    showSync('connecting…', 'var(--text3)');
     dataRef.on('value', snap => {
-      var d = snap.val(); state.dbReady = true;
+      let d = snap.val(); state.dbReady = true;
       if(d){
         let rm = d.members || []; if(!Array.isArray(rm) && typeof rm === 'object') rm = Object.keys(rm).map(k => rm[k]);
-        state.members = rm.filter(Boolean).map(m => { if(m.parentId===undefined || m.parentId==='') m.parentId=null; return m; });
-        state.familyName = d.familyName || 'Shah'; state.bgLayers = d.bgLayers || [];
-      } else { state.members = []; state.bgLayers = []; }
-      var bn = document.getElementById('brand-name'); if(bn) bn.textContent = state.familyName;
+        state.members = rm.filter(Boolean).map(m => { if(m.parentId === undefined || m.parentId === '') m.parentId = null; return m; });
+        state.familyName = d.familyName || 'Shah'; 
+        state.bgLayers = d.bgLayers || [];
+        state.textLayers = d.textLayers || [];
+      } else { state.members = []; state.bgLayers = []; state.textLayers = []; }
+      
+      let bn = getEl('brand-name'); if(bn) bn.textContent = state.familyName;
       applyBgSettings();
-      var tv=document.getElementById('tree-view'), av=document.getElementById('admin-view');
-      if(av && av.style.display !== 'none' && isAdmin()) renderAdmin(); else if(tv && tv.style.display !== 'none') renderTree();
+      applyTextSettings();
+
+      let activeTabBtn = document.querySelector('.nav-tab.active') || getEl('tab-tree');
+      let activeView = activeTabBtn.id.replace('tab-', '');
+      if(activeView !== 'tree' && !isAdmin()) { activeView = 'tree'; activeTabBtn = getEl('tab-tree'); }
+      showView(activeView, activeTabBtn);
+      
       showSync('✓ connected');
     });
+
     if(!state.isViewOnly){
       usersRef.on('value', snap => {
         state.users = snap.val() || {};
@@ -195,224 +361,426 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
            let key = Object.keys(state.users).find(k => state.users[k].username === state.currentUser.username);
            let dbU = key ? state.users[key] : null;
            if(!dbU) { doLogout(); return; }
-           let u = false; if(state.currentUser.status !== dbU.status){ state.currentUser.status=dbU.status; u=true; }
-           if(state.currentUser.role !== dbU.role){ state.currentUser.role=dbU.role; u=true; }
-           if(u){ localStorage.setItem('famUser', JSON.stringify(state.currentUser)); if(state.currentUser.status === 'approved') unlockApp(); else { document.getElementById('main-nav').style.display='none'; document.getElementById('tree-view').style.display='none'; document.getElementById('admin-view').style.display='none'; document.getElementById('auth-view').style.display='none'; document.getElementById('waiting-overlay').style.display='flex'; } }
+           let u = false; 
+           if(state.currentUser.status !== dbU.status) { state.currentUser.status = dbU.status; u = true; }
+           if(state.currentUser.role !== dbU.role) { state.currentUser.role = dbU.role; u = true; }
+           if(u) {
+              localStorage.setItem('famUser', JSON.stringify(state.currentUser));
+              if(state.currentUser.status === 'approved') unlockApp(); 
+              else {
+                 getEl('main-nav').style.display='none'; getEl('tree-view').style.display='none';
+                 getEl('admin-view').style.display='none'; getEl('design-view').style.display='none'; getEl('auth-view').style.display='none';
+                 getEl('waiting-overlay').style.display='flex';
+              }
+           }
         }
-        var authV = document.getElementById('auth-view'); if(authV && authV.style.display!=='none' && isAdmin()) renderAuthPanel();
+        let authV = getEl('auth-view'); if(authV && authV.style.display !== 'none' && isAdmin()) renderAuthPanel();
       });
     }
   }
 
-  /* AUTH (PATCHED SECURITY) */
+  /* --- AUTH & LOGIN --- */
   function checkLocalAuth() {
     const t = new URLSearchParams(window.location.search).get('share');
-    if (t) {
-       document.getElementById('auth-title').textContent = "Checking secure link...";
-       ['auth-user','auth-pass','btn-login-submit','btn-login-toggle'].forEach(id => document.getElementById(id).style.display='none');
+    if(t) {
+       getEl('auth-title').textContent = "Checking secure link...";
+       ['auth-user','auth-pass','btn-login-submit','btn-login-toggle'].forEach(id => getEl(id).style.display='none');
        linksRef.child(t).once('value').then(snap => {
            let d = snap.val();
-           if(d && d.expiresAt > Date.now()){ state.isViewOnly = true; unlockApp(); }
-           else{ document.getElementById('auth-error').textContent = "Link expired/invalid."; let b=document.getElementById('btn-login-toggle'); b.style.display='block'; b.textContent="Return to Login"; b.onclick=()=>window.location.href=window.location.pathname; }
-       }); return;
+           if(d && d.expiresAt > Date.now()) { state.isViewOnly = true; unlockApp(); }
+           else {
+               getEl('auth-error').textContent = "Link expired/invalid.";
+               let b = getEl('btn-login-toggle'); b.style.display='block'; b.textContent="Return to Login";
+               b.onclick = () => window.location.href = window.location.pathname;
+           }
+       }).catch(e => { getEl('auth-error').textContent = "Connection error."; });
+       return;
     }
-    var s = localStorage.getItem('famUser');
-    if(s){ state.currentUser = JSON.parse(s); if(state.currentUser.status === 'approved') unlockApp(); else{ document.getElementById('login-overlay').style.display='none'; document.getElementById('waiting-overlay').style.display='flex'; startSync(); } }
+    let s = localStorage.getItem('famUser');
+    if(s){ 
+      state.currentUser = JSON.parse(s);
+      if(state.currentUser.status === 'approved') unlockApp();
+      else { getEl('login-overlay').style.display='none'; getEl('waiting-overlay').style.display='flex'; startSync(); } 
+    }
   }
+
   function toggleAuthMode() {
-    var err=document.getElementById('auth-error'), t=document.getElementById('auth-title'), b=document.getElementById('btn-login-submit'), tgl=document.getElementById('btn-login-toggle'); err.textContent='';
-    if(state.authMode === 'login'){ state.authMode='register'; t.textContent='create account'; b.textContent='Register'; tgl.textContent='I already have an account'; }
-    else{ state.authMode='login'; t.textContent='secure access'; b.textContent='Log In'; tgl.textContent='Create an Account instead'; }
+    let err = getEl('auth-error'), t = getEl('auth-title'), b = getEl('btn-login-submit'), tgl = getEl('btn-login-toggle'); err.textContent = '';
+    if(state.authMode === 'login') {
+      state.authMode = 'register'; t.textContent = 'create account'; b.textContent = 'Register'; tgl.textContent = 'I already have an account';
+    } else {
+      state.authMode = 'login'; t.textContent = 'secure access'; b.textContent = 'Log In'; tgl.textContent = 'Create an Account instead';
+    }
   }
+
   function doAuth() {
-    var un=document.getElementById('auth-user').value.trim(), pw=document.getElementById('auth-pass').value.trim(), err=document.getElementById('auth-error'); err.textContent='';
-    if(!un||!pw){ err.textContent='Enter both fields.'; return; }
-    if(un.toLowerCase()===MASTER_USER.toLowerCase() && pw===MASTER_PASS){ state.currentUser={username:MASTER_USER,role:'admin',status:'approved'}; localStorage.setItem('famUser', JSON.stringify(state.currentUser)); unlockApp(); return; }
+    let un = getEl('auth-user').value.trim(), pw = getEl('auth-pass').value.trim(), err = getEl('auth-error'); err.textContent = '';
+    if(!un || !pw) { err.textContent = 'Enter both fields.'; return; }
     
-    // FIX 3: Basic Base64 encoding to prevent raw plain-text storage
-    var encodedPw = btoa(pw);
+    if(un.toLowerCase() === MASTER_USER.toLowerCase() && pw === MASTER_PASS) {
+       state.currentUser = { username: MASTER_USER, role: 'admin', status: 'approved' };
+       localStorage.setItem('famUser', JSON.stringify(state.currentUser)); unlockApp(); return;
+    }
+    
+    let encodedPw = btoa(pw);
 
-    var btn=document.getElementById('btn-login-submit'); var o=btn.textContent; btn.textContent='Checking...'; btn.disabled=true;
+    let btn = getEl('btn-login-submit'); let o = btn.textContent; btn.textContent = 'Checking...'; btn.disabled = true;
     usersRef.once('value').then(snap => {
-       btn.textContent=o; btn.disabled=false; var users=snap.val()||{};
-       var key=Object.keys(users).find(k=>users[k]&&users[k].username&&users[k].username.toLowerCase()===un.toLowerCase()), dbU=key?users[key]:null;
-       if(state.authMode==='login'){
-          if(!dbU){ err.textContent='Username not found.'; return; }
-          if(dbU.password!==encodedPw){ err.textContent='Incorrect password.'; return; }
-          state.currentUser={username:dbU.username,role:dbU.role,status:dbU.status}; localStorage.setItem('famUser',JSON.stringify(state.currentUser));
-          if(dbU.status==='approved') unlockApp(); else{ document.getElementById('login-overlay').style.display='none'; document.getElementById('waiting-overlay').style.display='flex'; startSync(); }
-       } else {
-          if(dbU){ err.textContent='Username taken.'; return; }
-          if(un.toLowerCase()===MASTER_USER.toLowerCase()){ err.textContent='Reserved.'; return; }
-          usersRef.push({username:un,password:encodedPw,role:'member',status:'pending'}).then(()=>{ state.currentUser={username:un,role:'member',status:'pending'}; localStorage.setItem('famUser',JSON.stringify(state.currentUser)); document.getElementById('login-overlay').style.display='none'; document.getElementById('waiting-overlay').style.display='flex'; startSync(); }).catch(e=>err.textContent="Error: "+e.message);
-       }
-    }).catch(e=>{ btn.textContent=o; btn.disabled=false; err.textContent="Connection error."; });
-  }
-  function unlockApp() {
-    document.getElementById('login-overlay').style.display='none'; document.getElementById('waiting-overlay').style.display='none';
-    document.getElementById('main-nav').style.display='flex'; document.getElementById('tab-admin').style.display='none'; document.getElementById('tab-auth').style.display='none';
-    if(isAdmin()){ document.getElementById('tab-admin').style.display='block'; document.getElementById('tab-auth').style.display='block'; }
-    applyLang();
-    var tv=document.getElementById('tree-view'), av=document.getElementById('admin-view'), au=document.getElementById('auth-view');
-    if(tv.style.display==='none' && av.style.display==='none' && au.style.display==='none'){ tv.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:.06em">loading data…</span></div>`; tv.style.display='block'; }
-    if(!state.dbReady) startSync(); else{ var at=document.querySelector('.nav-tab.active'); if(at&&!state.isViewOnly) showView(at.id.replace('tab-',''),at); else renderTree(); }
-  }
-  function doLogout(){ localStorage.removeItem('famUser'); window.location.href=window.location.pathname; }
+       btn.textContent = o; btn.disabled = false;
+       let users = snap.val() || {};
+       let key = Object.keys(users).find(k => users[k] && users[k].username && users[k].username.toLowerCase() === un.toLowerCase());
+       let dbU = key ? users[key] : null;
 
-  /* PROFILE MODAL */
+       if(state.authMode === 'login') {
+          if(!dbU) { err.textContent = 'Username not found.'; return; }
+          if(dbU.password !== encodedPw && dbU.password !== pw) { err.textContent = 'Incorrect password.'; return; }
+          
+          state.currentUser = { username: dbU.username, role: dbU.role, status: dbU.status };
+          localStorage.setItem('famUser', JSON.stringify(state.currentUser));
+          
+          if(dbU.status === 'approved') unlockApp();
+          else { getEl('login-overlay').style.display='none'; getEl('waiting-overlay').style.display='flex'; startSync(); }
+       } else {
+          if(dbU) { err.textContent = 'Username taken.'; return; }
+          if(un.toLowerCase() === MASTER_USER.toLowerCase()) { err.textContent = 'Reserved.'; return; }
+          usersRef.push({username: un, password: encodedPw, role: 'member', status: 'pending'}).then(() => {
+             state.currentUser = { username: un, role: 'member', status: 'pending' };
+             localStorage.setItem('famUser', JSON.stringify(state.currentUser));
+             getEl('login-overlay').style.display='none'; getEl('waiting-overlay').style.display='flex'; startSync();
+          }).catch(e => err.textContent = "Error: " + e.message);
+       }
+    }).catch(e => {
+       btn.textContent = o; btn.disabled = false;
+       console.error(e);
+       err.textContent = "Database connection error.";
+    });
+  }
+
+  function unlockApp() {
+    getEl('login-overlay').style.display='none'; getEl('waiting-overlay').style.display='none';
+    getEl('main-nav').style.display='flex'; getEl('tab-admin').style.display='none'; getEl('tab-design').style.display='none'; getEl('tab-auth').style.display='none';
+    
+    if(isAdmin()) { getEl('tab-admin').style.display='block'; getEl('tab-design').style.display='block'; getEl('tab-auth').style.display='block'; }
+    applyLang();
+    
+    let tv = getEl('tree-view'), av = getEl('admin-view'), au = getEl('auth-view');
+    if(tv.style.display === 'none' && av.style.display === 'none' && au.style.display === 'none') {
+        tv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:0.06em">loading data…</span></div>`;
+        tv.style.display = 'block';
+    }
+    if(!state.dbReady) startSync();
+    else {
+        let at = document.querySelector('.nav-tab.active');
+        if(at && !state.isViewOnly) showView(at.id.replace('tab-',''), at); else renderTree();
+    }
+  }
+
+  function doLogout() { localStorage.removeItem('famUser'); window.location.href = window.location.pathname; }
+
+  /* --- PROFILE MODAL & GALLERY --- */
   function openProfile(id) {
-     var m = state.members.find(x => x.id === id); if(!m) return;
-     document.getElementById('pm-av').innerHTML = m.photo ? `<img src="${m.photo}">` : initials(m.name);
-     document.getElementById('pm-name').textContent = dname(m);
-     let by=m.birthYear?m.birthYear.trim():'', dy=m.deathYear?m.deathYear.trim():'', ds='';
-     if(by&&dy) ds=`${by} - ${dy}`; else if(by&&!dy) ds=`${by} - Present`; else if(!by&&dy) ds=`Died: ${dy}`;
-     document.getElementById('pm-dates').textContent = ds;
-     let dh='';
-     if (state.isViewOnly) dh = '<div class="modal-private">Detailed information is hidden for guest viewers.</div>';
-     else {
-         if(m.dob) dh+=`<div class="modal-row"><span>Date of Birth</span><div>${m.dob}</div></div>`;
-         if(m.marriageDate) dh+=`<div class="modal-row"><span>Marriage Date</span><div>${m.marriageDate}</div></div>`;
-         if(m.phone) dh+=`<div class="modal-row"><span>Phone Number</span><div>${m.phone}</div></div>`;
-         if(m.address) dh+=`<div class="modal-row"><span>Address</span><div>${m.address}</div></div>`;
-         if(dh==='') dh='<div class="modal-private">No additional details available.</div>';
-         if (m.gallery && m.gallery.length>0) {
-            dh+=`<div style="margin-top:1.5rem;border-top:1px solid var(--border2);padding-top:1rem;"><span style="display:block;font-size:10px;text-transform:uppercase;color:var(--text3);letter-spacing:0.08em;margin-bottom:8px;">Photo Gallery</span><div class="modal-gallery">`;
-            m.gallery.forEach(src=>dh+=`<a href="${src}" target="_blank"><img src="${src}"></a>`);
-            dh+=`</div></div>`;
+     let m = state.members.find(x => x.id === id); if(!m) return;
+     getEl('pm-av').innerHTML = m.photo ? `<img src="${m.photo}">` : initials(m.name);
+     getEl('pm-name').textContent = dname(m);
+     
+     let by = m.birthYear ? m.birthYear.trim() : '', dy = m.deathYear ? m.deathYear.trim() : '', ds = '';
+     if(by && dy) ds = `${by} - ${dy}`; else if(by && !dy) ds = `${by} - Present`; else if(!by && dy) ds = `Died: ${dy}`;
+     getEl('pm-dates').textContent = ds;
+     
+     let dh = '';
+     if(state.isViewOnly) {
+         dh = '<div class="modal-private">Detailed information is hidden for guest viewers.</div>';
+     } else {
+         if(m.dob) dh += `<div class="modal-row"><span>Date of Birth</span><div>${m.dob}</div></div>`;
+         if(m.marriageDate) dh += `<div class="modal-row"><span>Marriage Date</span><div>${m.marriageDate}</div></div>`;
+         if(m.phone) dh += `<div class="modal-row"><span>Phone Number</span><div>${m.phone}</div></div>`;
+         if(m.address) dh += `<div class="modal-row"><span>Address</span><div>${m.address}</div></div>`;
+         if(dh === '') dh = '<div class="modal-private">No additional details available.</div>';
+         
+         if(m.gallery && m.gallery.length > 0) {
+            dh += `<div style="margin-top:1.5rem; border-top:1px solid var(--border2); padding-top:1rem;"><span style="display:block; font-size:10px; text-transform:uppercase; color:var(--text3); letter-spacing:0.08em; margin-bottom:8px;">Photo Gallery</span><div class="modal-gallery">`;
+            m.gallery.forEach(src => dh += `<a href="${src}" target="_blank"><img src="${src}"></a>`);
+            dh += `</div></div>`;
          }
      }
-     document.getElementById('pm-details').innerHTML = dh; document.getElementById('profile-modal').classList.add('show');
+     getEl('pm-details').innerHTML = dh;
+     getEl('profile-modal').classList.add('show');
   }
-  function closeProfile() { document.getElementById('profile-modal').classList.remove('show'); }
+  function closeProfile() { getEl('profile-modal').classList.remove('show'); }
 
-  /* EXPORT (PATCHED BUG) */
+  /* --- POSTER EXPORT --- */
   function exportTree() {
-      showToast("Generating Poster..."); var root = document.getElementById('tree-root');
-      var obg = root.style.background, opad = root.style.padding;
+      showToast("Generating Poster..."); 
+      let root = getEl('tree-root');
+      let obg = root.style.background, opad = root.style.padding;
       
-      // FIX 1: Make clone absolutely positioned and 100% size so it fully covers the poster 
-      var bgClone = document.getElementById('custom-bg').cloneNode(true); 
-      bgClone.style.opacity='1'; 
-      bgClone.style.position = 'absolute';
-      bgClone.style.width = '100%';
-      bgClone.style.height = '100%';
-      bgClone.style.zIndex = '-1';
+      let bgClone = getEl('custom-bg').cloneNode(true); 
+      bgClone.style.opacity = '1'; bgClone.style.position = 'absolute'; bgClone.style.inset = '0';
+      bgClone.style.width = '100%'; bgClone.style.height = '100%'; bgClone.style.zIndex = '-2';
+      
+      let txtClone = getEl('custom-text-container').cloneNode(true);
+      txtClone.style.opacity = '1'; txtClone.style.position = 'absolute'; txtClone.style.inset = '0';
+      txtClone.style.width = '100%'; txtClone.style.height = '100%'; txtClone.style.zIndex = '-1';
+
       root.appendChild(bgClone);
+      root.appendChild(txtClone);
 
-      root.style.background = getComputedStyle(document.body).getPropertyValue('--bg').trim(); root.style.padding = "40px"; 
-      var btns = document.querySelectorAll('.expand-btn'); btns.forEach(b => b.style.display='none');
+      root.style.background = getComputedStyle(document.body).getPropertyValue('--bg').trim(); 
+      root.style.padding = "40px"; 
+      
+      let btns = document.querySelectorAll('.expand-btn'); btns.forEach(b => b.style.display = 'none');
+      
       html2canvas(root, { scale: 2, backgroundColor: root.style.background, logging: false }).then(canvas => {
-          var a = document.createElement('a'); a.download = state.familyName + '_Family_Tree.png'; a.href = canvas.toDataURL('image/png'); a.click();
-          root.style.background=obg; root.style.padding=opad; root.removeChild(bgClone); btns.forEach(b => b.style.display='flex'); showToast("Exported!");
+          let a = document.createElement('a'); a.download = state.familyName + '_Family_Tree.png'; a.href = canvas.toDataURL('image/png'); a.click();
+          root.style.background = obg; root.style.padding = opad; 
+          if(root.contains(bgClone)) root.removeChild(bgClone);
+          if(root.contains(txtClone)) root.removeChild(txtClone);
+          btns.forEach(b => b.style.display = 'flex'); showToast("Exported!");
       }).catch(e => {
-          root.style.background=obg; root.style.padding=opad; if(root.contains(bgClone)) root.removeChild(bgClone); btns.forEach(b => b.style.display='flex'); showToast("Failed.");
+          root.style.background = obg; root.style.padding = opad; 
+          if(root.contains(bgClone)) root.removeChild(bgClone); 
+          if(root.contains(txtClone)) root.removeChild(txtClone);
+          btns.forEach(b => b.style.display = 'flex'); showToast("Export failed.");
       });
   }
 
-  /* SEARCH & LINEAGE */
-  function handleSearch(v) { state.searchQuery = v.toLowerCase(); applySearchAndFilter(); }
-  function handleFilter(v) { state.filterMode = v; if(v==='lineage'&&!state.selected) showToast("Click a relative to trace lineage!"); applySearchAndFilter(); }
-  function applySearchAndFilter() {
-      var fMatch = null, cards = document.querySelectorAll('.person-card'), lids = new Set();
-      if(state.filterMode==='lineage'&&state.selected){
-          let c=state.members.find(m=>m.id===state.selected); if(c&&c.isSpouse) c=state.members.find(m=>m.id===c.spouse);
-          if(c){
-              lids.add(c.id); if(c.spouse) lids.add(c.spouse);
-              let p=state.members.find(m=>m.id===c.parentId); while(p){ lids.add(p.id); if(p.spouse) lids.add(p.spouse); p=state.members.find(m=>m.id===p.parentId); }
-              let s=[c.id]; while(s.length>0){ let i=s.pop(); lids.add(i); let pr=state.members.find(m=>m.id===i); if(pr&&pr.spouse) lids.add(pr.spouse); state.members.filter(m=>m.parentId===i&&!m.isSpouse).forEach(k=>s.push(k.id)); }
-          }
-      }
-      cards.forEach(c => {
-          let n=c.getAttribute('data-name').toLowerCase(), d=c.getAttribute('data-dead')==='true', id=c.getAttribute('data-id');
-          let ms=state.searchQuery===''||n.includes(state.searchQuery), mf=true;
-          if(state.filterMode==='living') mf=!d; else if(state.filterMode==='deceased') mf=d; else if(state.filterMode==='lineage') { if(state.selected) mf=lids.has(id); }
-          if(ms&&mf){ c.style.opacity='1'; c.style.transform='scale(1)'; if(state.searchQuery!==''){ c.style.boxShadow='0 0 20px var(--gold)'; c.style.borderColor='var(--gold)'; if(!fMatch) fMatch=c; } else{ c.style.boxShadow='none'; c.style.borderColor='transparent'; } }
-          else{ c.style.opacity='0.15'; c.style.transform='scale(0.95)'; c.style.boxShadow='none'; c.style.borderColor='transparent'; }
-      });
-      if(fMatch&&state.searchQuery!=='') fMatch.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
-  }
-
-  function setLang(l){ state.lang=l; document.querySelectorAll('.lang-btn').forEach((b,i)=>{if(i<2)b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi'))}); applyLang(); let tv=document.getElementById('tree-view'),av=document.getElementById('admin-view'),au=document.getElementById('auth-view'); if(tv&&tv.style.display!=='none')renderTree(); if(av&&av.style.display!=='none'&&isAdmin())renderAdmin(); if(au&&au.style.display!=='none'&&isAdmin())renderAuthPanel(); }
-  function applyLang(){ document.getElementById('tab-tree').textContent=s('navTree'); document.getElementById('tab-admin').textContent=s('navAdmin'); document.getElementById('tab-auth').textContent='Auth Panel'; document.body.classList.toggle('lang-hi',state.lang==='hi'); }
-
-  /* TREE RENDER */
-  function toggleExpand(id, e) { if(e) e.stopPropagation(); if(state.expanded[id]) delete state.expanded[id]; else state.expanded[id] = true; renderTree(); }
-  function makeAvatar(m, sz){ let av=document.createElement('div'); av.className='avatar'; av.style.cssText=`width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.27)}px`; if(m.photo){ let img=document.createElement('img'); img.src=m.photo; img.onerror=()=>av.textContent=initials(m.name); av.appendChild(img); } else av.textContent=initials(m.name); return av; }
+  /* --- SEARCH (FILTERS REMOVED) --- */
+  function handleSearch(v) { state.searchQuery = v.toLowerCase(); applySearch(); }
   
-  function buildCard(m, sz, fs, pad, cardW, hasKids, isExp, isSpouse){
-    let card=document.createElement('div'); card.className='person-card'+(isSpouse?' spouse-card':'')+(state.isViewOnly?' view-only':'');
-    card.setAttribute('data-id', m.id); card.setAttribute('data-name', dname(m)+" "+(m.nameHi||"")); card.setAttribute('data-dead', m.deathYear?'true':'false');
-    card.style.cssText=`padding:${pad}px;width:${cardW}px;min-width:${cardW}px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;`;
-    card.appendChild(makeAvatar(m,sz));
+  function applySearch() {
+      let fMatch = null, cards = document.querySelectorAll('.person-card');
+      cards.forEach(c => {
+          let n = c.getAttribute('data-name').toLowerCase();
+          let ms = state.searchQuery === '' || n.includes(state.searchQuery);
+          
+          if(ms) { 
+             c.style.opacity = '1'; c.style.transform = 'scale(1)'; 
+             if(state.searchQuery !== '') { c.style.boxShadow = '0 0 20px var(--gold)'; c.style.borderColor = 'var(--gold)'; if(!fMatch) fMatch = c; } 
+             else { c.style.boxShadow = 'none'; c.style.borderColor = 'transparent'; } 
+          } else { 
+             c.style.opacity = '0.15'; c.style.transform = 'scale(0.95)'; c.style.boxShadow = 'none'; c.style.borderColor = 'transparent'; 
+          }
+      });
+      if(fMatch && state.searchQuery !== '') fMatch.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+  }
+
+  function setLang(l) { state.lang = l; document.querySelectorAll('.lang-btn').forEach((b,i) => { if(i < 2) b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi')); }); applyLang(); let tv = getEl('tree-view'), av = getEl('admin-view'), dv = getEl('design-view'), au = getEl('auth-view'); if(tv && tv.style.display !== 'none') renderTree(); if(av && av.style.display !== 'none' && isAdmin()) renderAdmin(); if(dv && dv.style.display !== 'none' && isAdmin()) renderDesignStudio(); if(au && au.style.display !== 'none' && isAdmin()) renderAuthPanel(); }
+  function applyLang() { getEl('tab-tree').textContent = s('navTree'); getEl('tab-admin').textContent = s('navAdmin'); getEl('tab-design').textContent = s('navDesign'); getEl('tab-auth').textContent = 'Auth Panel'; document.body.classList.toggle('lang-hi', state.lang === 'hi'); }
+
+  /* --- TREE RENDER --- */
+  function toggleExpand(id, e) { if(e) e.stopPropagation(); if(state.expanded[id]) delete state.expanded[id]; else state.expanded[id] = true; renderTree(); }
+  
+  function makeAvatar(m, sz) { 
+      let av = document.createElement('div'); av.className = 'avatar'; av.style.cssText = `width:${sz}px;height:${sz}px;font-size:${Math.round(sz*0.27)}px`; 
+      if(m.photo) { let img = document.createElement('img'); img.src = m.photo; img.onerror = () => av.textContent = initials(m.name); av.appendChild(img); } 
+      else { av.textContent = initials(m.name); } 
+      return av; 
+  }
+  
+  function buildCard(m, sz, fs, pad, cardW, hasKids, isExp, isSpouse) {
+    let card = document.createElement('div'); 
+    card.className = 'person-card' + (isSpouse ? ' spouse-card' : '') + (state.isViewOnly ? ' view-only' : '') + (m.id === state.selected ? ' selected' : '');
+    card.setAttribute('data-id', m.id); card.setAttribute('data-name', dname(m) + " " + (m.nameHi || "")); card.setAttribute('data-dead', m.deathYear ? 'true' : 'false');
+    card.style.cssText = `padding:${pad}px; width:${cardW}px; min-width:${cardW}px; flex-shrink:0; display:flex; flex-direction:column; align-items:center;`;
     
-    let nm=document.createElement('div'); nm.className='person-name'+(isSpouse?'':' primary'); nm.style.cssText=`font-size:${fs}px;margin-top:6px;width:100%;display:flex;justify-content:center;overflow:visible;`;
-    let span=document.createElement('span'); span.style.cssText='display:block;margin:0 -30px;text-align:center;line-height:1.1;'; span.innerHTML=dname(m).replace(/ /g,'<br>'); nm.appendChild(span); card.appendChild(nm);
+    card.appendChild(makeAvatar(m, sz));
     
-    if(isSpouse){ let sl=document.createElement('div'); sl.className='spouse-label'; sl.style.cssText='width:100%;display:flex;justify-content:center;overflow:visible;margin-top:2px;'; let slSpan=document.createElement('span'); slSpan.style.cssText='display:block;margin:0 -30px;text-align:center;'; slSpan.textContent=s('sp'); sl.appendChild(slSpan); card.appendChild(sl); }
-    if(m.birthYear||m.deathYear){ let dt=document.createElement('div'); dt.className='date-label'; let by=m.birthYear?m.birthYear.trim():'', dy=m.deathYear?m.deathYear.trim():''; dt.textContent=(by&&dy)?`${by} - ${dy}`:(by&&!dy)?`${by} - Present`:(!by&&dy)?`Died: ${dy}`:''; card.appendChild(dt); }
-    if(hasKids&&!isSpouse){ let btn=document.createElement('div'); btn.className='expand-btn'; btn.innerHTML=isExp?'-':'+'; btn.onclick=e=>toggleExpand(m.id,e); card.appendChild(btn); }
+    let nm = document.createElement('div'); nm.className = 'person-name' + (isSpouse ? '' : ' primary'); nm.style.cssText = `font-size:${fs}px; margin-top:6px; width:100%; display:flex; justify-content:center; overflow:visible;`;
+    let span = document.createElement('span'); span.style.cssText = 'display:block; margin: 0 -30px; text-align:center; line-height:1.1;'; 
+    span.innerHTML = dname(m).replace(/ /g, '<br>'); nm.appendChild(span); card.appendChild(nm);
     
-    card.onclick = () => {
-        if(state.filterMode === 'lineage') { state.selected = m.id; renderTree(); } 
-        App.openProfile(m.id); 
-    };
+    if(isSpouse) { 
+        let sl = document.createElement('div'); sl.className = 'spouse-label'; sl.style.cssText = 'width:100%; display:flex; justify-content:center; overflow:visible; margin-top:2px;'; 
+        let slSpan = document.createElement('span'); slSpan.style.cssText = 'display:block; margin: 0 -30px; text-align:center;'; slSpan.textContent = s('sp'); sl.appendChild(slSpan); card.appendChild(sl); 
+    }
+    
+    if(m.birthYear || m.deathYear) { 
+        let dt = document.createElement('div'); dt.className = 'date-label'; 
+        let by = m.birthYear ? m.birthYear.trim() : '', dy = m.deathYear ? m.deathYear.trim() : ''; 
+        dt.textContent = (by && dy) ? `${by} - ${dy}` : (by && !dy) ? `${by} - Present` : (!by && dy) ? `Died: ${dy}` : ''; 
+        card.appendChild(dt); 
+    }
+    
+    if(hasKids && !isSpouse) { 
+        let btn = document.createElement('div'); btn.className = 'expand-btn'; btn.innerHTML = isExp ? '-' : '+'; 
+        btn.onclick = e => toggleExpand(m.id, e); card.appendChild(btn); 
+    }
+    
+    card.onclick = () => { App.openProfile(m.id); };
     return card;
   }
 
-  function renderLevel(parent, parentId, gen){
-    let prim=getPrimaries(parentId); if(!prim.length) return;
-    let {sz,fs,pad,cardW,connW} = getSizes(); let topStart = Math.round(sz/2+pad);
-    let row=document.createElement('div'); row.className='tree-row'; 
+  function renderLevel(parent, parentId, gen) {
+    let prim = getPrimaries(parentId); if(!prim.length) return;
+    let {sz, fs, pad, cardW, connW} = getSizes(); let topStart = Math.round(sz/2 + pad);
+    let row = document.createElement('div'); row.className = 'tree-row'; 
+    
     prim.forEach(m => {
-      let col=document.createElement('div'); col.className='tree-col'; 
-      let sp=getSpouse(m), kids=getChildren(m), exp = (state.isViewOnly||state.filterMode==='lineage') ? true : !!state.expanded[m.id];
-      let pw=document.createElement('div'); pw.style.cssText='display:flex;align-items:flex-start;position:relative;z-index:2;';
-      pw.appendChild(buildCard(m,sz,fs,pad,cardW,kids.length>0,exp,false));
-      if(sp){
-        let conn=document.createElement('div'); conn.style.cssText=`display:flex;align-items:center;padding-top:${topStart-1}px;width:${connW}px;justify-content:center;flex-shrink:0;`;
-        conn.innerHTML=`<svg width="${connW}" height="2"><line x1="0" y1="1" x2="${connW}" y2="1" stroke="var(--gold)" stroke-width="2"/></svg>`;
-        pw.appendChild(conn); pw.appendChild(buildCard(sp,sz,fs,pad,cardW,false,false,true)); col.style.setProperty('--shift-x',((cardW+connW)/2)+'px');
-      } else col.style.setProperty('--shift-x','0px');
+      let col = document.createElement('div'); col.className = 'tree-col'; 
+      let sp = getSpouse(m), kids = getChildren(m), exp = state.isViewOnly ? true : !!state.expanded[m.id];
+      let pw = document.createElement('div'); pw.style.cssText = 'display: flex; align-items: flex-start; position: relative; z-index: 2;';
+      
+      pw.appendChild(buildCard(m, sz, fs, pad, cardW, kids.length > 0, exp, false));
+      
+      if(sp) {
+        let conn = document.createElement('div'); conn.style.cssText = `display:flex; align-items:center; padding-top:${topStart - 1}px; width:${connW}px; justify-content: center; flex-shrink: 0;`;
+        conn.innerHTML = `<svg width="${connW}" height="2"><line x1="0" y1="1" x2="${connW}" y2="1" stroke="var(--gold)" stroke-width="2"/></svg>`;
+        pw.appendChild(conn); pw.appendChild(buildCard(sp, sz, fs, pad, cardW, false, false, true)); 
+        col.style.setProperty('--shift-x', ((cardW + connW) / 2) + 'px');
+      } else { col.style.setProperty('--shift-x', '0px'); }
       col.appendChild(pw);
-      if(kids.length&&exp){
-          let dl=document.createElement('div'); dl.style.cssText=`position:absolute;bottom:-30px;width:2px;background:var(--gold);z-index:-1;top:${sp?topStart+'px':'100%'};left:50%;transform:translateX(-50%);`;
-          let cr=document.createElement('div'); cr.style.position='relative'; pw.appendChild(dl); renderLevel(cr,m.id,gen+1); col.appendChild(cr);
+      
+      if(kids.length && exp) {
+          let dl = document.createElement('div'); dl.style.cssText = `position: absolute; bottom: -30px; width: 2px; background: var(--gold); z-index: -1; top: ${sp ? topStart + 'px' : '100%'}; left: 50%; transform: translateX(-50%);`;
+          let cr = document.createElement('div'); cr.style.position = 'relative'; 
+          pw.appendChild(dl); renderLevel(cr, m.id, gen + 1); col.appendChild(cr);
       }
       row.appendChild(col);
-    }); parent.appendChild(row);
+    }); 
+    parent.appendChild(row);
   }
 
-  function renderTree(){
-    let tv=document.getElementById('tree-view'); let roots=getPrimaries(null);
-    if(!roots.length){ tv.innerHTML=`<div class="tree-header"><h1>${s('fam',state.familyName)}</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div>`; return; }
-    let hint = `<p>${state.isViewOnly?'Click a relative to view details':s('hint')}</p>`;
-    tv.innerHTML=`<div class="tree-header"><h1>${s('fam',state.familyName)}</h1>${hint}</div><div class="tree-toolbar"><input type="text" class="tool-input" id="tree-search" placeholder="Search a name..." oninput="App.handleSearch(this.value)"><select class="tool-select" id="filter-dropdown" onchange="App.handleFilter(this.value)"><option value="all">Filter: Everyone</option><option value="living">Living</option><option value="deceased">Deceased</option><option value="lineage">Direct Lineage</option></select><button class="tool-btn" onclick="App.exportTree()">Export Poster</button></div><div class="tree-container"><div id="tree-root"></div></div>`;
-    let sel=document.getElementById('filter-dropdown'), sch=document.getElementById('tree-search'); if(sel) sel.value=state.filterMode; if(sch) sch.value=state.searchQuery;
-    renderLevel(document.getElementById('tree-root'),null,0);
-    setTimeout(() => { if(state.searchQuery!==''||state.filterMode!=='all') applySearchAndFilter(); else { let sn=document.querySelector('.person-card.selected'); if(sn) sn.scrollIntoView({behavior:'smooth',block:'center',inline:'center'}); } }, 50);
+  function renderTree() {
+    let tv = getEl('tree-view'); let roots = getPrimaries(null);
+    if(!roots.length) { 
+        tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName)}</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div>`; 
+        return; 
+    }
+    
+    let hint = `<p>${state.isViewOnly ? 'Click a relative to view details' : s('hint')}</p>`;
+    let toolsHTML = `<div class="tree-toolbar"><input type="text" class="tool-input" id="tree-search" placeholder="Search a name..." oninput="App.handleSearch(this.value)"><button class="tool-btn" onclick="App.exportTree()">Export Poster</button></div>`;
+
+    tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName)}</h1>${hint}</div>${toolsHTML}<div class="tree-container"><div id="tree-root"></div></div>`;
+    
+    let sch = getEl('tree-search'); 
+    if(sch) sch.value = state.searchQuery;
+
+    renderLevel(getEl('tree-root'), null, 0);
   }
 
-  /* ADMIN */
-  function renderAdmin(){
+  /* --- NEW: THEME & DESIGN STUDIO (RIGHT PANEL) --- */
+  function refreshStudioPreview() {
+      let previewBox = getEl('studio-preview-box');
+      if(!previewBox) return;
+      let previewBg = (state.bgLayers || []).map(l => `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${l.zoom || 100}%; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`).join('');
+      let previewTxt = (state.textLayers || []).map(l => `<div class="custom-text-layer" style="left: ${l.x||50}%; top: ${l.y||50}%; font-size: ${Math.max(12, l.size/2.5)}px; color: ${l.color||'#c9a96e'};">${l.text.replace(/\n/g, '<br>')}</div>`).join('');
+      previewBox.innerHTML = previewBg + previewTxt;
+  }
+
+  function renderDesignStudio() {
+      if(!isAdmin()) return;
+      let v = getEl('design-view');
+
+      let lHtml = (state.bgLayers || []).map(l => `
+        <div style="background:var(--surface2); padding:10px; border-radius:8px; border:1px solid var(--border2); margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <img src="${l.url}" style="height:40px; width:40px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
+            <button class="btn-del" style="padding:4px 8px; font-size:11px;" onclick="App.removeLayer('${l.id}')">Remove</button>
+          </div>
+          <div class="slider-row"><label>Zoom</label><input type="range" min="10" max="300" value="${l.zoom}" oninput="App.updateLayer('${l.id}', 'zoom', this.value)"></div>
+          <div class="slider-row"><label>Pan X</label><input type="range" min="0" max="100" value="${l.x}" oninput="App.updateLayer('${l.id}', 'x', this.value)"></div>
+          <div class="slider-row"><label>Pan Y</label><input type="range" min="0" max="100" value="${l.y}" oninput="App.updateLayer('${l.id}', 'y', this.value)"></div>
+        </div>
+      `).join('');
+
+      let bgHtml = `
+        <div class="bg-editor" style="margin-top:0;">
+          <h4>Background Layers</h4>
+          <div id="bg-drop-zone" class="drop-zone" ondragover="App.handleDropZoneOver(event)" ondragleave="App.handleDropZoneLeave(event)" ondrop="App.handleDropZoneDrop(event)">
+              Drag & Drop Image Here<br><br>or <label for="bg-file" style="color:var(--gold); cursor:pointer; text-decoration:underline;">Browse</label>
+              <input type="file" id="bg-file" accept="image/*" style="display:none" onchange="App.handleBgFile(this)">
+          </div>
+          <div id="bg-layers-list">${lHtml}</div>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+               <button id="btn-save-bg" class="tool-btn" style="flex:1;" onclick="App.saveBgSettings()">Save BGs</button>
+               <button class="btn-del" style="padding: 0.5rem 1rem;" onclick="App.clearBgSettings()">Clear</button>
+          </div>
+        </div>
+      `;
+
+      let txtHtml = (state.textLayers || []).map(l => `
+        <div style="background:var(--surface2); padding:10px; border-radius:8px; border:1px solid var(--border2); margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <input type="text" value="${l.text}" oninput="App.updateTextLayer('${l.id}', 'text', this.value)" style="background:transparent; border:none; color:var(--text); font-family:'Outfit'; font-size:14px; outline:none; width:100%; border-bottom:1px solid var(--border2); padding-bottom:4px;">
+            <button class="btn-del" style="padding:4px 8px; font-size:11px; margin-left:10px;" onclick="App.removeTextLayer('${l.id}')">Remove</button>
+          </div>
+          <div class="slider-row"><label>Size</label><input type="range" min="10" max="200" value="${l.size}" oninput="App.updateTextLayer('${l.id}', 'size', this.value)"></div>
+          <div class="slider-row"><label>Pan X</label><input type="range" min="0" max="100" value="${l.x}" oninput="App.updateTextLayer('${l.id}', 'x', this.value)"></div>
+          <div class="slider-row"><label>Pan Y</label><input type="range" min="0" max="100" value="${l.y}" oninput="App.updateTextLayer('${l.id}', 'y', this.value)"></div>
+          <div class="slider-row"><label>Color</label><input type="color" value="${l.color}" onchange="App.updateTextLayer('${l.id}', 'color', this.value)" style="width:100%; border:none; background:transparent; cursor:pointer; height:24px;"></div>
+        </div>
+      `).join('');
+
+     let textEditorHtml = `
+        <div class="bg-editor" style="margin-top:1.5rem;">
+          <h4>Typography Studio</h4>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <input type="text" id="new-text-input" placeholder="e.g. The Royal Bloodline" class="tool-input" style="width:100%; border-radius:8px;">
+            <button class="tool-btn" style="width:100%;" onclick="App.addTextLayer()">Add Text</button>
+          </div>
+          
+          <div id="text-layers-list">${txtHtml}</div>
+          
+          <div style="display:flex; gap:10px; margin-top:10px;">
+               <button class="tool-btn" style="flex:1;" onclick="App.saveTextSettings()">Save Text</button>
+          </div>
+        </div>
+      `;
+
+      v.innerHTML = `
+        <div class="admin-sidebar" style="max-height:85vh; overflow-y:auto;">
+           ${bgHtml}
+           ${textEditorHtml}
+        </div>
+        <div class="admin-form-wrap">
+           <h2>Theme & Design Studio</h2>
+           <p style="font-size:12px;color:var(--text3);margin-bottom:1rem;">Preview your custom backgrounds and typography here.</p>
+           <div id="studio-preview-box" style="position:relative; width:100%; height:400px; border-radius:12px; overflow:hidden; border:1px solid var(--border); background:var(--bg); box-shadow: inset 0 4px 15px rgba(0,0,0,0.5);"></div>
+        </div>
+      `;
+      
+      refreshStudioPreview();
+  }
+
+  /* --- ADMIN CORE --- */
+  function renderAdmin() {
     if(!isAdmin()) return; 
-    let v=document.getElementById('admin-view');
-    let lHtml = (state.bgLayers||[]).map(l => `<div style="background:var(--surface2);padding:10px;border-radius:8px;border:1px solid var(--border2);margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><img src="${l.url}" style="height:40px;width:40px;object-fit:cover;border-radius:4px;border:1px solid var(--border);"><button class="btn-del" style="padding:4px 8px;font-size:11px;" onclick="App.removeLayer('${l.id}')">Remove</button></div><div class="slider-row"><label>Zoom</label><input type="range" min="10" max="300" value="${l.zoom}" oninput="App.updateLayer('${l.id}', 'zoom', this.value)"></div><div class="slider-row"><label>Pan X</label><input type="range" min="0" max="100" value="${l.x}" oninput="App.updateLayer('${l.id}', 'x', this.value)"></div><div class="slider-row"><label>Pan Y</label><input type="range" min="0" max="100" value="${l.y}" oninput="App.updateLayer('${l.id}', 'y', this.value)"></div></div>`).join('');
-    let bgHtml = `<div class="bg-editor"><h4>Custom Background Layers</h4><div id="bg-drop-zone" class="drop-zone" ondragover="App.handleDropZoneOver(event)" ondragleave="App.handleDropZoneLeave(event)" ondrop="App.handleDropZoneDrop(event)">Drag & Drop Image Here<br><br>or <label for="bg-file" style="color:var(--gold);cursor:pointer;text-decoration:underline;">Browse</label><input type="file" id="bg-file" accept="image/*" style="display:none" onchange="App.handleBgFile(this)"></div><div id="bg-layers-list">${lHtml}</div><button id="btn-save-bg" class="tool-btn" style="width:100%;margin-top:10px;" onclick="App.saveBgSettings()">Save Backgrounds</button></div>`;
-    v.innerHTML=`<div class="admin-sidebar"><div class="sidebar-title">${s('all')}</div><div id="mlist" style="flex:1;overflow-y:auto;margin-bottom:1rem;"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">${s('add')}</button>${bgHtml}</div><div class="admin-form-wrap" id="aform"><div class="fn-bar"><span class="fn-label">${s('fn')}</span><input class="fn-input" id="fn-inp" value="${state.familyName}"><button class="fn-btn" onclick="App.updateFamilyName()">${s('up')}</button></div><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div></div>`;
-    let list=document.getElementById('mlist'); let sm = Array.isArray(state.members)?state.members:[];
-    sm.filter(m=>m&&!m.isSpouse).forEach(m=>{
-      let it=document.createElement('div'); it.className='member-item'+(state.editingId===m.id?' active':'');
-      it.innerHTML=`<div class="mini-av">${m.photo?`<img src="${m.photo}" onerror="this.parentElement.textContent='${initials(m.name)}'">`:initials(m.name)}</div><div><div class="item-name">${dname(m)}</div><div class="item-role">${m.parentId?s('desc'):s('root')}</div></div>`;
-      it.onclick=()=>{ state.editingId=m.id; state.prevPhoto=m.photo||''; let sp=getSpouse(m); state.prevPhotoSpouse=sp?(sp.photo||''):''; state.prevGallery=m.gallery?[...m.gallery]:[]; renderAdmin(); renderForm(m); }; list.appendChild(it);
+    let v = getEl('admin-view');
+    
+    // The clean Left Sidebar
+    let sidebarHtml = `<div class="admin-sidebar"><div class="sidebar-title">${s('all')}</div><div id="mlist" style="flex:1; overflow-y:auto; margin-bottom:1rem;"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">${s('add')}</button></div>`;
+    v.innerHTML = sidebarHtml + `<div class="admin-form-wrap" id="aform"></div>`;
+    
+    let list = getEl('mlist'); let sm = Array.isArray(state.members) ? state.members : [];
+    sm.filter(m => m && !m.isSpouse).forEach(m => {
+      let it = document.createElement('div'); it.className = 'member-item' + (state.editingId === m.id ? ' active' : '');
+      it.innerHTML = `<div class="mini-av">${m.photo ? `<img src="${m.photo}" onerror="this.parentElement.textContent='${initials(m.name)}'">` : initials(m.name)}</div><div><div class="item-name">${dname(m)}</div><div class="item-role">${m.parentId ? s('desc') : s('root')}</div></div>`;
+      it.onclick = () => { 
+        state.editingId = m.id; state.prevPhoto = m.photo || ''; 
+        let sp = getSpouse(m); state.prevPhotoSpouse = sp ? (sp.photo || '') : ''; 
+        state.prevGallery = m.gallery ? [...m.gallery] : []; 
+        renderAdmin(); 
+      }; 
+      list.appendChild(it);
     });
-    if(state.editingId){ let em=sm.find(x=>x&&x.id===state.editingId); if(em) renderForm(em); }
+
+    if(state.editingId) { 
+        if(state.editingId === '__new__') renderForm(null);
+        else { let em = sm.find(x => x && x.id === state.editingId); if(em) renderForm(em); }
+    } else {
+        let area = getEl('aform');
+        if (area) {
+            area.innerHTML = `<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div>`;
+        }
+    }
   }
 
-  function renderForm(m){
-    let area=document.getElementById('aform'), sm=Array.isArray(state.members)?state.members:[];
-    let pOpts=`<option value="">${s('rootLevel')}</option>`+sm.filter(x=>x&&!x.isSpouse&&(!m||x.id!==m.id)).map(p=>`<option value="${p.id}"${m&&m.parentId===p.id?' selected':''}>${dname(p)}</option>`).join('');
-    let spN=m&&m.spouse?(sm.find(x=>x&&x.id===m.spouse)||{}).name||''; let spNHi=m&&m.spouse?(sm.find(x=>x&&x.id===m.spouse)||{}).nameHi||'';
-    let genOpts=s('genLabels').map((g,i)=>`<option value="${i}"${m&&m.generation===i?' selected':''}>${g}</option>`).join('');
+  function renderForm(m) {
+    let area = getEl('aform'), sm = Array.isArray(state.members) ? state.members : [];
+    let pOpts = `<option value="">${s('rootLevel')}</option>` + sm.filter(x => x && !x.isSpouse && (!m || x.id !== m.id)).map(p => `<option value="${p.id}"${m && m.parentId === p.id ? ' selected' : ''}>${dname(p)}</option>`).join('');
+    let spN = m && m.spouse ? (sm.find(x => x && x.id === m.spouse) || {}).name || '' : ''; 
+    let spNHi = m && m.spouse ? (sm.find(x => x && x.id === m.spouse) || {}).nameHi || '' : '';
+    let genOpts = s('genLabels').map((g,i) => `<option value="${i}"${m && m.generation === i ? ' selected' : ''}>${g}</option>`).join('');
     
     let pv = state.prevPhoto; let pvSp = state.prevPhotoSpouse;
     let bYear = m ? (m.birthYear || '') : ''; let dYear = m ? (m.deathYear || '') : '';
@@ -423,124 +791,236 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       <div class="fn-bar"><span class="fn-label">${s('fn')}</span><input class="fn-input" id="fn-inp" value="${state.familyName}"><button class="fn-btn" onclick="App.updateFamilyName()">${s('up')}</button></div>
       <h2>${m ? s('edit') : s('new')}</h2>
       <div class="form-grid">
-        <div class="fg full"><label>${s('photo')} (Primary)</label><div class="photo-row"><div class="photo-prev" id="pp">${state.prevPhoto?`<img src="${state.prevPhoto}">`:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="${s('pUrl')}" value="${state.prevPhoto}"><button class="url-apply" onclick="App.applyUrl()">${s('app')}</button></div><label class="upload-lbl" for="p-file">${s('upl')}</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>
-        <div class="fg"><label>${s('firstName')} (EN)</label><input type="text" id="f-fn" value="${m?m.name.split(' ')[0]:''}"></div>
-        <div class="fg"><label>${s('lastName')} (EN)</label><input type="text" id="f-ln" value="${m?m.name.split(' ').slice(1).join(' '):''}"></div>
-        <div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" value="${m&&m.nameHi?m.nameHi.split(' ')[0]:''}"></div>
-        <div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" value="${m&&m.nameHi?m.nameHi.split(' ').slice(1).join(' '):''}"></div>
-        <div class="fg"><label>Birth Year</label><input type="text" id="f-by" placeholder="1950" value="${bYear}"></div>
-        <div class="fg"><label>Death Year</label><input type="text" id="f-dy" placeholder="Blank if living" value="${dYear}"></div>
+        <div class="fg full"><label>${s('photo')} (Primary)</label><div class="photo-row"><div class="photo-prev" id="pp">${pv ? `<img src="${pv}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="${s('pUrl')}" value="${pv}"><button class="url-apply" onclick="App.applyUrl()">${s('app')}</button></div><label class="upload-lbl" for="p-file">${s('upl')}</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>
+        <div class="fg"><label>${s('firstName')} (EN)</label><input type="text" id="f-fn" value="${m ? m.name.split(' ')[0] : ''}"></div>
+        <div class="fg"><label>${s('lastName')} (EN)</label><input type="text" id="f-ln" value="${m ? m.name.split(' ').slice(1).join(' ') : ''}"></div>
+        <div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" value="${m && m.nameHi ? m.nameHi.split(' ')[0] : ''}"></div>
+        <div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" value="${m && m.nameHi ? m.nameHi.split(' ').slice(1).join(' ') : ''}"></div>
+        <div class="fg"><label>Birth Year (Tree View)</label><input type="text" id="f-by" placeholder="1950" value="${bYear}"></div>
+        <div class="fg"><label>Death Year (Tree View)</label><input type="text" id="f-dy" placeholder="Blank if living" value="${dYear}"></div>
         
-        <div class="fg full" style="margin-top:10px;padding-top:15px;border-top:1px solid var(--border);"><label style="color:var(--gold);">Private Profile Details</label></div>
+        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label style="color:var(--gold);">Private Profile Details</label></div>
         <div class="fg"><label>Full Date of Birth</label><input type="text" id="f-dob" placeholder="DD/MM/YYYY" value="${dob}"></div>
         <div class="fg"><label>Marriage Date</label><input type="text" id="f-mdate" placeholder="DD/MM/YYYY" value="${mDate}"></div>
         <div class="fg"><label>Phone Number</label><input type="text" id="f-phone" value="${phone}"></div>
         <div class="fg"><label>Address / Location</label><input type="text" id="f-address" value="${address}"></div>
         
-        <div class="fg full" style="margin-top:10px;padding-top:15px;border-top:1px solid var(--border);"><label>Photo Gallery (Multiple Images)</label>
-        <label class="upload-lbl" for="gallery-files" style="width:max-content;padding:0.5rem 1rem;">+ Add Images</label>
-        <input type="file" id="gallery-files" accept="image/*" multiple style="display:none" onchange="App.handleGalleryFiles(this)">
-        <div id="gallery-previews" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;"></div></div>
+        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label>Photo Gallery (Multiple Images)</label><label class="upload-lbl" for="gallery-files" style="width:max-content; padding:0.5rem 1rem;">+ Add Images</label><input type="file" id="gallery-files" accept="image/*" multiple style="display:none" onchange="App.handleGalleryFiles(this)"><div id="gallery-previews" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;"></div></div>
         
-        <div class="fg full" style="margin-top:10px;padding-top:15px;border-top:1px solid var(--border);"></div>
+        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"></div>
         <div class="fg"><label>${s('par')}</label><select id="f-par">${pOpts}</select></div>
         <div class="fg"><label>${s('gen')}</label><select id="f-gen">${genOpts}</select></div>
-        <div class="fg full" style="margin-top:10px;padding-top:15px;border-top:1px solid var(--border);"><label>${s('spN')} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl')}" value="${spN}"></div>
+        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label>${s('spN')} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl')}" value="${spN}"></div>
         <div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="${s('bl')}" value="${spNHi}"></div>
-        <div class="fg full"><label>Spouse Photo</label><div class="photo-row"><div class="photo-prev" id="pp-sp">${state.prevPhotoSpouse?`<img src="${state.prevPhotoSpouse}">`:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="${s('pUrl')}" value="${state.prevPhotoSpouse}"><button class="url-apply" onclick="App.applyUrlSp()">${s('app')}</button></div><label class="upload-lbl" for="p-file-sp">${s('upl')}</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>
+        <div class="fg full"><label>Spouse Photo</label><div class="photo-row"><div class="photo-prev" id="pp-sp">${pvSp ? `<img src="${pvSp}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="${s('pUrl')}" value="${pvSp}"><button class="url-apply" onclick="App.applyUrlSp()">${s('app')}</button></div><label class="upload-lbl" for="p-file-sp">${s('upl')}</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>
       </div>
-      <div class="form-actions">${m?`<button class="btn-del" onclick="App.delMember('${m.id}')">${s('del')}</button>`:''}<button class="btn-cancel" onclick="App.cancelEdit()">${s('can')}</button><button class="btn-save" onclick="App.saveMember()">${s('sv')}</button></div>
+      <div class="form-actions">${m ? `<button class="btn-del" onclick="App.delMember('${m.id}')">${s('del')}</button>` : ''}<button class="btn-cancel" onclick="App.cancelEdit()">${s('can')}</button><button class="btn-save" onclick="App.saveMember()">${s('sv')}</button></div>
     `;
     renderGalleryPreviews(); 
   }
 
   function renderAuthPanel() {
-    if(!isAdmin()) return; let v = document.getElementById('auth-view'); let uHtml='', h=false;
+    if(!isAdmin()) return; 
+    let v = getEl('auth-view'); let uHtml = '', h = false;
+    
     Object.keys(state.users).forEach(k => {
-       let u=state.users[k]; h=true;
-       let stat=u.status==='pending'?'<span class="status-pending">Pending</span>':(u.role==='admin'?'<span class="status-admin">Admin</span>':'<span class="status-approved">Approved</span>');
-       let a=''; if(u.status==='pending') a=`<button class="auth-act-btn btn-approve" onclick="App.modifyUser('${k}', 'approve')">Approve</button>`;
-       else{ if(u.role!=='admin') a+=`<button class="auth-act-btn btn-promote" onclick="App.modifyUser('${k}', 'admin')">Make Admin</button>`; else a+=`<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'demote')">Make Member</button>`; a+=`<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'revoke')">Revoke</button>`; }
-       uHtml+=`<div class="user-card"><div class="user-info"><strong>${u.username}</strong>${stat}</div><div class="auth-actions">${a}</div></div>`;
+       let u = state.users[k]; h = true;
+       let stat = u.status === 'pending' ? '<span class="status-pending">Pending</span>' : (u.role === 'admin' ? '<span class="status-admin">Admin</span>' : '<span class="status-approved">Approved</span>');
+       let a = ''; 
+       if(u.status === 'pending') a = `<button class="auth-act-btn btn-approve" onclick="App.modifyUser('${k}', 'approve')">Approve</button>`;
+       else { 
+           if(u.role !== 'admin') a += `<button class="auth-act-btn btn-promote" onclick="App.modifyUser('${k}', 'admin')">Make Admin</button>`; 
+           else a += `<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'demote')">Make Member</button>`; 
+           a += `<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'revoke')">Revoke</button>`; 
+       }
+       uHtml += `<div class="user-card"><div class="user-info"><strong>${u.username}</strong>${stat}</div><div class="auth-actions">${a}</div></div>`;
     });
-    if(!h) uHtml='<div class="empty-state"><span>No registered users yet.</span></div>';
-    let lHtml=`<div class="share-generator"><h3>View-Only Link</h3><div class="share-controls"><select id="share-expiry" class="share-select"><option value="1">1 Hour</option><option value="24">24 Hours</option><option value="168">7 Days</option></select><button class="share-btn" onclick="App.generateShareLink()">Copy Link</button></div></div>`;
-    v.innerHTML=`<div class="admin-sidebar"><div class="sidebar-title">Access</div><p style="font-size:12px;color:var(--text3);line-height:1.4;">Approve members or promote to Admin.</p></div><div class="admin-form-wrap"><h2>Authentication</h2><div style="margin-top:1.5rem;">${uHtml}</div>${lHtml}</div>`;
+    
+    if(!h) uHtml = '<div class="empty-state"><span>No registered users yet.</span></div>';
+    
+    let lHtml = `<div class="share-generator"><h3>View-Only Link</h3><div class="share-controls"><select id="share-expiry" class="share-select"><option value="1">1 Hour</option><option value="24">24 Hours</option><option value="168">7 Days</option></select><button class="share-btn" onclick="App.generateShareLink()">Copy Link</button></div></div>`;
+    v.innerHTML = `<div class="admin-sidebar"><div class="sidebar-title">Access</div><p style="font-size:12px;color:var(--text3);line-height:1.4;">Approve members or promote to Admin.</p></div><div class="admin-form-wrap"><h2>Authentication</h2><div style="margin-top:1.5rem;">${uHtml}</div>${lHtml}</div>`;
   }
 
-  function modifyUser(k, a) { if(!isAdmin()) return; let r=usersRef.child(k); if(a==='approve')r.update({status:'approved'}); else if(a==='admin')r.update({role:'admin'}); else if(a==='demote')r.update({role:'member'}); else if(a==='revoke')r.remove(); showToast('Updated'); }
-  function generateShareLink() { if(!isAdmin()) return; let h=parseInt(document.getElementById('share-expiry').value)||1, tk='share_'+Math.random().toString(36).substr(2,9), e=Date.now()+(h*60*60*1000); linksRef.child(tk).set({expiresAt:e,createdBy:state.currentUser.username}).then(()=>{ let u=window.location.origin+window.location.pathname+'?share='+tk; navigator.clipboard.writeText(u).then(()=>showToast("Link copied!")).catch(()=>prompt("Copy this:",u)); }); }
-  function updateFamilyName(){ if(!isAdmin()) return; let v=(document.getElementById('fn-inp')||{}).value; if(!v||!v.trim()) return; state.familyName=v.trim(); saveToFirebase(); showToast(s('sved')); renderTree(); }
+  function modifyUser(k, a) { 
+      if(!isAdmin()) return; 
+      let r = usersRef.child(k); 
+      if(a === 'approve') r.update({status: 'approved'}); 
+      else if(a === 'admin') r.update({role: 'admin'}); 
+      else if(a === 'demote') r.update({role: 'member'}); 
+      else if(a === 'revoke') r.remove(); 
+      showToast('Updated'); 
+  }
   
-  // FIX 2: Resetting 'prevGallery' safely on cancellation
-  function startNew(){ state.editingId='__new__'; state.prevPhoto=''; state.prevPhotoSpouse=''; state.prevGallery=[]; renderAdmin(); renderForm(null); }
-  function cancelEdit(){ state.editingId=null; state.prevPhoto=''; state.prevPhotoSpouse=''; state.prevGallery=[]; renderAdmin(); }
+  function generateShareLink() { 
+      if(!isAdmin()) return; 
+      let h = parseInt(getEl('share-expiry').value) || 1, tk = 'share_' + Math.random().toString(36).substr(2,9), e = Date.now() + (h*60*60*1000); 
+      linksRef.child(tk).set({expiresAt: e, createdBy: state.currentUser.username}).then(() => { 
+          let u = window.location.origin + window.location.pathname + '?share=' + tk; 
+          navigator.clipboard.writeText(u).then(() => showToast("Link copied!")).catch(() => prompt("Copy this:", u)); 
+      }); 
+  }
   
-  function applyUrl(){ let u=(document.getElementById('p-url')||{}).value||''; u=u.trim(); if(u===''&&state.prevPhoto&&state.prevPhoto.startsWith('data:')) return; state.prevPhoto=u; let pp=document.getElementById('pp'); if(pp) pp.innerHTML=u?`<img src="${u}">`:'?'; }
-  function handleFile(inp){ let f=inp.files[0]; if(!f) return; let btn=document.querySelector('.btn-save'); if(btn){btn.disabled=true;btn.textContent='Processing...';} let r=new FileReader(); r.onload=e=>{ let img=new Image(); img.onload=()=>{ let c=document.createElement('canvas'), M=180, w=img.width, h=img.height; if(w>h){if(w>M){h*=M/w;w=M}}else{if(h>M){w*=M/h;h=M}} c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h); state.prevPhoto=c.toDataURL('image/jpeg',0.85); let pp=document.getElementById('pp'); if(pp)pp.innerHTML=`<img src="${state.prevPhoto}">`; if(btn){btn.disabled=false;btn.textContent=s('sv');} }; img.src=e.target.result; }; r.readAsDataURL(f); }
-  function applyUrlSp(){ let u=(document.getElementById('p-url-sp')||{}).value||''; u=u.trim(); if(u===''&&state.prevPhotoSpouse&&state.prevPhotoSpouse.startsWith('data:')) return; state.prevPhotoSpouse=u; let pp=document.getElementById('pp-sp'); if(pp) pp.innerHTML=u?`<img src="${u}">`:'?'; }
-  function handleFileSp(inp){ let f=inp.files[0]; if(!f) return; let btn=document.querySelector('.btn-save'); if(btn){btn.disabled=true;btn.textContent='Processing...';} let r=new FileReader(); r.onload=e=>{ let img=new Image(); img.onload=()=>{ let c=document.createElement('canvas'), M=180, w=img.width, h=img.height; if(w>h){if(w>M){h*=M/w;w=M}}else{if(h>M){w*=M/h;h=M}} c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h); state.prevPhotoSpouse=c.toDataURL('image/jpeg',0.85); let pp=document.getElementById('pp-sp'); if(pp)pp.innerHTML=`<img src="${state.prevPhotoSpouse}">`; if(btn){btn.disabled=false;btn.textContent=s('sv');} }; img.src=e.target.result; }; r.readAsDataURL(f); }
+  function updateFamilyName() { 
+      if(!isAdmin()) return; 
+      let v = (getEl('fn-inp') || {}).value; if(!v || !v.trim()) return; 
+      state.familyName = v.trim(); saveToFirebase(); showToast(s('sved')); renderTree(); 
+  }
+  
+  function startNew() { state.editingId = '__new__'; state.prevPhoto = ''; state.prevPhotoSpouse = ''; state.prevGallery = []; renderAdmin(); }
+  function cancelEdit() { state.editingId = null; state.prevPhoto = ''; state.prevPhotoSpouse = ''; state.prevGallery = []; renderAdmin(); }
+  
+  function applyUrl() { let u = (getEl('p-url')||{}).value||''; u=u.trim(); if(u==='' && state.prevPhoto && state.prevPhoto.startsWith('data:image')) return; state.prevPhoto=u; let pp=getEl('pp'); if(pp) pp.innerHTML = u ? `<img src="${u}">` : '?'; }
+  function handleFile(inp) { 
+      let f = inp.files[0]; if(!f) return; 
+      let btn = document.querySelector('.btn-save'); if(btn){ btn.disabled=true; btn.textContent='Processing...'; } 
+      let r = new FileReader(); r.onload = e => { 
+          let img = new Image(); img.onload = () => { 
+              let c = document.createElement('canvas'), M = 180, w = img.width, h = img.height; 
+              if(w > h) { if(w > M) { h *= M/w; w = M; } } else { if(h > M) { w *= M/h; h = M; } } 
+              c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); 
+              state.prevPhoto = c.toDataURL('image/jpeg', 0.85); 
+              let pp = getEl('pp'); if(pp) pp.innerHTML = `<img src="${state.prevPhoto}">`; 
+              let pu = getEl('p-url'); if(pu) pu.value = ''; 
+              if(btn) { btn.disabled=false; btn.textContent=s('sv'); } 
+          }; 
+          img.src = e.target.result; 
+      }; 
+      r.readAsDataURL(f); 
+  }
+  
+  function applyUrlSp() { let u = (getEl('p-url-sp')||{}).value||''; u=u.trim(); if(u==='' && state.prevPhotoSpouse && state.prevPhotoSpouse.startsWith('data:image')) return; state.prevPhotoSpouse=u; let pp=getEl('pp-sp'); if(pp) pp.innerHTML = u ? `<img src="${u}">` : '?'; }
+  function handleFileSp(inp) { 
+      let f = inp.files[0]; if(!f) return; 
+      let btn = document.querySelector('.btn-save'); if(btn) { btn.disabled=true; btn.textContent='Processing...'; } 
+      let r = new FileReader(); r.onload = e => { 
+          let img = new Image(); img.onload = () => { 
+              let c = document.createElement('canvas'), M = 180, w = img.width, h = img.height; 
+              if(w > h) { if(w > M) { h *= M/w; w = M; } } else { if(h > M) { w *= M/h; h = M; } } 
+              c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); 
+              state.prevPhotoSpouse = c.toDataURL('image/jpeg', 0.85); 
+              let pp = getEl('pp-sp'); if(pp) pp.innerHTML = `<img src="${state.prevPhotoSpouse}">`; 
+              let pu = getEl('p-url-sp'); if(pu) pu.value = ''; 
+              if(btn) { btn.disabled=false; btn.textContent=s('sv'); } 
+          }; 
+          img.src = e.target.result; 
+      }; 
+      r.readAsDataURL(f); 
+  }
 
-  async function saveMember(){
+  async function saveMember() {
     if(!isAdmin()) return;
     const GEMINI_API_KEY = 'YOUR_API_KEY_HERE';
-    if(!state.members) state.members = []; if(!Array.isArray(state.members)) state.members = Object.keys(state.members).map(k=>state.members[k]);
+    if(!state.members) state.members = []; 
+    if(!Array.isArray(state.members)) state.members = Object.keys(state.members).map(k => state.members[k]);
     
-    let fn=(document.getElementById('f-fn')||{}).value||'', ln=(document.getElementById('f-ln')||{}).value||''; fn=fn.trim(); ln=ln.trim();
-    let fnHi=(document.getElementById('f-fn-hi')||{}).value||'', lnHi=(document.getElementById('f-ln-hi')||{}).value||''; fnHi=fnHi.trim(); lnHi=lnHi.trim();
+    let fn = (getEl('f-fn')||{}).value||'', ln = (getEl('f-ln')||{}).value||''; fn=fn.trim(); ln=ln.trim();
+    let fnHi = (getEl('f-fn-hi')||{}).value||'', lnHi = (getEl('f-ln-hi')||{}).value||''; fnHi=fnHi.trim(); lnHi=lnHi.trim();
     if(!fn && !fnHi){ showToast('Enter name'); return; }
-    let name=ln?fn+' '+ln:fn, nameHi=fnHi?(lnHi?fnHi+' '+lnHi:fnHi):'';
+    let name = ln ? fn+' '+ln : fn, nameHi = fnHi ? (lnHi ? fnHi+' '+lnHi : fnHi) : '';
     
-    let bYear=(document.getElementById('f-by')||{}).value||'', dYear=(document.getElementById('f-dy')||{}).value||'';
-    let dob=(document.getElementById('f-dob')||{}).value||'', mDate=(document.getElementById('f-mdate')||{}).value||'', phone=(document.getElementById('f-phone')||{}).value||'', address=(document.getElementById('f-address')||{}).value||'';
-    let parentId=(document.getElementById('f-par')||{}).value||null, gen=parseInt((document.getElementById('f-gen')||{}).value||'0')||0;
-    let spN=((document.getElementById('f-sp')||{}).value||'').trim(), spNHi=((document.getElementById('f-sp-hi')||{}).value||'').trim();
+    let bYear = (getEl('f-by')||{}).value||'', dYear = (getEl('f-dy')||{}).value||'';
+    let dob = (getEl('f-dob')||{}).value||'', mDate = (getEl('f-mdate')||{}).value||'', phone = (getEl('f-phone')||{}).value||'', address = (getEl('f-address')||{}).value||'';
+    let parentId = (getEl('f-par')||{}).value||null, gen = parseInt((getEl('f-gen')||{}).value||'0')||0;
+    let spN = ((getEl('f-sp')||{}).value||'').trim(), spNHi = ((getEl('f-sp-hi')||{}).value||'').trim();
 
-    async function qTrans(t, l) { if(!GEMINI_API_KEY || GEMINI_API_KEY==='YOUR_API_KEY_HERE') return ''; try { let u='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_API_KEY, res=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:`Transliterate into ${l}. Return ONLY the translated name: ${t}`}]}]})}), d=await res.json(); return d.candidates?d.candidates[0].content.parts[0].text.trim():''; } catch(e){return '';} }
+    async function qTrans(t, l) { 
+        if(!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_API_KEY_HERE') return ''; 
+        try { 
+            let u = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
+            let res = await fetch(u, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({contents: [{parts: [{text: `Transliterate into ${l}. Return ONLY the translated name: ${t}`}]}]})});
+            let d = await res.json(); 
+            return d.candidates ? d.candidates[0].content.parts[0].text.trim() : ''; 
+        } catch(e) { return ''; } 
+    }
     
-    let btn=document.querySelector('.btn-save'); let ob=btn?btn.textContent:'Save'; if(btn) btn.disabled=true;
-    if(name&&!nameHi){ if(btn)btn.textContent='Translating...'; nameHi=await qTrans(name,'Hindi (Devanagari)'); } else if(nameHi&&!name){ if(btn)btn.textContent='Translating...'; name=await qTrans(nameHi,'English (Roman)'); }
-    if(spN&&!spNHi){ if(btn)btn.textContent='Translating...'; spNHi=await qTrans(spN,'Hindi (Devanagari)'); } else if(spNHi&&!spN){ if(btn)btn.textContent='Translating...'; spN=await qTrans(spNHi,'English (Roman)'); }
-    if(btn){ btn.textContent=ob; btn.disabled=false; } if(!name)name=nameHi; if(!nameHi)nameHi=name;
+    let btn = document.querySelector('.btn-save'); let ob = btn ? btn.textContent : 'Save'; if(btn) btn.disabled = true;
+    
+    if(name && !nameHi) { if(btn) btn.textContent='Translating...'; nameHi = await qTrans(name, 'Hindi (Devanagari)'); } 
+    else if(nameHi && !name) { if(btn) btn.textContent='Translating...'; name = await qTrans(nameHi, 'English (Roman)'); }
+    
+    if(spN && !spNHi) { if(btn) btn.textContent='Translating...'; spNHi = await qTrans(spN, 'Hindi (Devanagari)'); } 
+    else if(spNHi && !spN) { if(btn) btn.textContent='Translating...'; spN = await qTrans(spNHi, 'English (Roman)'); }
+    
+    if(btn) { btn.textContent = ob; btn.disabled = false; } 
+    if(!name) name = nameHi; if(!nameHi) nameHi = name;
 
-    let pD = { name, nameHi, photo:state.prevPhoto, parentId, generation:gen, spouse:'', isSpouse:false, birthYear:bYear.trim(), deathYear:dYear.trim(), dob:dob.trim(), marriageDate:mDate.trim(), phone:phone.trim(), address:address.trim(), gallery: state.prevGallery };
-    if(state.editingId==='__new__'){
-      pD.id='m'+Date.now(); state.members.push(pD);
-      if(spN||spNHi){ let sid=pD.id+'s'; pD.spouse=sid; state.members.push({id:sid,name:spN,nameHi:spNHi,photo:state.prevPhotoSpouse,parentId:null,generation:gen,spouse:pD.id,isSpouse:true}); }
-      state.editingId=pD.id;
+    let pD = { name, nameHi, photo: state.prevPhoto, parentId, generation: gen, spouse: '', isSpouse: false, birthYear: bYear.trim(), deathYear: dYear.trim(), dob: dob.trim(), marriageDate: mDate.trim(), phone: phone.trim(), address: address.trim(), gallery: state.prevGallery };
+    
+    if(state.editingId === '__new__') {
+      pD.id = 'm' + Date.now(); state.members.push(pD);
+      if(spN || spNHi) { 
+          let sid = pD.id + 's'; pD.spouse = sid; 
+          state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: pD.id, isSpouse: true }); 
+      }
+      state.editingId = pD.id;
     } else {
-      let m=state.members.find(x=>x&&x.id===state.editingId);
-      if(m){ 
+      let m = state.members.find(x => x && x.id === state.editingId);
+      if(m) { 
         Object.assign(m, pD);
-        if(spN||spNHi){
-          if(m.spouse){ let sp=state.members.find(x=>x&&x.id===m.spouse); if(sp){sp.name=spN; sp.nameHi=spNHi; sp.photo=state.prevPhotoSpouse;} }
-          else{ let sid=m.id+'s'; m.spouse=sid; state.members.push({id:sid,name:spN,nameHi:spNHi,photo:state.prevPhotoSpouse,parentId:null,generation:gen,spouse:m.id,isSpouse:true}); }
-        } else if(m.spouse){ state.members=state.members.filter(x=>x&&x.id!==m.spouse); m.spouse=''; }
+        if(spN || spNHi) {
+          if(m.spouse) { 
+              let sp = state.members.find(x => x && x.id === m.spouse); 
+              if(sp) { sp.name = spN; sp.nameHi = spNHi; sp.photo = state.prevPhotoSpouse; } 
+          } else { 
+              let sid = m.id + 's'; m.spouse = sid; 
+              state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: m.id, isSpouse: true }); 
+          }
+        } else if(m.spouse) { 
+            state.members = state.members.filter(x => x && x.id !== m.spouse); m.spouse = ''; 
+        }
       }
     }
     saveToFirebase(); showToast(s('sved')); renderAdmin(); renderTree();
   }
 
-  function delMember(id){
-    if(!isAdmin()) return; let m=state.members.find(x=>x&&x.id===id);
-    if(m&&m.spouse){ state.members=state.members.filter(x=>x&&x.id!==m.spouse); delete state.expanded[m.spouse]; }
-    state.members.filter(x=>x&&x.parentId===id).forEach(c=>c.parentId=null); state.members=state.members.filter(x=>x&&x.id!==id);
-    delete state.expanded[id]; state.editingId=null; saveToFirebase(); showToast(s('dlted')); renderAdmin(); renderTree();
+  function delMember(id) {
+    if(!isAdmin()) return; 
+    let m = state.members.find(x => x && x.id === id);
+    if(m && m.spouse) { state.members = state.members.filter(x => x && x.id !== m.spouse); delete state.expanded[m.spouse]; }
+    state.members.filter(x => x && x.parentId === id).forEach(c => c.parentId = null); 
+    state.members = state.members.filter(x => x && x.id !== id);
+    delete state.expanded[id]; state.editingId = null; 
+    saveToFirebase(); showToast(s('dlted')); renderAdmin(); renderTree();
   }
 
-  function showView(v, btn){
-    if((v==='admin'||v==='auth')&&!isAdmin()){ showToast("Blocked."); return; }
-    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active');
-    ['tree-view','admin-view','auth-view'].forEach(id=>document.getElementById(id).style.display='none');
-    document.getElementById(v+'-view').style.display = v==='tree'?'block':'grid';
-    let bg=document.getElementById('custom-bg'), cv=document.querySelector('.bg-canvas');
-    if(v==='tree'){ if(state.bgLayers&&state.bgLayers.length) bg.style.opacity='1'; cv.style.opacity=(state.bgLayers&&state.bgLayers.length)?'0':'1'; }
-    else{ bg.style.opacity='0'; cv.style.opacity='1'; }
-    if(v==='tree') renderTree(); else if(v==='admin') renderAdmin(); else if(v==='auth') renderAuthPanel();
+  function showView(v, btn) {
+    if((v === 'admin' || v === 'auth' || v === 'design') && !isAdmin()) { showToast("Blocked."); return; }
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active')); btn.classList.add('active');
+    ['tree-view', 'admin-view', 'design-view', 'auth-view'].forEach(id => getEl(id).style.display = 'none');
+    
+    getEl(v + '-view').style.display = v === 'tree' ? 'block' : 'grid';
+    
+    let bg = getEl('custom-bg'), txtLayer = getEl('custom-text-container'), cv = document.querySelector('.bg-canvas');
+    if(v === 'tree') { 
+        if(state.bgLayers && state.bgLayers.length) bg.style.opacity = '1';
+        if(state.textLayers && state.textLayers.length) txtLayer.style.opacity = '1';
+        cv.style.opacity = (state.bgLayers && state.bgLayers.length) ? '0' : '1'; 
+    } else { 
+        bg.style.opacity = '0'; 
+        if(txtLayer) txtLayer.style.opacity = '0'; 
+        cv.style.opacity = '1'; 
+    }
+    
+    if(v === 'tree') renderTree(); 
+    else if(v === 'admin') { state.editingId = null; renderAdmin(); } // Auto-clear to prevent overlap on tab switch
+    else if(v === 'design') renderDesignStudio(); 
+    else if(v === 'auth') renderAuthPanel();
   }
 
-  window.App = { doAuth, toggleAuthMode, setLang, showView, startNew, cancelEdit, updateFamilyName, applyUrl, handleFile, applyUrlSp, handleFileSp, saveMember, delMember, doLogout, modifyUser, generateShareLink, exportTree, handleSearch, handleFilter, setTheme, openProfile, closeProfile, saveBgSettings, clearBgSettings, handleBgFile, handleDropZoneOver, handleDropZoneLeave, handleDropZoneDrop, liveUpdateBg: ()=>applyBgSettings(), handleGalleryFiles, removeGalleryImg, updateLayer, removeLayer };
+  // --- WINDOW EXPORTS ---
+  window.App = { 
+      doAuth, toggleAuthMode, setLang, showView, startNew, cancelEdit, updateFamilyName, applyUrl, handleFile, 
+      applyUrlSp, handleFileSp, saveMember, delMember, doLogout, modifyUser, generateShareLink, exportTree, 
+      handleSearch, setTheme, openProfile, closeProfile, saveBgSettings, clearBgSettings, 
+      handleBgFile, handleDropZoneOver, handleDropZoneLeave, handleDropZoneDrop, liveUpdateBg: () => { applyBgSettings(); refreshStudioPreview(); }, 
+      handleGalleryFiles, removeGalleryImg, updateLayer, removeLayer,
+      addTextLayer, updateTextLayer, removeTextLayer, saveTextSettings
+  };
+  
   checkLocalAuth();
+
 })();
 </script>
+</body>
 </html>
