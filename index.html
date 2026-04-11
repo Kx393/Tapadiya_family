@@ -580,7 +580,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function setLang(l) { state.lang = l; document.querySelectorAll('.lang-btn').forEach((b,i) => { if(i < 2) b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi')); }); applyLang(); let tv = getEl('tree-view'), av = getEl('admin-view'), dv = getEl('design-view'), au = getEl('auth-view'); if(tv && tv.style.display !== 'none') renderTree(); if(av && av.style.display !== 'none' && isAdmin()) renderAdmin(); if(dv && dv.style.display !== 'none' && isAdmin()) renderDesignStudio(); if(au && au.style.display !== 'none' && isAdmin()) renderAuthPanel(); }
   function applyLang() { getEl('tab-tree').textContent = s('navTree'); getEl('tab-admin').textContent = s('navAdmin'); getEl('tab-design').textContent = s('navDesign'); getEl('tab-auth').textContent = 'Auth Panel'; document.body.classList.toggle('lang-hi', state.lang === 'hi'); }
 
-/* --- TREE RENDER --- */
+  /* --- TREE RENDER --- */
+  /* --- TREE RENDER --- */
   function toggleExpand(id, e) { 
       if(e) e.stopPropagation(); 
       
