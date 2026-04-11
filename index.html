@@ -166,7 +166,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   let state = {
     lang: 'en', theme: 'dark', familyName: 'Shah', bgLayers: [], textLayers: [], dbReady: false, members: [],
     expanded: {}, users: {}, currentUser: null, authMode: 'login', selected: null, editingId: null,
-    prevPhoto: '', prevPhotoSpouse: '', prevGallery: [], isViewOnly: false, searchQuery: ''
+    prevPhoto: '', prevPhotoSpouse: '', prevGallery: [], isViewOnly: false, searchQuery: '', scrollTarget: null
   };
 
   const isAdmin = () => state.currentUser && state.currentUser.role === 'admin' && !state.isViewOnly;
@@ -492,14 +492,27 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
          dh = '<div class="modal-private">Detailed information is hidden for guest viewers.</div>';
      } else {
          if(m.dob) dh += `<div class="modal-row"><span>Date of Birth</span><div>${m.dob}</div></div>`;
-         if(m.marriageDate) dh += `<div class="modal-row"><span>Marriage Date</span><div>${m.marriageDate}</div></div>`;
+         
+         let mDate = m.marriageDate;
+         if(!mDate && m.isSpouse && m.spouse) {
+             let partner = state.members.find(x => x && x.id === m.spouse);
+             if(partner) mDate = partner.marriageDate;
+         }
+         if(mDate) dh += `<div class="modal-row"><span>Marriage Date</span><div>${mDate}</div></div>`;
+         
          if(m.phone) dh += `<div class="modal-row"><span>Phone Number</span><div>${m.phone}</div></div>`;
          if(m.address) dh += `<div class="modal-row"><span>Address</span><div>${m.address}</div></div>`;
          if(dh === '') dh = '<div class="modal-private">No additional details available.</div>';
          
-         if(m.gallery && m.gallery.length > 0) {
+         let gallery = m.gallery;
+         if((!gallery || gallery.length === 0) && m.isSpouse && m.spouse) {
+             let partner = state.members.find(x => x && x.id === m.spouse);
+             if(partner) gallery = partner.gallery;
+         }
+         
+         if(gallery && gallery.length > 0) {
             dh += `<div style="margin-top:1.5rem; border-top:1px solid var(--border2); padding-top:1rem;"><span style="display:block; font-size:10px; text-transform:uppercase; color:var(--text3); letter-spacing:0.08em; margin-bottom:8px;">Photo Gallery</span><div class="modal-gallery">`;
-            m.gallery.forEach(src => dh += `<a href="${src}" target="_blank"><img src="${src}"></a>`);
+            gallery.forEach(src => dh += `<a href="${src}" target="_blank"><img src="${src}"></a>`);
             dh += `</div></div>`;
          }
      }
@@ -568,7 +581,12 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function applyLang() { getEl('tab-tree').textContent = s('navTree'); getEl('tab-admin').textContent = s('navAdmin'); getEl('tab-design').textContent = s('navDesign'); getEl('tab-auth').textContent = 'Auth Panel'; document.body.classList.toggle('lang-hi', state.lang === 'hi'); }
 
   /* --- TREE RENDER --- */
-  function toggleExpand(id, e) { if(e) e.stopPropagation(); if(state.expanded[id]) delete state.expanded[id]; else state.expanded[id] = true; renderTree(); }
+  function toggleExpand(id, e) { 
+      if(e) e.stopPropagation(); 
+      if(state.expanded[id]) delete state.expanded[id]; else state.expanded[id] = true; 
+      state.scrollTarget = id; // FIX: Lock target for smooth scroll
+      renderTree(); 
+  }
   
   function makeAvatar(m, sz) { 
       let av = document.createElement('div'); av.className = 'avatar'; av.style.cssText = `width:${sz}px;height:${sz}px;font-size:${Math.round(sz*0.27)}px`; 
@@ -656,6 +674,17 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(sch) sch.value = state.searchQuery;
 
     renderLevel(getEl('tree-root'), null, 0);
+
+    // FIX: Smooth scrolling to the exact expanded node
+    setTimeout(() => { 
+        if(state.searchQuery !== '') applySearch(); 
+        else if(state.scrollTarget) {
+            let target = document.querySelector(`.person-card[data-id="${state.scrollTarget}"]`);
+            if(target) target.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+            state.scrollTarget = null;
+        }
+        else { let sn = document.querySelector('.person-card.selected'); if(sn) sn.scrollIntoView({behavior:'smooth', block:'center', inline:'center'}); } 
+    }, 50);
   }
 
   /* --- NEW: THEME & DESIGN STUDIO (RIGHT PANEL) --- */
@@ -711,16 +740,14 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         </div>
       `).join('');
 
-     let textEditorHtml = `
+      let textEditorHtml = `
         <div class="bg-editor" style="margin-top:1.5rem;">
           <h4>Typography Studio</h4>
           <div style="display:flex; flex-direction:column; gap:10px;">
             <input type="text" id="new-text-input" placeholder="e.g. The Royal Bloodline" class="tool-input" style="width:100%; border-radius:8px;">
             <button class="tool-btn" style="width:100%;" onclick="App.addTextLayer()">Add Text</button>
           </div>
-          
           <div id="text-layers-list">${txtHtml}</div>
-          
           <div style="display:flex; gap:10px; margin-top:10px;">
                <button class="tool-btn" style="flex:1;" onclick="App.saveTextSettings()">Save Text</button>
           </div>
@@ -747,7 +774,6 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(!isAdmin()) return; 
     let v = getEl('admin-view');
     
-    // The clean Left Sidebar
     let sidebarHtml = `<div class="admin-sidebar"><div class="sidebar-title">${s('all')}</div><div id="mlist" style="flex:1; overflow-y:auto; margin-bottom:1rem;"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">${s('add')}</button></div>`;
     v.innerHTML = sidebarHtml + `<div class="admin-form-wrap" id="aform"></div>`;
     
@@ -778,8 +804,16 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function renderForm(m) {
     let area = getEl('aform'), sm = Array.isArray(state.members) ? state.members : [];
     let pOpts = `<option value="">${s('rootLevel')}</option>` + sm.filter(x => x && !x.isSpouse && (!m || x.id !== m.id)).map(p => `<option value="${p.id}"${m && m.parentId === p.id ? ' selected' : ''}>${dname(p)}</option>`).join('');
-    let spN = m && m.spouse ? (sm.find(x => x && x.id === m.spouse) || {}).name || '' : ''; 
-    let spNHi = m && m.spouse ? (sm.find(x => x && x.id === m.spouse) || {}).nameHi || '' : '';
+    
+    let spObj = m && m.spouse ? state.members.find(x => x && x.id === m.spouse) : null;
+    let spN = spObj ? spObj.name || '' : ''; 
+    let spNHi = spObj ? spObj.nameHi || '' : '';
+    let spBy = spObj && spObj.birthYear ? spObj.birthYear : '';
+    let spDy = spObj && spObj.deathYear ? spObj.deathYear : '';
+    let spDob = spObj && spObj.dob ? spObj.dob : '';
+    let spPhone = spObj && spObj.phone ? spObj.phone : '';
+    let spAddr = spObj && spObj.address ? spObj.address : '';
+
     let genOpts = s('genLabels').map((g,i) => `<option value="${i}"${m && m.generation === i ? ' selected' : ''}>${g}</option>`).join('');
     
     let pv = state.prevPhoto; let pvSp = state.prevPhotoSpouse;
@@ -787,6 +821,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     let dob = m ? (m.dob || '') : ''; let mDate = m ? (m.marriageDate || '') : '';
     let phone = m ? (m.phone || '') : ''; let address = m ? (m.address || '') : '';
 
+    // FIX: Spouse Profile details completely added below
     area.innerHTML = `
       <div class="fn-bar"><span class="fn-label">${s('fn')}</span><input class="fn-input" id="fn-inp" value="${state.familyName}"><button class="fn-btn" onclick="App.updateFamilyName()">${s('up')}</button></div>
       <h2>${m ? s('edit') : s('new')}</h2>
@@ -799,7 +834,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         <div class="fg"><label>Birth Year (Tree View)</label><input type="text" id="f-by" placeholder="1950" value="${bYear}"></div>
         <div class="fg"><label>Death Year (Tree View)</label><input type="text" id="f-dy" placeholder="Blank if living" value="${dYear}"></div>
         
-        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label style="color:var(--gold);">Private Profile Details</label></div>
+        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label style="color:var(--gold);">Primary Profile Details</label></div>
         <div class="fg"><label>Full Date of Birth</label><input type="text" id="f-dob" placeholder="DD/MM/YYYY" value="${dob}"></div>
         <div class="fg"><label>Marriage Date</label><input type="text" id="f-mdate" placeholder="DD/MM/YYYY" value="${mDate}"></div>
         <div class="fg"><label>Phone Number</label><input type="text" id="f-phone" value="${phone}"></div>
@@ -810,8 +845,17 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"></div>
         <div class="fg"><label>${s('par')}</label><select id="f-par">${pOpts}</select></div>
         <div class="fg"><label>${s('gen')}</label><select id="f-gen">${genOpts}</select></div>
-        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label>${s('spN')} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl')}" value="${spN}"></div>
+        
+        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label style="color:var(--gold);">Spouse Details</label></div>
+        <div class="fg full"><label>${s('spN')} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl')}" value="${spN}"></div>
         <div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="${s('bl')}" value="${spNHi}"></div>
+        
+        <div class="fg"><label>Spouse Birth Year</label><input type="text" id="f-sp-by" placeholder="1950" value="${spBy}"></div>
+        <div class="fg"><label>Spouse Death Year</label><input type="text" id="f-sp-dy" placeholder="Blank if living" value="${spDy}"></div>
+        <div class="fg"><label>Spouse Full DOB</label><input type="text" id="f-sp-dob" placeholder="DD/MM/YYYY" value="${spDob}"></div>
+        <div class="fg"><label>Spouse Phone</label><input type="text" id="f-sp-phone" value="${spPhone}"></div>
+        <div class="fg full"><label>Spouse Address</label><input type="text" id="f-sp-address" value="${spAddr}"></div>
+
         <div class="fg full"><label>Spouse Photo</label><div class="photo-row"><div class="photo-prev" id="pp-sp">${pvSp ? `<img src="${pvSp}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="${s('pUrl')}" value="${pvSp}"><button class="url-apply" onclick="App.applyUrlSp()">${s('app')}</button></div><label class="upload-lbl" for="p-file-sp">${s('upl')}</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>
       </div>
       <div class="form-actions">${m ? `<button class="btn-del" onclick="App.delMember('${m.id}')">${s('del')}</button>` : ''}<button class="btn-cancel" onclick="App.cancelEdit()">${s('can')}</button><button class="btn-save" onclick="App.saveMember()">${s('sv')}</button></div>
@@ -922,7 +966,11 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     let bYear = (getEl('f-by')||{}).value||'', dYear = (getEl('f-dy')||{}).value||'';
     let dob = (getEl('f-dob')||{}).value||'', mDate = (getEl('f-mdate')||{}).value||'', phone = (getEl('f-phone')||{}).value||'', address = (getEl('f-address')||{}).value||'';
     let parentId = (getEl('f-par')||{}).value||null, gen = parseInt((getEl('f-gen')||{}).value||'0')||0;
+    
     let spN = ((getEl('f-sp')||{}).value||'').trim(), spNHi = ((getEl('f-sp-hi')||{}).value||'').trim();
+    let spBy = ((getEl('f-sp-by')||{}).value||'').trim(), spDy = ((getEl('f-sp-dy')||{}).value||'').trim();
+    let spDob = ((getEl('f-sp-dob')||{}).value||'').trim(), spPhone = ((getEl('f-sp-phone')||{}).value||'').trim();
+    let spAddr = ((getEl('f-sp-address')||{}).value||'').trim();
 
     async function qTrans(t, l) { 
         if(!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_API_KEY_HERE') return ''; 
@@ -945,26 +993,34 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(btn) { btn.textContent = ob; btn.disabled = false; } 
     if(!name) name = nameHi; if(!nameHi) nameHi = name;
 
-    let pD = { name, nameHi, photo: state.prevPhoto, parentId, generation: gen, spouse: '', isSpouse: false, birthYear: bYear.trim(), deathYear: dYear.trim(), dob: dob.trim(), marriageDate: mDate.trim(), phone: phone.trim(), address: address.trim(), gallery: state.prevGallery };
+    // FIX: Do NOT include `spouse` or `isSpouse` in pD to prevent overwriting the DB link!
+    let pD = { name, nameHi, photo: state.prevPhoto, parentId, generation: gen, birthYear: bYear.trim(), deathYear: dYear.trim(), dob: dob.trim(), marriageDate: mDate.trim(), phone: phone.trim(), address: address.trim(), gallery: state.prevGallery };
     
     if(state.editingId === '__new__') {
-      pD.id = 'm' + Date.now(); state.members.push(pD);
+      pD.id = 'm' + Date.now(); 
+      pD.spouse = ''; 
+      pD.isSpouse = false;
+      state.members.push(pD);
+      
       if(spN || spNHi) { 
           let sid = pD.id + 's'; pD.spouse = sid; 
-          state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: pD.id, isSpouse: true }); 
+          state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: pD.id, isSpouse: true, birthYear: spBy, deathYear: spDy, dob: spDob, phone: spPhone, address: spAddr }); 
       }
       state.editingId = pD.id;
     } else {
       let m = state.members.find(x => x && x.id === state.editingId);
       if(m) { 
-        Object.assign(m, pD);
+        Object.assign(m, pD); // Safely merges without destroying m.spouse!
         if(spN || spNHi) {
           if(m.spouse) { 
               let sp = state.members.find(x => x && x.id === m.spouse); 
-              if(sp) { sp.name = spN; sp.nameHi = spNHi; sp.photo = state.prevPhotoSpouse; } 
+              if(sp) { 
+                  sp.name = spN; sp.nameHi = spNHi; sp.photo = state.prevPhotoSpouse; 
+                  sp.birthYear = spBy; sp.deathYear = spDy; sp.dob = spDob; sp.phone = spPhone; sp.address = spAddr;
+              } 
           } else { 
               let sid = m.id + 's'; m.spouse = sid; 
-              state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: m.id, isSpouse: true }); 
+              state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: m.id, isSpouse: true, birthYear: spBy, deathYear: spDy, dob: spDob, phone: spPhone, address: spAddr }); 
           }
         } else if(m.spouse) { 
             state.members = state.members.filter(x => x && x.id !== m.spouse); m.spouse = ''; 
@@ -1003,7 +1059,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     }
     
     if(v === 'tree') renderTree(); 
-    else if(v === 'admin') { state.editingId = null; renderAdmin(); } // Auto-clear to prevent overlap on tab switch
+    else if(v === 'admin') { state.editingId = null; renderAdmin(); } 
     else if(v === 'design') renderDesignStudio(); 
     else if(v === 'auth') renderAuthPanel();
   }
