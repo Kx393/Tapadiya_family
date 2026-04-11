@@ -580,11 +580,29 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function setLang(l) { state.lang = l; document.querySelectorAll('.lang-btn').forEach((b,i) => { if(i < 2) b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi')); }); applyLang(); let tv = getEl('tree-view'), av = getEl('admin-view'), dv = getEl('design-view'), au = getEl('auth-view'); if(tv && tv.style.display !== 'none') renderTree(); if(av && av.style.display !== 'none' && isAdmin()) renderAdmin(); if(dv && dv.style.display !== 'none' && isAdmin()) renderDesignStudio(); if(au && au.style.display !== 'none' && isAdmin()) renderAuthPanel(); }
   function applyLang() { getEl('tab-tree').textContent = s('navTree'); getEl('tab-admin').textContent = s('navAdmin'); getEl('tab-design').textContent = s('navDesign'); getEl('tab-auth').textContent = 'Auth Panel'; document.body.classList.toggle('lang-hi', state.lang === 'hi'); }
 
-  /* --- TREE RENDER --- */
+/* --- TREE RENDER --- */
   function toggleExpand(id, e) { 
       if(e) e.stopPropagation(); 
-      if(state.expanded[id]) delete state.expanded[id]; else state.expanded[id] = true; 
-      state.scrollTarget = id; // FIX: Lock target for smooth scroll
+      
+      if(state.expanded[id]) {
+          // If it is already open, just close it
+          delete state.expanded[id]; 
+      } else {
+          // If we are opening a new branch:
+          let clickedMember = state.members.find(m => m && m.id === id);
+          if(clickedMember) {
+              // Loop through everyone and close any siblings that share the same parent
+              state.members.forEach(m => {
+                  if(m && m.parentId === clickedMember.parentId && m.id !== id) {
+                      delete state.expanded[m.id];
+                  }
+              });
+          }
+          // Finally, open the one we clicked
+          state.expanded[id] = true; 
+      }
+      
+      state.scrollTarget = id;
       renderTree(); 
   }
   
