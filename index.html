@@ -4,106 +4,184 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Family Tree</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500&family=Noto+Sans+Devanagari:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500&family=Noto+Sans+Devanagari:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
-/* --- CORE STYLES --- */
-*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#080a0f;--surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.07);--surface3:rgba(255,255,255,0.1);--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0ede8;--text2:#a09a90;--text3:#5a5650;--gold:#c9a96e;--gold2:#e8c98a;--gold-soft:rgba(201,169,110,0.12);--canvas-filter:none}body.theme-light{--bg:#f9f8f6;--surface:#ffffff;--surface2:#f0edea;--surface3:#e6e2dd;--border:#e0ddd9;--border2:#d0cdc9;--text:#2a2825;--text2:#4a4845;--text3:#7a7875;--gold:#b38b4d;--gold2:#967035;--gold-soft:rgba(179,139,77,0.15);--canvas-filter:invert(1) hue-rotate(180deg) opacity(0.3)}body.theme-vintage{--bg:#eaddcf;--surface:#f4ecd8;--surface2:#e8dcc4;--surface3:#dfd1b3;--border:#d4c4b4;--border2:#c2b09d;--text:#4a3b2c;--text2:#5c4d3c;--text3:#7a6b5c;--gold:#9e643c;--gold2:#7d4d2b;--gold-soft:rgba(158,100,60,0.15);--canvas-filter:sepia(0.4) opacity(0.4)}
+/* --- CORE STYLES (DARK & LIGHT) --- */
+*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#080a0f;--surface:#151822;--surface2:#1e2230;--surface3:#282d3e;--border:#2a3040;--border2:#3d455c;--text:#f0ede8;--text2:#a09a90;--text3:#5a5650;--gold:#c9a96e;--gold2:#e8c98a;--gold-soft:rgba(201,169,110,0.12);--canvas-filter:none}
+body.theme-light{--bg:#f9f8f6;--surface:#ffffff;--surface2:#f0edea;--surface3:#e6e2dd;--border:#e0ddd9;--border2:#d0cdc9;--text:#2a2825;--text2:#4a4845;--text3:#7a7875;--gold:#b38b4d;--gold2:#967035;--gold-soft:rgba(179,139,77,0.15);--canvas-filter:invert(1) hue-rotate(180deg) opacity(0.3)}
+
+/* --- MINIMALIST VINTAGE THEME --- */
+body.theme-vintage{--bg:#f4ece2;--surface:#fff9f0;--surface2:#ebdcc4;--surface3:#e3cca6;--border:#c29b62;--border2:rgba(184,134,11,0.3);--text:#2c1e16;--text2:#543a28;--text3:#8a6a4b;--gold:#b8860b;--gold2:#8b6508;--gold-soft:rgba(184,134,11,0.15);--canvas-filter:sepia(0.3) contrast(0.9)}
+
 html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;position:relative;overflow-x:hidden;transition:background 0.3s,color 0.3s}.lang-hi *{font-family:'Noto Sans Devanagari',sans-serif}
 
+/* BACKGROUND ORBS */
 .bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;filter:var(--canvas-filter);transition:opacity 0.5s}.bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(201,169,110,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(120,100,200,0.06) 0%,transparent 60%);animation:bgP 12s ease-in-out infinite alternate}.bg-canvas::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(201,169,110,0.15) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);opacity:.3;animation:gD 20s linear infinite}@keyframes bgP{0%{opacity:.7}100%{opacity:1}}@keyframes gD{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:oF linear infinite;opacity:.4}.orb1{width:400px;height:400px;background:radial-gradient(circle,rgba(201,169,110,0.2),transparent 70%);top:-100px;left:-100px;animation-duration:25s}.orb2{width:300px;height:300px;background:radial-gradient(circle,rgba(100,80,180,0.15),transparent 70%);bottom:10%;right:-50px;animation-duration:30s;animation-delay:-10s}.orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,0.12),transparent 70%);top:50%;left:60%;animation-duration:20s;animation-delay:-5s}@keyframes oF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(0.9)}}
 
-.custom-bg, .custom-text-container {position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;opacity:0;transition:opacity 0.5s;pointer-events:none;overflow:hidden;}
-.custom-bg-layer{position:absolute;inset:0;background-repeat:no-repeat; background-position: center; background-size: cover;}
-.custom-text-layer{position:absolute;transform:translate(-50%,-50%);white-space:pre-wrap;text-align:center;font-family:'Cormorant Garamond',serif;text-shadow:2px 2px 8px rgba(0,0,0,0.8);line-height:1.1;pointer-events:none;}
+/* ABSOLUTE BACKGROUND CONTAINERS */
+.custom-bg{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:0;opacity:0;transition:opacity 0.5s;pointer-events:none;overflow:hidden}.custom-bg-layer{position:absolute;inset:0;background-repeat:no-repeat; background-position: top center; background-size: cover;}
+.custom-text-container{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:0;opacity:0;transition:opacity 0.5s;pointer-events:none;overflow:hidden} .custom-text-layer{position:absolute;transform:translate(-50%,-50%);white-space:pre-wrap;text-align:center;font-family:'Cormorant Garamond',serif;text-shadow:2px 2px 10px rgba(0,0,0,0.8);line-height:1.1;pointer-events:none;}
 
 select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a96e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:32px!important}select option{background-color:var(--bg);color:var(--text)}
 
-/* --- UI COMPONENTS: APP HEADER & BOTTOM NAV --- */
-.app-header {position:fixed; top:0; left:0; width:100%; height:60px; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:0 1.5rem; background:rgba(8, 10, 15, 0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border);}
+/* --- APP HEADER & NAV (SOLID, NO FROSTED GLASS) --- */
+.app-header {position:fixed; top:0; left:0; width:100%; height:60px; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:0 1.5rem; background:var(--bg); border-bottom:1px solid var(--border); transition:all 0.3s;}
+
 .nav-brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--gold);letter-spacing:0.1em;font-style:italic;} .nav-brand span{font-style:normal;font-weight:500;color:var(--text);}
-.lang-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
-.lang-btn{padding:0.4rem 0.75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit';transition:all 0.2s;} .lang-btn.active{background:var(--gold);color:#ffffff;font-weight:500;}
+.lang-toggle{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.lang-btn{padding:0.4rem 0.75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit';transition:all 0.2s;font-weight:500;} .lang-btn.active{background:var(--gold);color:#ffffff;font-weight:600;} .lang-btn:active {transform: scale(0.95);}
 
-/* DESKTOP NAV (Placed right below header) */
-.bottom-nav {position:fixed; top:60px; left:0; width:100%; display:flex; padding:0 2rem; background:rgba(8, 10, 15, 0.85); border-bottom:1px solid var(--border); z-index:90; backdrop-filter:blur(20px);}
+/* DESKTOP NAV */
+.bottom-nav {position:fixed; top:60px; left:0; width:100%; display:flex; padding:0 2rem; background:var(--bg); border-bottom:1px solid var(--border); z-index:90; transition:all 0.3s;}
+
 .nav-tab{padding:1rem 1.5rem;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;color:var(--text2);border:none;background:none;border-bottom:2px solid transparent;transition:all 0.2s;font-family:'Outfit'}
-.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)} .nav-tab:hover:not(.active){color:var(--text)}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)} .nav-tab:hover:not(.active){color:var(--text)} .nav-tab:active {transform: scale(0.95);}
 
-#app-main { padding-top: 110px; min-height: 100vh; position:relative; z-index:10; }
+body.theme-vintage .nav-tab { color: var(--text3); font-weight:500; }
+body.theme-vintage .nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
+body.theme-vintage .nav-brand span { color: var(--text); font-weight:600; }
 
-.tool-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit';font-size:13px;outline:none;width:100%;transition:border 0.2s; box-sizing:border-box;} .tool-input:focus{border-color:var(--gold)}.tool-btn{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.6rem 1.4rem;border-radius:8px;font-family:'Outfit';font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500; white-space:nowrap; box-sizing:border-box;} .tool-btn:hover{background:var(--gold);color:#fff}
+/* MAIN CONTAINER */
+#app-main { padding-top: 115px; padding-bottom: 2rem; min-height: 100vh; position:relative; z-index:10; }
 
-#login-overlay,#waiting-overlay{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:90%; max-width:340px; text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2)}.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:0.25rem} .login-logo span{font-style:normal;color:var(--text)}.login-sub{font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}.auth-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;color:var(--text);font-size:14px;font-family:'Outfit';outline:none;margin-bottom:1rem;transition:border 0.2s} .auth-input:focus{border-color:var(--gold)}.auth-btn{width:100%;padding:0.8rem;border-radius:10px;background:var(--gold);border:none;color:#000;font-size:14px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s;margin-bottom:0.5rem} .auth-btn:hover:not(:disabled){background:var(--gold2)} .auth-btn:disabled{opacity:0.6;cursor:not-allowed}.auth-btn-sec{width:100%;padding:0.8rem;border-radius:10px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit';transition:all 0.2s} .auth-btn-sec:hover{border-color:var(--gold);color:var(--gold)}.auth-error{color:#f09595;font-size:12px;margin-bottom:1rem;min-height:15px}
+#tree-view, #admin-view, #design-view, #auth-view { display: none; }
+#tree-view.active-view { display: block; }
+#admin-view.active-view, #design-view.active-view, #auth-view.active-view { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; padding: 1.5rem 2rem; box-sizing: border-box; }
 
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s} .modal-overlay.show{opacity:1;pointer-events:auto}.modal-content{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2rem;width:95%;max-width:400px;max-height:85vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform 0.3s;box-shadow:0 15px 40px rgba(0,0,0,0.4);text-align:center} .modal-overlay.show .modal-content{transform:translateY(0)}.modal-close{position:absolute;top:15px;right:15px;background:transparent;border:none;color:var(--text3);font-size:24px;cursor:pointer;transition:color 0.2s} .modal-close:hover{color:var(--gold)}.modal-av{width:100px;height:100px;border-radius:50%;margin:0 auto 1rem;border:2px solid var(--gold);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden} .modal-av img{width:100%;height:100%;object-fit:cover}.modal-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold);margin-bottom:5px;line-height:1.1} .modal-dates{font-size:12px;color:var(--text3);margin-bottom:1.5rem;letter-spacing:0.05em}.modal-details{text-align:left;background:var(--surface);padding:1rem;border-radius:12px;border:1px solid var(--border2)} .modal-row{margin-bottom:0.75rem;font-size:14px} .modal-row:last-child{margin-bottom:0} .modal-row span{display:block;font-size:10px;text-transform:uppercase;color:var(--text3);letter-spacing:0.08em;margin-bottom:2px} .modal-row div{color:var(--text)} .modal-private{font-style:italic;color:var(--text2);font-size:13px;text-align:center;padding:1rem 0}.modal-gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-top:10px;scroll-behavior:smooth} .modal-gallery::-webkit-scrollbar{height:6px} .modal-gallery::-webkit-scrollbar-track{background:var(--surface2);border-radius:3px} .modal-gallery::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px} .modal-gallery img{height:100px;border-radius:8px;border:1px solid var(--border);object-fit:cover;transition:border-color 0.2s} .modal-gallery img:hover{border-color:var(--gold)}
+.tool-input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit';font-size:13px;outline:none;width:100%;transition:all 0.2s; box-sizing:border-box;} .tool-input:focus{border-color:var(--gold)}
+.tool-btn{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.6rem 1.4rem;border-radius:8px;font-family:'Outfit';font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500; white-space:nowrap; box-sizing:border-box;} .tool-btn:hover{background:var(--gold);color:#fff} .tool-btn:active {transform: scale(0.95);}
 
-#tree-view{position:relative;z-index:1;padding:1.5rem 1rem;min-height:560px}.tree-header{text-align:center;margin-bottom:1.5rem} .tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:0.05em;line-height:1.2} .tree-header h1 em{color:var(--gold);font-style:italic} .tree-header p{font-size:12px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.5rem}.tree-toolbar{display:flex;justify-content:center;gap:10px;margin-bottom:2rem;flex-wrap:wrap}.tree-container{display:flex;overflow-x:auto;padding-bottom:4rem;width:100%;-webkit-overflow-scrolling:touch;transition:opacity 0.3s} .tree-container::before,.tree-container::after{content:'';margin:auto}#tree-root{position:relative;display:flex;flex-direction:column;align-items:center;padding:1rem 2rem;min-width:max-content;background:transparent;border-radius:12px;z-index:2}
-.person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:all 0.3s;border:1px solid transparent} .person-card:hover:not(.view-only){background:var(--surface2);border-color:var(--border2);transform:translateY(-2px)} .person-card.spouse-card{opacity:0.85}.avatar{border-radius:50%;border:2px solid var(--border2);flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--text2);overflow:hidden;transition:border-color 0.2s} .person-card:hover:not(.view-only) .avatar{border-color:var(--gold)} .avatar img{width:100%;height:100%;object-fit:cover}
-.person-name span,.spouse-label span,.date-label{position:relative;z-index:5;text-shadow:-3px -3px 0 var(--bg),3px -3px 0 var(--bg),-3px 3px 0 var(--bg),3px 3px 0 var(--bg),-3px 0 0 var(--bg),3px 0 0 var(--bg),0 -3px 0 var(--bg),0 3px 0 var(--bg),0 0 10px var(--bg),0 0 15px var(--bg)}.person-name{color:var(--text2);text-align:center} .person-name.primary{color:var(--text);font-weight:500}.spouse-label{font-size:9px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase}.date-label{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Outfit'}.expand-btn{width:16px;height:16px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;cursor:pointer;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);z-index:10;box-shadow:0 0 6px var(--gold);border:2px solid var(--bg);transition:all 0.2s} .expand-btn:hover{transform:translateX(-50%) scale(1.2)}.tree-row{display:flex;justify-content:center;position:relative;padding-top:30px} .tree-col{display:flex;flex-direction:column;align-items:center;position:relative;padding:20px 24px 0} .tree-col::before{content:'';position:absolute;top:0;height:2px;background:var(--gold);z-index:0} .tree-col:first-child::before{left:calc(50% - var(--shift-x,0px));right:0} .tree-col:last-child::before{left:0;right:calc(50% + var(--shift-x,0px))} .tree-col:not(:first-child):not(:last-child)::before{left:0;right:0;width:100%} .tree-col:only-child::before{display:none} .tree-col::after{content:'';position:absolute;top:0;left:calc(50% - var(--shift-x,0px));width:2px;height:20px;background:var(--gold);transform:translateX(-50%);z-index:0} #tree-root>.tree-row{padding-top:0} #tree-root>.tree-row>.tree-col{padding-top:0} #tree-root>.tree-row>.tree-col::before, #tree-root>.tree-row>.tree-col::after{display:none} @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}} .person-card{animation:fadeIn 0.25s ease both}
+#login-overlay,#waiting-overlay{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:90%; max-width:340px; text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2); transition:transform 0.3s;}.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:0.25rem} .login-logo span{font-style:normal;color:var(--text)}.login-sub{font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}.auth-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;color:var(--text);font-size:14px;font-family:'Outfit';outline:none;margin-bottom:1rem;transition:border 0.2s} .auth-input:focus{border-color:var(--gold)}.auth-btn{width:100%;padding:0.8rem;border-radius:10px;background:var(--gold);border:none;color:#000;font-size:14px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s;margin-bottom:0.5rem} .auth-btn:hover:not(:disabled){background:var(--gold2)} .auth-btn:active:not(:disabled){transform: scale(0.95);} .auth-btn:disabled{opacity:0.6;cursor:not-allowed}.auth-btn-sec{width:100%;padding:0.8rem;border-radius:10px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit';transition:all 0.2s} .auth-btn-sec:hover{border-color:var(--gold);color:var(--gold)} .auth-btn-sec:active {transform: scale(0.95);}.auth-error{color:#f09595;font-size:12px;margin-bottom:1rem;min-height:15px}
 
-/* Default Desktop Grid */
-#admin-view,#auth-view,#design-view{position:relative;z-index:1;padding:1.5rem 2rem;display:grid;grid-template-columns:280px 1fr;gap:1.5rem;box-sizing:border-box}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s} .modal-overlay.show{opacity:1;pointer-events:auto}.modal-content{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2rem;width:95%;max-width:400px;max-height:85vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform 0.3s;box-shadow:0 15px 40px rgba(0,0,0,0.4);text-align:center} .modal-overlay.show .modal-content{transform:translateY(0)}.modal-close{position:absolute;top:15px;right:15px;background:transparent;border:none;color:var(--text3);font-size:24px;cursor:pointer;transition:color 0.2s} .modal-close:hover{color:var(--gold)}.modal-av{width:100px;height:100px;border-radius:50%;margin:0 auto 1rem;border:2px solid var(--gold);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden} .modal-av img{width:100%;height:100%;object-fit:cover}.modal-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold);margin-bottom:5px;line-height:1.1} .modal-dates{font-size:12px;color:var(--text3);margin-bottom:1.5rem;letter-spacing:0.05em}.modal-details{text-align:left;background:var(--surface);padding:1rem;border-radius:12px;border:1px solid var(--border2)} .modal-row{margin-bottom:0.75rem;font-size:14px} .modal-row:last-child{margin-bottom:0} .modal-row span{display:block;font-size:10px;text-transform:uppercase;color:var(--text3);letter-spacing:0.08em;margin-bottom:2px} .modal-row div{color:var(--text)} .modal-private{font-style:italic;color:var(--text2);font-size:13px;text-align:center;padding:1rem 0}.modal-gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-top:10px;scroll-behavior:smooth} .modal-gallery::-webkit-scrollbar{height:6px} .modal-gallery::-webkit-scrollbar-track{background:var(--surface2);border-radius:3px} .modal-gallery::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px} .modal-gallery img{height:100px;border-radius:8px;border:1px solid var(--border);object-fit:cover;transition:border-color 0.2s} .modal-gallery img:hover{border-color:var(--gold)}
 
+#tree-view{padding:1.5rem 1rem;min-height:560px}.tree-header{text-align:center;margin-bottom:1.5rem} .tree-header h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:0.05em;line-height:1.2} .tree-header h1 em{color:var(--gold);font-style:italic} .tree-header p{font-size:12px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.5rem}.tree-toolbar{display:flex;justify-content:center;gap:10px;margin-bottom:2rem;flex-wrap:wrap}.tree-container{display:flex;overflow-x:auto;padding-bottom:4rem;width:100%;-webkit-overflow-scrolling:touch;transition:opacity 0.3s} .tree-container::before,.tree-container::after{content:'';margin:auto}#tree-root{position:relative;display:flex;flex-direction:column;align-items:center;padding:1rem 2rem;min-width:max-content;background:transparent;border-radius:12px;z-index:2}
+
+/* SOLID CARDS (NO FROSTED GLASS) */
+.person-card{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;border-radius:16px;transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);border:1px solid var(--border); background:var(--surface); padding:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);} 
+.person-card:hover:not(.view-only){background:var(--surface2);border-color:var(--gold);transform:translateY(-4px); box-shadow:0 8px 25px rgba(0,0,0,0.2);} 
+.person-card:active:not(.view-only){transform:scale(0.96);}
+.person-card.spouse-card{opacity:0.85}.avatar{border-radius:50%;border:2px solid var(--border2);flex-shrink:0;background:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--text2);overflow:hidden;transition:border-color 0.2s} .person-card:hover:not(.view-only) .avatar{border-color:var(--gold)} .avatar img{width:100%;height:100%;object-fit:cover}
+
+.person-name span,.spouse-label span,.date-label{position:relative;z-index:5;text-shadow:-3px -3px 0 var(--surface),3px -3px 0 var(--surface),-3px 3px 0 var(--surface),3px 3px 0 var(--surface),-3px 0 0 var(--surface),3px 0 0 var(--surface),0 -3px 0 var(--surface),0 3px 0 var(--surface),0 0 10px var(--surface),0 0 15px var(--surface)}.person-name{color:var(--text2);text-align:center} .person-name.primary{color:var(--text);font-weight:500}.spouse-label{font-size:9px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase}.date-label{font-size:10px;color:var(--text3);margin-top:2px;font-family:'Outfit'}.expand-btn{width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;cursor:pointer;position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);z-index:10;box-shadow:0 0 6px var(--gold);border:2px solid var(--bg);transition:all 0.2s} .expand-btn:hover{transform:translateX(-50%) scale(1.15)} .expand-btn:active{transform:translateX(-50%) scale(0.9);}
+
+.tree-row{display:flex;justify-content:center;position:relative;padding-top:30px} .tree-col{display:flex;flex-direction:column;align-items:center;position:relative;padding:20px 24px 0} 
+
+/* SOLID GOLD LINES WITH BRIGHT GLOWING PULSE */
+@keyframes flowRight { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes flowLeft { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes flowDown { 0% { background-position: 0 -200%; } 100% { background-position: 0 200%; } }
+
+.tree-col::before{content:'';position:absolute;top:0;height:3px;background:linear-gradient(90deg, var(--gold) 0%, var(--gold) 45%, #fff 50%, var(--gold) 55%, var(--gold) 100%);background-size:300% 100%;z-index:0; box-shadow: 0 0 8px var(--gold); border-radius:2px;} 
+.tree-col:first-child::before{left:calc(50% - var(--shift-x,0px));right:0; animation: flowRight 2.5s linear infinite;} 
+.tree-col:last-child::before{left:0;right:calc(50% + var(--shift-x,0px)); animation: flowLeft 2.5s linear infinite;} 
+.tree-col:not(:first-child):not(:last-child)::before{left:0;right:0;width:100%; animation: flowRight 2.5s linear infinite;} 
+.tree-col:only-child::before{display:none} 
+.tree-col::after{content:'';position:absolute;top:0;left:calc(50% - var(--shift-x,0px));width:3px;height:20px;background:linear-gradient(180deg, var(--gold) 0%, var(--gold) 45%, #fff 50%, var(--gold) 55%, var(--gold) 100%);background-size:100% 300%;transform:translateX(-50%);z-index:0; box-shadow: 0 0 8px var(--gold); animation: flowDown 2.5s linear infinite; border-radius:2px;} 
+#tree-root>.tree-row{padding-top:0} #tree-root>.tree-row>.tree-col{padding-top:0} #tree-root>.tree-row>.tree-col::before, #tree-root>.tree-row>.tree-col::after{display:none} @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}} .person-card{animation:fadeIn 0.25s ease both}
+
+/* ADMIN PANELS (SOLID BACKGROUNDS) */
 .admin-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;overflow-y:auto;max-height:80vh;display:flex;flex-direction:column}
 .sidebar-title{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1rem}
-.member-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:all 0.15s;border:1px solid transparent} .member-item:hover,.member-item.active{background:var(--surface2);border-color:var(--border)}
+.member-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:all 0.15s;border:1px solid transparent} .member-item:hover,.member-item.active{background:var(--surface2);border-color:var(--border)} .member-item:active{transform:scale(0.97);}
 .mini-av{width:34px;height:34px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);flex-shrink:0;overflow:hidden} .mini-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .item-name{font-size:13px;color:var(--text)} .item-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
-.sidebar-btn{width:100%;margin-top:0.75rem;padding:0.55rem;border-radius:10px;font-size:12px;cursor:pointer;transition:all 0.2s;font-family:'Outfit';letter-spacing:0.04em} .btn-add{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.25);color:var(--gold)} .btn-add:hover{background:rgba(201,169,110,0.18)}
+.sidebar-btn{width:100%;margin-top:0.75rem;padding:0.55rem;border-radius:10px;font-size:12px;cursor:pointer;transition:all 0.2s;font-family:'Outfit';letter-spacing:0.04em} .btn-add{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.25);color:var(--gold)} .btn-add:hover{background:rgba(201,169,110,0.18)} .btn-add:active{transform:scale(0.95);}
 .admin-form-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem; overflow-x:hidden;} .admin-form-wrap h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:1.25rem;color:var(--text)}
 
 .bg-editor{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:0.75rem} .bg-editor h4{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);margin-bottom:5px;font-weight:400}
 .drop-zone{border:2px dashed var(--border2);border-radius:8px;padding:1.5rem 1rem;text-align:center;color:var(--text3);font-size:12px;transition:all 0.2s;cursor:pointer;background:var(--bg)} .drop-zone.dragover{border-color:var(--gold);background:var(--surface3);color:var(--gold)}
-.slider-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px} .slider-row label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;width:40px} .slider-row input[type="range"]{flex:1;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;width:100%;} .slider-row input[type="range"]::-webkit-slider-runnable-track{background:var(--border2);height:4px;border-radius:2px} .slider-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:-4px;background-color:var(--gold);height:12px;width:12px;border-radius:50%}
+.slider-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px; width:100%;} .slider-row label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;min-width:45px; flex-shrink:0;} .slider-row input[type="range"]{flex:1;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;min-width:0; width:100%;} .slider-row input[type="range"]::-webkit-slider-runnable-track{background:var(--border2);height:4px;border-radius:2px} .slider-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:-4px;background-color:var(--gold);height:12px;width:12px;border-radius:50%}
 
 .user-card{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);padding:1rem;border-radius:12px;margin-bottom:1rem;flex-wrap:wrap;gap:10px;} .user-info strong{font-size:16px;color:var(--text);display:block;margin-bottom:4px} .user-info span{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:2px 6px;border-radius:4px} .status-pending{background:rgba(240,150,100,0.15);color:#f0a864;border:1px solid rgba(240,150,100,0.3)} .status-approved{background:rgba(100,200,120,0.15);color:#64c878;border:1px solid rgba(100,200,120,0.3)} .status-admin{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3)} 
 .auth-actions{display:flex;gap:0.5rem;flex-wrap:wrap; justify-content: flex-end;} 
-.auth-act-btn{padding:0.5rem 0.8rem;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Outfit';border:1px solid transparent;transition:all 0.2s;white-space:nowrap;text-align:center;} .btn-approve{background:rgba(100,200,120,0.15);color:#64c878;border-color:rgba(100,200,120,0.3)} .btn-promote{background:var(--gold-soft);color:var(--gold);border-color:rgba(201,169,110,0.3)} .btn-revoke{background:transparent;border-color:var(--border2);color:var(--text3)} 
+.auth-act-btn{padding:0.5rem 0.8rem;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Outfit';border:1px solid transparent;transition:all 0.2s;white-space:nowrap;text-align:center;} .auth-act-btn:active{transform:scale(0.95);} .btn-approve{background:rgba(100,200,120,0.15);color:#64c878;border-color:rgba(100,200,120,0.3)} .btn-promote{background:var(--gold-soft);color:var(--gold);border-color:rgba(201,169,110,0.3)} .btn-revoke{background:transparent;border-color:var(--border2);color:var(--text3)} 
 
-.share-generator{margin-top:2rem;padding:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px} .share-generator h3{font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--gold);font-size:20px;margin-bottom:10px} .share-generator p{font-size:12px;color:var(--text3);margin-bottom:15px} .share-controls{display:flex;gap:10px;align-items:center; flex-wrap:wrap;} .share-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border 0.2s; flex:1;} .share-select:focus{border-color:var(--gold)} .share-btn{padding:0.6rem 1.4rem;background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;} .share-btn:hover{background:var(--gold);color:#fff}
+.share-generator{margin-top:2rem;padding:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px} .share-generator h3{font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--gold);font-size:20px;margin-bottom:10px} .share-generator p{font-size:12px;color:var(--text3);margin-bottom:15px} .share-controls{display:flex;gap:10px;align-items:center; flex-wrap:wrap;} .share-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border 0.2s; flex:1;} .share-select:focus{border-color:var(--gold)} .share-btn{padding:0.6rem 1.4rem;background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;} .share-btn:hover{background:var(--gold);color:#fff} .share-btn:active{transform:scale(0.95);}
 
-.fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem; flex-wrap:wrap;} .fn-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap} .fn-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-size:16px;font-family:'Cormorant Garamond',serif;font-style:italic;padding:0.2rem 0.25rem;outline:none;transition:border 0.2s; min-width:150px;} .fn-input:focus{border-bottom-color:var(--gold)} .fn-btn{padding:0.4rem 1rem;border-radius:8px;background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);font-size:12px;cursor:pointer;font-family:'Outfit';white-space:nowrap;} .fn-btn:hover{background:rgba(201,169,110,0.2)} 
+.fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem; flex-wrap:wrap;} .fn-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap} .fn-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-size:16px;font-family:'Cormorant Garamond',serif;font-style:italic;padding:0.2rem 0.25rem;outline:none;transition:all 0.3s; min-width:150px;} .fn-input:focus{border-bottom-color:var(--gold)} .fn-btn{padding:0.4rem 1rem;border-radius:8px;background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);font-size:12px;cursor:pointer;font-family:'Outfit';white-space:nowrap; flex:1; transition:all 0.2s;} .fn-btn:hover{background:rgba(201,169,110,0.2)} .fn-btn:active{transform:scale(0.95);}
 
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem} .fg{display:flex;flex-direction:column;gap:6px; width:100%; overflow:hidden;} .fg.full{grid-column:1/-1} .fg label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.1em;text-transform:uppercase} .fg input,.fg select{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0.5rem 0.8rem;color:var(--text);font-size:13px;font-family:'Outfit';outline:none;transition:border 0.2s;height:36px; width:100%; box-sizing:border-box;} .fg input:focus,.fg select:focus{border-color:rgba(201,169,110,0.4)} 
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem} .fg{display:flex;flex-direction:column;gap:6px; width:100%; overflow:hidden;} .fg.full{grid-column:1/-1} .fg label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.1em;text-transform:uppercase} .fg input,.fg select{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0.5rem 0.8rem;color:var(--text);font-size:13px;font-family:'Outfit';outline:none;transition:all 0.3s;height:36px; width:100%; box-sizing:border-box;} .fg input:focus,.fg select:focus{border-color:var(--gold); box-shadow:0 4px 10px rgba(0,0,0,0.1);} 
 
-.photo-row{display:flex;gap:1rem;align-items:center; flex-wrap:wrap;} .photo-prev{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;overflow:hidden} .photo-prev img{width:100%;height:100%;object-fit:cover;border-radius:50%} .photo-inputs{flex:1;display:flex;flex-direction:column;gap:0.5rem; min-width:150px;} .url-row{display:flex;gap:0.5rem; width:100%;} .url-row input{flex:1; width:100%;} .url-apply{padding:0 0.8rem;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'Outfit'; white-space:nowrap;} .upload-lbl{display:block;padding:0.45rem 0.8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center; width:100%;} 
-.form-actions{display:flex;gap:0.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center; flex-wrap:wrap;} .btn-save{padding:0.6rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#000;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s; min-width:100px; text-align:center;} .btn-save:hover:not(:disabled){background:var(--gold2)} .btn-save:disabled{opacity:0.5;cursor:not-allowed} .btn-del{padding:0.6rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'; min-width:80px; text-align:center;} .btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595} .btn-cancel{padding:0.6rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'; min-width:80px; text-align:center;} 
+.photo-row{display:flex;gap:1rem;align-items:center; flex-wrap:wrap;} .photo-prev{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;overflow:hidden} .photo-prev img{width:100%;height:100%;object-fit:cover;border-radius:50%} .photo-inputs{flex:1;display:flex;flex-direction:column;gap:0.5rem; min-width:150px;} .url-row{display:flex;gap:0.5rem; width:100%;} .url-row input{flex:1; width:100%;} .url-apply{padding:0 0.8rem;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'Outfit'; white-space:nowrap; transition:all 0.2s;} .url-apply:active{transform:scale(0.95);} .upload-lbl{display:block;padding:0.45rem 0.8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center; width:100%; transition:all 0.2s;} .upload-lbl:active{transform:scale(0.95);}
+.form-actions{display:flex;gap:0.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center; flex-wrap:wrap;} .btn-save{padding:0.6rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#000;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s; min-width:100px; text-align:center;} .btn-save:hover:not(:disabled){background:var(--gold2)} .btn-save:active:not(:disabled){transform:scale(0.95);} .btn-save:disabled{opacity:0.5;cursor:not-allowed} .btn-del{padding:0.6rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'; min-width:80px; text-align:center; transition:all 0.2s;} .btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595} .btn-del:active{transform:scale(0.95);} .btn-cancel{padding:0.6rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'; min-width:80px; text-align:center; transition:all 0.2s;} .btn-cancel:active{transform:scale(0.95);}
 
-.empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:0.75rem} .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;box-shadow:0 4px 15px rgba(0,0,0,0.3)} .toast.show{opacity:1} .sync-pill{position:fixed;top:0.75rem;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border2);padding:0.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:0.07em;z-index:9999;transition:opacity 0.5s;pointer-events:none;opacity:0;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+.empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:0.75rem} .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:9999;box-shadow:0 4px 15px rgba(0,0,0,0.3); transform:translateY(10px);} .toast.show{opacity:1; transform:translateY(0);} .sync-pill{position:fixed;top:0.75rem;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border2);padding:0.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:0.07em;z-index:9999;transition:opacity 0.5s;pointer-events:none;opacity:0;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+
+/* --- OVERRIDES FOR MINIMALIST VINTAGE THEME --- */
+body.theme-vintage .person-card { border: none; background: transparent; box-shadow: none; border-radius: 0; padding: 4px; }
+body.theme-vintage .person-card:hover:not(.view-only) { background: transparent; transform: translateY(-4px); border: none; box-shadow: none; }
+body.theme-vintage .avatar { border: 1px solid var(--border2); box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 2px; background: var(--bg); }
+body.theme-vintage .person-card:hover:not(.view-only) .avatar { border-color: var(--gold); box-shadow: 0 6px 15px rgba(184, 134, 11, 0.2); }
+body.theme-vintage .person-name { color: var(--text); font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 500; letter-spacing: 0.05em; text-shadow: none;}
+body.theme-vintage .person-card:hover:not(.view-only) .person-name { color: var(--gold2); }
+body.theme-vintage .spouse-label { color: var(--text3); text-shadow: none; font-weight: 500;}
+body.theme-vintage .date-label { color: var(--text3); font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 13px; text-shadow: none; }
+body.theme-vintage .expand-btn { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); box-shadow: none; width: 20px; height: 20px; bottom: -20px; }
+body.theme-vintage .expand-btn:hover { background: var(--surface3); color: var(--gold2); border-color: var(--gold); }
+body.theme-vintage .login-box, body.theme-vintage .modal-content { background: var(--bg); border: 1px solid var(--border2); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 12px; }
+body.theme-vintage .admin-sidebar, body.theme-vintage .admin-form-wrap, body.theme-vintage .bg-editor, body.theme-vintage .share-generator, body.theme-vintage .photo-row { background: transparent; border: 1px solid var(--border); box-shadow: none; border-radius: 8px; }
+body.theme-vintage .tool-input, body.theme-vintage .auth-input, body.theme-vintage .fn-input, body.theme-vintage .fg input, body.theme-vintage .fg select { border: none; border-bottom: 1px solid var(--border2); border-radius: 0; background: transparent; padding-left: 4px; padding-right: 4px; }
+body.theme-vintage .tool-input:focus, body.theme-vintage .auth-input:focus, body.theme-vintage .fg input:focus, body.theme-vintage .fg select:focus { border-color: var(--gold); box-shadow: none; }
+body.theme-vintage .tool-btn, body.theme-vintage .auth-btn, body.theme-vintage .btn-save, body.theme-vintage .share-btn, body.theme-vintage .url-apply { border-radius: 50px; background: var(--surface2); color: var(--text); border: 1px solid var(--border2); font-weight: 500; box-shadow: none; }
+body.theme-vintage .tool-btn:hover, body.theme-vintage .auth-btn:hover:not(:disabled), body.theme-vintage .btn-save:hover:not(:disabled), body.theme-vintage .share-btn:hover, body.theme-vintage .url-apply:hover { background: var(--surface3); border-color: var(--gold); color: var(--gold2); }
+body.theme-vintage .app-header, body.theme-vintage .bottom-nav { box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
 
 /* --- MOBILE RESPONSIVE FIXES (TRUE MOBILE FIRST) --- */
 @media (max-width: 768px) { 
-    /* App Header Adjustments */
-    .app-header { padding: 0 1rem; }
+    /* FLOATING PILL HEADERS ON MOBILE (SOLID NO FROST) */
+    .app-header { 
+        top: env(safe-area-inset-top, 1rem); 
+        width: calc(100% - 2rem); 
+        left: 1rem; 
+        border-radius: 20px; 
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
     .nav-brand { font-size: 18px; }
     
-    /* TRUE MOBILE APP NAVIGATION: Bottom Tab Bar */
-    #app-main { padding-top: 60px; padding-bottom: 80px; } /* Room for top header and bottom nav */
-    .bottom-nav { position: fixed; top: auto; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; padding: 0.5rem; background: rgba(8, 10, 15, 0.95); border-top: 1px solid var(--border); border-bottom: none; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 100; backdrop-filter: blur(20px); }
-    .nav-tab { padding: 0.8rem 0.2rem; font-size: 10px; flex: 1; text-align: center; margin: 0; border: none; border-radius: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+    #app-main { padding-top: 90px; padding-bottom: 100px; }
+    
+    /* FLOATING BOTTOM NAV (SOLID NO FROST) */
+    .bottom-nav { 
+        position: fixed; 
+        top: auto; 
+        bottom: calc(1rem + env(safe-area-inset-bottom)); 
+        left: 1rem; 
+        width: calc(100% - 2rem); 
+        display: flex; 
+        justify-content: space-around; 
+        padding: 0.5rem; 
+        background: var(--bg); 
+        border: 1px solid var(--border); 
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7); 
+        z-index: 100; 
+    }
+    body.theme-light .bottom-nav { background:var(--bg); }
+    body.theme-vintage .bottom-nav { background:var(--bg); }
+    
+    .nav-tab { padding: 0.8rem 0.2rem; font-size: 10px; flex: 1; text-align: center; margin: 0; border: none; border-radius: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
     .nav-tab.active { background: var(--surface3); color: var(--gold); border: none; }
+    body.theme-vintage .nav-tab.active { background: var(--surface2); color: var(--text); }
     
-    /* Crucial Layout Fixes: Forcing absolute 1-column stack */
-    #admin-view, #auth-view, #design-view { display: flex !important; flex-direction: column !important; padding: 1rem 0.5rem !important; gap: 1rem !important; } 
+    #admin-view.active-view, #auth-view.active-view, #design-view.active-view { display: flex !important; flex-direction: column !important; padding: 1rem 0.5rem !important; gap: 1rem !important; } 
     
-    .admin-sidebar { width: 100% !important; max-height: none !important; border-radius: 12px; order: 2; padding: 1rem !important; } 
-    .admin-form-wrap { width: 100% !important; padding: 1rem !important; border-radius: 12px; order: 1; overflow: hidden !important; }
+    .admin-sidebar { width: 100% !important; max-height: none !important; border-radius: 16px; order: 2; padding: 1rem !important; } 
+    .admin-form-wrap { width: 100% !important; padding: 1rem !important; border-radius: 16px; order: 1; overflow: hidden !important; }
     
-    /* Form Inputs and Grids 100% width */
     .form-grid { display: flex; flex-direction: column; gap: 1rem; width: 100%; }
     .fg { width: 100%; }
     .fg input, .fg select { width: 100%; box-sizing: border-box; }
     
-    /* Auth Panel specific mobile fixes */
     .user-card { flex-direction: column; align-items: flex-start; }
     .auth-actions { display: flex; flex-direction: column; width: 100%; gap: 8px; justify-content: stretch; }
     .auth-act-btn { width: 100%; text-align: center; padding: 0.8rem; font-size: 12px; }
     
-    /* Photo and Tool row fixes */
     .photo-row { flex-direction: column; align-items: center; width: 100%; gap: 1rem; }
     .photo-inputs { width: 100%; }
     .url-row { flex-direction: column; width: 100%; gap: 0.5rem; }
@@ -116,19 +194,18 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     .fn-btn { width: 100%; }
     
     .share-controls { flex-direction: column; align-items: stretch; }
-    .share-btn { width: 100%; }
+    .share-select, .share-btn { width: 100%; box-sizing: border-box; }
     
     .tree-toolbar { flex-direction: column; align-items: stretch; padding: 0 1rem; } 
     .tool-input, .tool-btn { width: 100%; margin-bottom: 0.5rem; }
     
-    #studio-preview-box { height: 300px !important; width: 100% !important; }
+    #studio-preview-box { height: auto !important; aspect-ratio: 16/9; width: 100% !important; border-radius: 8px; position:relative; overflow:hidden;}
+    .custom-text-layer { transform: translate(-50%, -50%) scale(0.6); }
 }
 
 @media (max-width: 480px) { 
     .login-box { padding: 1.5rem 1rem; } .tree-header h1 { font-size: 24px; } 
-    /* Scales custom typography down by 50% on small mobile phones */
-    .custom-text-layer { transform: translate(-50%, -50%) scale(0.5); }
-    .toast { bottom: 85px; right: 0.5rem; left: 0.5rem; text-align: center; } /* Float above bottom nav */
+    .toast { bottom: 100px; right: 0.5rem; left: 0.5rem; text-align: center; } 
 }
 </style>
 </head>
@@ -137,7 +214,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 <div class="bg-canvas">
   <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
 </div>
-
+<canvas id="ptcl" style="position:fixed;inset:0;z-index:1;pointer-events:none;"></canvas>
 <div class="custom-bg" id="custom-bg"></div>
 <div class="custom-text-container" id="custom-text-container"></div>
 
@@ -193,16 +270,9 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     </select>
     <button class="lang-btn active" onclick="App.setLang('en')">EN</button>
     <button class="lang-btn" onclick="App.setLang('hi')" style="border-right:1px solid var(--border); border-radius:0;">हि</button>
-    <button class="lang-btn" onclick="App.doLogout()" style="color: #f09595; font-size:14px; padding:0.4rem 0.5rem;">🚪</button>
+    <button class="lang-btn" onclick="App.doLogout()" style="color: #f09595; font-size:12px; font-weight:500; padding:0.4rem 0.8rem; border-left:1px solid var(--border); border-radius:0;">Log Out</button>
   </div>
 </header>
-
-<main id="app-main" style="display:none;">
-    <div id="tree-view" style="display:none"></div>
-    <div id="admin-view" style="display:none"></div>
-    <div id="design-view" style="display:none"></div>
-    <div id="auth-view" style="display:none"></div>
-</main>
 
 <nav class="bottom-nav" id="main-nav" style="display:none">
   <button class="nav-tab active" id="tab-tree" onclick="App.showView('tree',this)"></button>
@@ -210,6 +280,13 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   <button class="nav-tab" id="tab-design" onclick="App.showView('design',this)" style="display:none;"></button>
   <button class="nav-tab" id="tab-auth" onclick="App.showView('auth',this)" style="display:none;"></button>
 </nav>
+
+<main id="app-main" style="display:none;">
+    <div id="tree-view" class="active-view"></div>
+    <div id="admin-view"></div>
+    <div id="design-view"></div>
+    <div id="auth-view"></div>
+</main>
 
 <div class="toast" id="toast"></div>
 <div class="sync-pill" id="sync-pill"></div>
@@ -237,7 +314,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 
   const STRINGS = {
     en:{
-      navTree: 'family tree', navAdmin: 'edit members', navDesign: 'designs', navAuth: 'auth',
+      navTree: 'family tree', navAdmin: 'edit members', navDesign: 'themes & designs', navAuth: 'auth panel',
       fam:'The <em>$1</em> Family', hint:'Click a name to view details', sp:'spouse', add:'+ add new member', all:'all members', 
       root:'root', desc:'descendant', edit:'edit member', new:'new member', par:'parent', gen:'generation level', spN:'spouse name', 
       sv:'save', del:'delete', can:'cancel', sel:'select a member or add new', sved:'saved', dlted:'deleted', fn:'family name', up:'update', 
@@ -246,7 +323,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       photo: 'photo', firstName: 'first name', lastName: 'last name'
     },
     hi:{
-      navTree: 'परिवार वृक्ष', navAdmin: 'सदस्य संपादित करें', navDesign: 'डिज़ाइन', navAuth: 'Auth',
+      navTree: 'परिवार वृक्ष', navAdmin: 'सदस्य संपादित करें', navDesign: 'थीम और डिज़ाइन', navAuth: 'Auth',
       fam:'<em>$1</em> परिवार', hint:'विवरण देखने के लिए नाम पर क्लिक करें', sp:'पति/पत्नी', add:'+ सदस्य जोड़ें', all:'सभी सदस्य', 
       root:'मूल', desc:'वंशज', edit:'संपादित करें', new:'नया सदस्य', par:'अभिभावक', gen:'पीढ़ी स्तर', spN:'पति/पत्नी का नाम', 
       sv:'सहेजें', del:'हटाएं', can:'रद्द करें', sel:'सदस्य चुनें या नया जोड़ें', sved:'सहेजा गया', dlted:'हटाया गया', fn:'परिवार का नाम', 
@@ -277,7 +354,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   let savedTheme = localStorage.getItem('famTheme');
   if(savedTheme) { getEl('theme-picker').value = savedTheme; setTheme(savedTheme); }
 
-  /* --- MULTI-LAYER BACKGROUND ENGINE --- */
+  /* --- STATIC BACKGROUND ENGINE --- */
   function applyBgSettings() {
     const bgContainer = getEl('custom-bg');
     if(!bgContainer) return;
@@ -288,7 +365,10 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if (state.bgLayers && state.bgLayers.length > 0) {
       state.bgLayers.forEach(l => {
         let dynamicSize = (l.zoom == 100 || l.zoom == null) ? 'cover' : `${l.zoom}%`;
-        bgHTMLContent += `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${dynamicSize}; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`;
+        let posX = `${l.x || 50}%`;
+        let posY = `${l.y || 50}%`;
+        
+        bgHTMLContent += `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${dynamicSize}; background-position: ${posX} ${posY};"></div>`;
       });
       bgContainer.innerHTML = bgHTMLContent;
       document.querySelectorAll('.orb').forEach(o => o.style.display = 'none');
@@ -329,14 +409,14 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   }
   function updateLayer(id, p, v) { let l = state.bgLayers.find(x => x.id === id); if(l) { l[p] = v; applyBgSettings(); refreshStudioPreview(); } }
   function removeLayer(id) { state.bgLayers = state.bgLayers.filter(x => x.id !== id); applyBgSettings(); renderDesignStudio(); }
-  function saveBgSettings() { if(isAdmin()) { saveToFirebase(); showToast('Backgrounds saved!'); } }
+  function saveBgSettings() { if(isAdmin()) { saveToFirebase(); showToast('saved!'); } }
   function clearBgSettings() {
       if(!isAdmin()) return;
       state.bgLayers = [];
       saveToFirebase(); applyBgSettings(); renderDesignStudio(); showToast('All layers cleared');
   }
 
-  /* --- CUSTOM TEXT OVERLAY ENGINE --- */
+  /* --- STATIC TEXT OVERLAY ENGINE --- */
   function applyTextSettings() {
     const container = getEl('custom-text-container');
     if(!container) return;
@@ -370,7 +450,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   }
   function updateTextLayer(id, p, v) { let l = state.textLayers.find(x => x.id === id); if(l) { l[p] = v; applyTextSettings(); refreshStudioPreview(); } }
   function removeTextLayer(id) { state.textLayers = state.textLayers.filter(x => x.id !== id); applyTextSettings(); renderDesignStudio(); }
-  function saveTextSettings() { if(isAdmin()) { saveToFirebase(); showToast('Text saved!'); } }
+  function saveTextSettings() { if(isAdmin()) { saveToFirebase(); showToast('saved!'); } }
 
   /* --- MULTI-GALLERY UPLOADER --- */
   function handleGalleryFiles(inp) {
@@ -406,7 +486,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(w <= 768) return {sz:48, fs:11, pad:5, cardW:58, connW:14}; 
     return {sz:52, fs:12, pad:6, cardW:64, connW:16};               
   }
-  window.addEventListener('resize', () => { if(state.dbReady && getEl('tree-view').style.display !== 'none') renderTree(); });
+  window.addEventListener('resize', () => { if(state.dbReady && getEl('tree-view').classList.contains('active-view')) renderTree(); });
   
   const initials = n => n ? n.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase() : '??';
   const dname = m => state.lang==='hi' && m.nameHi ? m.nameHi : m.name;
@@ -414,6 +494,15 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   const getSpouse = m => m.spouse ? state.members.find(x => x && x.id === m.spouse) || null : null;
   const getChildren = m => state.members.filter(x => x && x.parentId === m.id && !x.isSpouse);
   
+  function getDescendants(id, acc = []) {
+      let kids = state.members.filter(m => m && m.parentId === id && !m.isSpouse);
+      kids.forEach(k => {
+          acc.push(k.id);
+          getDescendants(k.id, acc);
+      });
+      return acc;
+  }
+
   function showToast(msg) {
     let t = getEl('toast'); t.textContent = msg; t.classList.add('show');
     clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
@@ -429,12 +518,12 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(!state.dbReady || state.isViewOnly) return;
     try {
       let payload = JSON.parse(JSON.stringify({members: state.members, familyName: state.familyName, bgLayers: state.bgLayers, textLayers: state.textLayers, v: 1}));
-      dataRef.set(payload).then(() => showSync('✓ synced')).catch(() => showSync('⚠ sync failed', '#f09595'));
+      dataRef.set(payload).then(() => showSync('✓ saved')).catch(() => showSync('⚠ sync failed', '#f09595'));
     } catch(e) { showSync('⚠ data error', '#f09595'); }
   }
 
   function startSync(){
-    showSync('connecting…', 'var(--text3)');
+    showSync('loading…', 'var(--text3)');
     dataRef.on('value', snap => {
       let d = snap.val(); state.dbReady = true;
       if(d){
@@ -481,8 +570,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
               }
            }
         }
-        let authV = getEl('auth-view'); if(authV && authV.style.display !== 'none' && isAdmin()) renderAuthPanel();
-        let editV = getEl('admin-view'); if(editV && editV.style.display !== 'none' && isEditor()) renderAdmin();
+        let authV = getEl('auth-view'); if(authV && authV.classList.contains('active-view') && isAdmin()) renderAuthPanel();
+        let editV = getEl('admin-view'); if(editV && editV.classList.contains('active-view') && isEditor()) renderAdmin();
       });
     }
   }
@@ -582,11 +671,11 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 
     applyLang();
     
-    let tv = getEl('tree-view'), av = getEl('admin-view'), au = getEl('auth-view');
-    if(tv.style.display === 'none' && av.style.display === 'none' && au.style.display === 'none') {
-        tv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem"><div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite"></div><span style="font-size:13px;color:var(--text3);letter-spacing:0.06em">loading data…</span></div>`;
-        tv.style.display = 'block';
+    let tv = getEl('tree-view');
+    if(!tv.innerHTML.includes('tree-root')) {
+        tv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1.5rem"><div style="width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite"></div><span style="font-size:14px;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;font-weight:600;">loading data...</span></div>`;
     }
+    
     if(!state.dbReady) startSync();
     else {
         let at = document.querySelector('.nav-tab.active');
@@ -620,8 +709,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
          if(mDate) dh += `<div class="modal-row"><span>Marriage Date</span><div>${mDate}</div></div>`;
          
          if(m.phone) dh += `<div class="modal-row"><span>Phone Number</span><div>${m.phone}</div></div>`;
-         if(m.address) dh += `<div class="modal-row"><span>Address</span><div>${m.address}</div></div>`;
-         if(dh === '') dh = '<div class="modal-private">No additional details available.</div>';
+         if(m.address) dh += `<div class="modal-row"><span>Address / Location</span><div>${m.address}</div></div>`;
+         if(dh === '') dh = '<div class="modal-private">No additional records found.</div>';
          
          let gallery = m.gallery;
          if((!gallery || gallery.length === 0) && m.isSpouse && m.spouse) {
@@ -630,30 +719,60 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
          }
          
          if(gallery && gallery.length > 0) {
-            dh += `<div style="margin-top:1.5rem; border-top:1px solid var(--border2); padding-top:1rem;"><span style="display:block; font-size:10px; text-transform:uppercase; color:var(--text3); letter-spacing:0.08em; margin-bottom:8px;">Photo Gallery</span><div class="modal-gallery">`;
+            dh += `<div style="margin-top:1.5rem; border-top:1px solid var(--border2); padding-top:1rem;"><span style="display:block; font-size:10px; text-transform:uppercase; color:var(--text3); letter-spacing:0.15em; margin-bottom:12px; text-align:center;">Photo Gallery</span><div class="modal-gallery">`;
             gallery.forEach(src => dh += `<a href="${src}" target="_blank"><img src="${src}"></a>`);
             dh += `</div></div>`;
          }
      }
      
-     if (isAdmin() || (state.currentUser && state.currentUser.assignedProfiles && state.currentUser.assignedProfiles.includes(m.id))) {
-         dh += `<div style="margin-top:1rem; text-align:center;"><button class="auth-btn-sec" style="padding:0.4rem 1rem; width:auto; border-radius:20px;" onclick="App.showView('admin', document.getElementById('tab-admin')); App.openEditorFromModal('${m.id}')">Edit Profile</button></div>`;
+     let canEdit = false;
+     if (isAdmin()) {
+         canEdit = true;
+     } else if (state.currentUser && state.currentUser.assignedProfiles) {
+         if (state.currentUser.assignedProfiles.includes(m.id)) canEdit = true;
+         if (m.isSpouse && state.currentUser.assignedProfiles.includes(m.spouse)) canEdit = true;
+     }
+     
+     if (canEdit) {
+         dh += `<div style="margin-top:1.5rem; text-align:center;"><button class="tool-btn" style="padding:0.6rem 1.5rem; width:100%; border-radius:12px;" onclick="App.showView('admin', document.getElementById('tab-admin')); App.openEditorFromModal('${m.id}')">Edit Profile</button></div>`;
      }
      
      getEl('pm-details').innerHTML = dh;
      getEl('profile-modal').classList.add('show');
   }
+  
   function closeProfile() { getEl('profile-modal').classList.remove('show'); }
+  
   function openEditorFromModal(id) {
       closeProfile();
-      state.editingId = id;
-      let m = state.members.find(x => x.id === id);
-      if(m) {
-          state.prevPhoto = m.photo || ''; 
-          let sp = getSpouse(m); state.prevPhotoSpouse = sp ? (sp.photo || '') : ''; 
-          state.prevGallery = m.gallery ? [...m.gallery] : []; 
+      let m = state.members.find(x => x && x.id === id);
+      if(!m) return;
+      
+      if (m.isSpouse && m.spouse) {
+          id = m.spouse;
+          m = state.members.find(x => x && x.id === id);
+          if(!m) return;
       }
+
+      state.editingId = id;
+      state.prevPhoto = m.photo || ''; 
+      let sp = getSpouse(m); state.prevPhotoSpouse = sp ? (sp.photo || '') : ''; 
+      state.prevGallery = m.gallery ? [...m.gallery] : []; 
+      
       renderAdmin();
+      scrollToForm();
+  }
+
+  function scrollToForm() {
+      if(window.innerWidth <= 768) {
+          setTimeout(() => {
+              let form = getEl('aform');
+              if(form) {
+                  let y = form.getBoundingClientRect().top + window.scrollY - 70;
+                  window.scrollTo({top: y, behavior: 'smooth'});
+              }
+          }, 50);
+      }
   }
 
   /* --- POSTER EXPORT --- */
@@ -681,7 +800,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       root.appendChild(txtClone);
 
       root.style.background = getComputedStyle(document.body).getPropertyValue('--bg').trim(); 
-      root.style.padding = "40px"; 
+      root.style.padding = "60px"; 
       
       let btns = document.querySelectorAll('.expand-btn'); btns.forEach(b => b.style.display = 'none');
       
@@ -690,7 +809,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
           root.style.background = obg; root.style.padding = opad; 
           if(root.contains(bgClone)) root.removeChild(bgClone);
           if(root.contains(txtClone)) root.removeChild(txtClone);
-          btns.forEach(b => b.style.display = 'flex'); showToast("Exported!");
+          btns.forEach(b => b.style.display = 'flex'); showToast("Export Complete!");
       }).catch(e => {
           root.style.background = obg; root.style.padding = opad; 
           if(root.contains(bgClone)) root.removeChild(bgClone); 
@@ -710,8 +829,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
           
           if(ms) { 
              c.style.opacity = '1'; c.style.transform = 'scale(1)'; 
-             if(state.searchQuery !== '') { c.style.boxShadow = '0 0 20px var(--gold)'; c.style.borderColor = 'var(--gold)'; if(!fMatch) fMatch = c; } 
-             else { c.style.boxShadow = 'none'; c.style.borderColor = 'transparent'; } 
+             if(state.searchQuery !== '') { c.style.boxShadow = '0 0 30px rgba(201,169,110,0.6)'; c.style.borderColor = 'var(--gold)'; if(!fMatch) fMatch = c; } 
+             else { c.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)'; c.style.borderColor = 'transparent'; } 
           } else { 
              c.style.opacity = '0.15'; c.style.transform = 'scale(0.95)'; c.style.boxShadow = 'none'; c.style.borderColor = 'transparent'; 
           }
@@ -719,18 +838,34 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       if(fMatch && state.searchQuery !== '') fMatch.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
   }
 
-  function setLang(l) { state.lang = l; document.querySelectorAll('.lang-btn').forEach((b,i) => { if(i < 2) b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi')); }); applyLang(); let tv = getEl('tree-view'), av = getEl('admin-view'), dv = getEl('design-view'), au = getEl('auth-view'); if(tv && tv.style.display !== 'none') renderTree(); if(av && av.style.display !== 'none' && isEditor()) renderAdmin(); if(dv && dv.style.display !== 'none' && isAdmin()) renderDesignStudio(); if(au && au.style.display !== 'none' && isAdmin()) renderAuthPanel(); }
+  function filterAdmin(v) {
+      let q = v.toLowerCase();
+      document.querySelectorAll('#mlist .member-item').forEach(el => {
+          let n = el.querySelector('.item-name').textContent.toLowerCase();
+          el.style.display = n.includes(q) ? 'flex' : 'none';
+      });
+  }
+
+  function filterAuth(v) {
+      let q = v.toLowerCase();
+      document.querySelectorAll('#auth-user-list .user-card').forEach(el => {
+          let n = el.querySelector('strong').textContent.toLowerCase();
+          el.style.display = n.includes(q) ? 'flex' : 'none';
+      });
+  }
+
+  function setLang(l) { state.lang = l; document.querySelectorAll('.lang-btn').forEach((b,i) => { if(i < 2) b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi')); }); applyLang(); let tv = getEl('tree-view'), av = getEl('admin-view'), dv = getEl('design-view'), au = getEl('auth-view'); if(tv && tv.classList.contains('active-view')) renderTree(); if(av && av.classList.contains('active-view') && isEditor()) renderAdmin(); if(dv && dv.classList.contains('active-view') && isAdmin()) renderDesignStudio(); if(au && au.classList.contains('active-view') && isAdmin()) renderAuthPanel(); }
   function applyLang() { 
-      getEl('tab-tree').textContent = s('navTree') || 'Family Tree'; 
-      getEl('tab-admin').textContent = s('navAdmin') || 'Edit Members'; 
-      getEl('tab-design').textContent = s('navDesign') || 'Designs'; 
-      getEl('tab-auth').textContent = s('navAuth') || 'Auth'; 
+      getEl('tab-tree').textContent = s('navTree'); 
+      getEl('tab-admin').textContent = s('navAdmin'); 
+      getEl('tab-design').textContent = s('navDesign'); 
+      getEl('tab-auth').textContent = s('navAuth'); 
       document.body.classList.toggle('lang-hi', state.lang === 'hi'); 
   }
 
   function toggleAccordionMode() {
       state.accordionMode = !state.accordionMode;
-      showToast(state.accordionMode ? "Auto-Collapse Enabled" : "Auto-Collapse Disabled");
+      showToast(state.accordionMode ? "Auto-Collapse: ON" : "Auto-Collapse: OFF");
       renderTree();
   }
 
@@ -773,13 +908,13 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     
     card.appendChild(makeAvatar(m, sz));
     
-    let nm = document.createElement('div'); nm.className = 'person-name' + (isSpouse ? '' : ' primary'); nm.style.cssText = `font-size:${fs}px; margin-top:6px; width:100%; display:flex; justify-content:center; overflow:visible;`;
+    let nm = document.createElement('div'); nm.className = 'person-name' + (isSpouse ? '' : ' primary'); nm.style.cssText = `font-size:${fs}px; margin-top:10px; width:100%; display:flex; justify-content:center; overflow:visible;`;
     let span = document.createElement('span'); span.style.cssText = 'display:block; margin: 0 -30px; text-align:center; line-height:1.1;'; 
     span.innerHTML = dname(m).replace(/ /g, '<br>'); nm.appendChild(span); card.appendChild(nm);
     
     if(isSpouse) { 
-        let sl = document.createElement('div'); sl.className = 'spouse-label'; sl.style.cssText = 'width:100%; display:flex; justify-content:center; overflow:visible; margin-top:2px;'; 
-        let slSpan = document.createElement('span'); slSpan.style.cssText = 'display:block; margin: 0 -30px; text-align:center;'; slSpan.textContent = s('sp') || 'spouse'; sl.appendChild(slSpan); card.appendChild(sl); 
+        let sl = document.createElement('div'); sl.className = 'spouse-label'; sl.style.cssText = 'width:100%; display:flex; justify-content:center; overflow:visible; margin-top:4px;'; 
+        let slSpan = document.createElement('span'); slSpan.style.cssText = 'display:block; margin: 0 -30px; text-align:center;'; slSpan.textContent = s('sp'); sl.appendChild(slSpan); card.appendChild(sl); 
     }
     
     if(m.birthYear || m.deathYear) { 
@@ -812,14 +947,14 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       
       if(sp) {
         let conn = document.createElement('div'); conn.style.cssText = `display:flex; align-items:center; padding-top:${topStart - 1}px; width:${connW}px; justify-content: center; flex-shrink: 0;`;
-        conn.innerHTML = `<svg width="${connW}" height="2"><line x1="0" y1="1" x2="${connW}" y2="1" stroke="var(--gold)" stroke-width="2"/></svg>`;
+        conn.innerHTML = `<div style="width:100%; height:3px; background: linear-gradient(90deg, var(--gold) 0%, var(--gold) 45%, #fff 50%, var(--gold) 55%, var(--gold) 100%); background-size: 300% 100%; animation: flowRight 2.5s linear infinite; box-shadow: 0 0 8px var(--gold); border-radius:2px;"></div>`;
         pw.appendChild(conn); pw.appendChild(buildCard(sp, sz, fs, pad, cardW, false, false, true)); 
         col.style.setProperty('--shift-x', ((cardW + connW) / 2) + 'px');
       } else { col.style.setProperty('--shift-x', '0px'); }
       col.appendChild(pw);
       
       if(kids.length && exp) {
-          let dl = document.createElement('div'); dl.style.cssText = `position: absolute; bottom: -30px; width: 2px; background: var(--gold); z-index: -1; top: ${sp ? topStart + 'px' : '100%'}; left: 50%; transform: translateX(-50%);`;
+          let dl = document.createElement('div'); dl.style.cssText = `position: absolute; bottom: -30px; width: 3px; background: linear-gradient(180deg, var(--gold) 0%, var(--gold) 45%, #fff 50%, var(--gold) 55%, var(--gold) 100%); background-size: 100% 300%; animation: flowDown 2.5s linear infinite; z-index: -1; top: ${sp ? topStart + 'px' : '100%'}; left: 50%; transform: translateX(-50%); box-shadow: 0 0 8px var(--gold); border-radius:2px;`;
           let cr = document.createElement('div'); cr.style.position = 'relative'; 
           pw.appendChild(dl); renderLevel(cr, m.id, gen + 1); col.appendChild(cr);
       }
@@ -831,11 +966,11 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function renderTree() {
     let tv = getEl('tree-view'); let roots = getPrimaries(null);
     if(!roots.length) { 
-        tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName) || state.familyName}</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel') || 'No members'}</span></div>`; 
+        tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName)}</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div>`; 
         return; 
     }
     
-    let hint = `<p>${state.isViewOnly ? 'Click a relative to view details' : (s('hint') || 'Click a name')}</p>`;
+    let hint = `<p>${state.isViewOnly ? 'Click a name to view details' : s('hint')}</p>`;
     let toolsHTML = `
     <div class="tree-toolbar">
         <input type="text" class="tool-input" id="tree-search" placeholder="Search a name..." oninput="App.handleSearch(this.value)">
@@ -843,7 +978,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         <button class="tool-btn" onclick="App.exportTree()">Export Poster</button>
     </div>`;
 
-    tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName) || state.familyName}</h1>${hint}</div>${toolsHTML}<div class="tree-container"><div id="tree-root"></div></div>`;
+    tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName)}</h1>${hint}</div>${toolsHTML}<div class="tree-container"><div id="tree-root"></div></div>`;
     
     let sch = getEl('tree-search'); 
     if(sch) sch.value = state.searchQuery;
@@ -870,11 +1005,18 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       if (state.bgLayers && state.bgLayers.length > 0) {
           previewBg = state.bgLayers.map(l => {
               let dynamicSize = (l.zoom == 100 || l.zoom == null) ? 'cover' : `${l.zoom}%`;
-              return `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${dynamicSize}; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`;
+              let posX = `${l.x || 50}%`;
+              let posY = `${l.y || 50}%`;
+              return `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${dynamicSize}; background-position: ${posX} ${posY};"></div>`;
           }).join('');
       }
       
-      let previewTxt = (state.textLayers || []).map(l => `<div class="custom-text-layer" style="left: ${l.x||50}%; top: ${l.y||50}%; font-size: ${Math.max(12, l.size/2.5)}px; color: ${l.color||'#c9a96e'};">${l.text.replace(/\n/g, '<br>')}</div>`).join('');
+      let previewTxt = (state.textLayers || []).map(l => {
+          let posX = `${l.x || 50}%`;
+          let posY = `${l.y || 50}%`;
+          return `<div class="custom-text-layer" style="left: ${posX}; top: ${posY}; font-size: ${Math.max(12, l.size/2.5)}px; color: ${l.color||'#c9a96e'};">${l.text.replace(/\n/g, '<br>')}</div>`;
+      }).join('');
+      
       previewBox.innerHTML = previewBg + previewTxt;
   }
 
@@ -883,10 +1025,10 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       let v = getEl('design-view');
 
       let lHtml = (state.bgLayers || []).map(l => `
-        <div style="background:var(--surface2); padding:10px; border-radius:8px; border:1px solid var(--border2); margin-top:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <img src="${l.url}" style="height:40px; width:40px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
-            <button class="btn-del" style="padding:4px 8px; font-size:11px;" onclick="App.removeLayer('${l.id}')">Remove</button>
+        <div style="background:var(--surface2); padding:12px; border-radius:12px; border:1px solid var(--border2); margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <img src="${l.url}" style="height:45px; width:45px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
+            <button class="btn-del" style="padding:6px 10px; font-size:11px;" onclick="App.removeLayer('${l.id}')">Remove</button>
           </div>
           <div class="slider-row"><label>Zoom</label><input type="range" min="10" max="300" value="${l.zoom || 100}" oninput="App.updateLayer('${l.id}', 'zoom', this.value)"></div>
           <div class="slider-row"><label>Pan X</label><input type="range" min="0" max="100" value="${l.x}" oninput="App.updateLayer('${l.id}', 'x', this.value)"></div>
@@ -896,55 +1038,55 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 
       let bgHtml = `
         <div class="bg-editor" style="margin-top:0;">
-          <h4>Background Layers</h4>
+          <h4 style="border-bottom:1px solid var(--border2); padding-bottom:8px;">Background Layers</h4>
           <div id="bg-drop-zone" class="drop-zone" ondragover="App.handleDropZoneOver(event)" ondragleave="App.handleDropZoneLeave(event)" ondrop="App.handleDropZoneDrop(event)">
-              Drag & Drop Image Here<br><br>or <label for="bg-file" style="color:var(--gold); cursor:pointer; text-decoration:underline;">Browse</label>
+              Drop Image Here<br><br>or <label for="bg-file" style="color:var(--gold); cursor:pointer; text-decoration:underline; font-weight:bold;">Browse</label>
               <input type="file" id="bg-file" accept="image/*" style="display:none" onchange="App.handleBgFile(this)">
           </div>
           <div id="bg-layers-list">${lHtml}</div>
-          <div style="display:flex; gap:10px; margin-top:10px;">
-               <button id="btn-save-bg" class="tool-btn" style="flex:1;" onclick="App.saveBgSettings()">Save BGs</button>
-               <button class="btn-del" style="padding: 0.5rem 1rem;" onclick="App.clearBgSettings()">Clear</button>
+          <div style="display:flex; gap:10px; margin-top:15px;">
+               <button id="btn-save-bg" class="tool-btn" style="flex:1; padding:0.8rem; font-size:14px;" onclick="App.saveBgSettings()">Save BGs</button>
+               <button class="btn-del" style="padding: 0.8rem 1rem;" onclick="App.clearBgSettings()">Clear</button>
           </div>
         </div>
       `;
 
       let txtHtml = (state.textLayers || []).map(l => `
-        <div style="background:var(--surface2); padding:10px; border-radius:8px; border:1px solid var(--border2); margin-top:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <input type="text" value="${l.text}" oninput="App.updateTextLayer('${l.id}', 'text', this.value)" style="background:transparent; border:none; color:var(--text); font-family:'Outfit'; font-size:14px; outline:none; width:100%; border-bottom:1px solid var(--border2); padding-bottom:4px;">
-            <button class="btn-del" style="padding:4px 8px; font-size:11px; margin-left:10px;" onclick="App.removeTextLayer('${l.id}')">Remove</button>
+        <div style="background:var(--surface2); padding:12px; border-radius:12px; border:1px solid var(--border2); margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <input type="text" value="${l.text}" oninput="App.updateTextLayer('${l.id}', 'text', this.value)" style="background:transparent; border:none; color:var(--text); font-family:'Outfit'; font-size:15px; outline:none; width:100%; border-bottom:1px solid var(--gold); padding-bottom:6px;">
+            <button class="btn-del" style="padding:6px 10px; font-size:11px; margin-left:10px;" onclick="App.removeTextLayer('${l.id}')">Remove</button>
           </div>
           <div class="slider-row"><label>Size</label><input type="range" min="10" max="200" value="${l.size}" oninput="App.updateTextLayer('${l.id}', 'size', this.value)"></div>
           <div class="slider-row"><label>Pan X</label><input type="range" min="0" max="100" value="${l.x}" oninput="App.updateTextLayer('${l.id}', 'x', this.value)"></div>
           <div class="slider-row"><label>Pan Y</label><input type="range" min="0" max="100" value="${l.y}" oninput="App.updateTextLayer('${l.id}', 'y', this.value)"></div>
-          <div class="slider-row"><label>Color</label><input type="color" value="${l.color}" onchange="App.updateTextLayer('${l.id}', 'color', this.value)" style="width:100%; border:none; background:transparent; cursor:pointer; height:24px;"></div>
+          <div class="slider-row"><label>Color</label><input type="color" value="${l.color}" onchange="App.updateTextLayer('${l.id}', 'color', this.value)" style="width:100%; border:1px solid var(--border2); background:transparent; cursor:pointer; height:28px; border-radius:6px;"></div>
         </div>
       `).join('');
 
       let textEditorHtml = `
         <div class="bg-editor" style="margin-top:1.5rem;">
-          <h4>Typography Studio</h4>
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <input type="text" id="new-text-input" placeholder="e.g. The Royal Bloodline" class="tool-input" style="width:100%; border-radius:8px;">
-            <button class="tool-btn" style="width:100%;" onclick="App.addTextLayer()">Add Text</button>
+          <h4 style="border-bottom:1px solid var(--border2); padding-bottom:8px;">Typography Studio</h4>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <input type="text" id="new-text-input" placeholder="e.g. The Royal Bloodline" class="tool-input" style="width:100%; border-radius:10px; padding:0.8rem;">
+            <button class="tool-btn" style="width:100%; padding:0.8rem;" onclick="App.addTextLayer()">Add Text</button>
           </div>
           <div id="text-layers-list">${txtHtml}</div>
-          <div style="display:flex; gap:10px; margin-top:10px;">
-               <button class="tool-btn" style="flex:1;" onclick="App.saveTextSettings()">Save Text</button>
+          <div style="display:flex; gap:10px; margin-top:15px;">
+               <button class="tool-btn" style="flex:1; padding:0.8rem; font-size:14px;" onclick="App.saveTextSettings()">Save Text</button>
           </div>
         </div>
       `;
 
       v.innerHTML = `
-        <div class="admin-sidebar">
+        <div class="admin-sidebar" style="max-height:85vh; overflow-y:auto;">
            ${bgHtml}
            ${textEditorHtml}
         </div>
         <div class="admin-form-wrap">
            <h2>Theme & Design Studio</h2>
-           <p style="font-size:12px;color:var(--text3);margin-bottom:1rem;">Preview your custom backgrounds and typography here.</p>
-           <div id="studio-preview-box" style="position:relative; width:100%; height:400px; border-radius:12px; overflow:hidden; border:1px solid var(--border); background:var(--bg); box-shadow: inset 0 4px 15px rgba(0,0,0,0.5);"></div>
+           <p style="font-size:13px;color:var(--text3);margin-bottom:1.5rem; font-weight:300;">Preview your custom backgrounds and typography here.</p>
+           <div id="studio-preview-box" style="position:relative; width:100%; height:auto; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid var(--border2); background:var(--bg); box-shadow: inset 0 10px 30px rgba(0,0,0,0.8);"></div>
         </div>
       `;
       
@@ -961,22 +1103,28 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         sm = sm.filter(m => m && state.currentUser.assignedProfiles.includes(m.id));
     }
 
-    let sidebarHtml = `<div class="admin-sidebar"><div class="sidebar-title">${s('all') || 'Members'}</div><div id="mlist" style="flex:1; overflow-y:auto; margin-bottom:1rem;"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">${s('add') || '+ add new member'}</button></div>`;
+    let sidebarHtml = `<div class="admin-sidebar">
+        <div class="sidebar-title">${s('all')}</div>
+        <input type="text" class="tool-input" placeholder="Search records..." oninput="App.filterAdmin(this.value)" style="margin-bottom:15px; width:100%; box-sizing:border-box;">
+        <div id="mlist" style="flex:1; overflow-y:auto; margin-bottom:1rem; padding-right:5px;"></div>
+        <button class="sidebar-btn btn-add" onclick="App.startNew()">${s('add')}</button>
+    </div>`;
     v.innerHTML = sidebarHtml + `<div class="admin-form-wrap" id="aform"></div>`;
     
     let list = getEl('mlist'); 
     
     if(sm.length === 0) {
-        list.innerHTML = `<div style="font-size:12px; color:var(--text3); text-align:center; margin-top:20px;">No profiles assigned to you yet.</div>`;
+        list.innerHTML = `<div style="font-size:13px; color:var(--text3); text-align:center; margin-top:20px; font-style:italic;">No profiles assigned to you yet.</div>`;
     } else {
         sm.filter(m => m && !m.isSpouse).forEach(m => {
           let it = document.createElement('div'); it.className = 'member-item' + (state.editingId === m.id ? ' active' : '');
-          it.innerHTML = `<div class="mini-av">${m.photo ? `<img src="${m.photo}" onerror="this.parentElement.textContent='${initials(m.name)}'">` : initials(m.name)}</div><div><div class="item-name">${dname(m)}</div><div class="item-role">${m.parentId ? (s('desc') || 'descendant') : (s('root') || 'root')}</div></div>`;
+          it.innerHTML = `<div class="mini-av">${m.photo ? `<img src="${m.photo}" onerror="this.parentElement.textContent='${initials(m.name)}'">` : initials(m.name)}</div><div><div class="item-name">${dname(m)}</div><div class="item-role">${m.parentId ? s('desc') : s('root')}</div></div>`;
           it.onclick = () => { 
             state.editingId = m.id; state.prevPhoto = m.photo || ''; 
             let sp = getSpouse(m); state.prevPhotoSpouse = sp ? (sp.photo || '') : ''; 
             state.prevGallery = m.gallery ? [...m.gallery] : []; 
             renderAdmin(); 
+            scrollToForm();
           }; 
           list.appendChild(it);
         });
@@ -988,7 +1136,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     } else {
         let area = getEl('aform');
         if (area) {
-            area.innerHTML = `<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel') || 'select a member'}</span></div>`;
+            area.innerHTML = `<div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold-soft)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div>`;
         }
     }
   }
@@ -996,7 +1144,9 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function renderForm(m) {
     let area = getEl('aform'), allMems = Array.isArray(state.members) ? state.members : [];
     
-    let pOpts = `<option value="">${s('rootLevel') || '— root —'}</option>` + allMems.filter(x => x && !x.isSpouse && (!m || x.id !== m.id)).map(p => `<option value="${p.id}"${m && m.parentId === p.id ? ' selected' : ''}>${dname(p)}</option>`).join('');
+    let invalidParents = m ? [m.id, ...getDescendants(m.id)] : [];
+    let pOpts = `<option value="">${s('rootLevel')}</option>` + 
+        allMems.filter(x => x && !x.isSpouse && !invalidParents.includes(x.id)).map(p => `<option value="${p.id}"${m && m.parentId === p.id ? ' selected' : ''}>${dname(p)}</option>`).join('');
     
     let spObj = m && m.spouse ? state.members.find(x => x && x.id === m.spouse) : null;
     let spN = spObj ? spObj.name || '' : ''; 
@@ -1007,53 +1157,52 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     let spPhone = spObj && spObj.phone ? spObj.phone : '';
     let spAddr = spObj && spObj.address ? spObj.address : '';
 
-    let safeGenLabels = s('genLabels') || ['root', 'children', 'grandchildren', 'great-grandchildren', 'gen 4+'];
-    let genOpts = safeGenLabels.map((g,i) => `<option value="${i}"${m && m.generation === i ? ' selected' : ''}>${g}</option>`).join('');
+    let genOpts = s('genLabels').map((g,i) => `<option value="${i}"${m && m.generation === i ? ' selected' : ''}>${g}</option>`).join('');
     
     let pv = state.prevPhoto; let pvSp = state.prevPhotoSpouse;
     let bYear = m ? (m.birthYear || '') : ''; let dYear = m ? (m.deathYear || '') : '';
     let dob = m ? (m.dob || '') : ''; let mDate = m ? (m.marriageDate || '') : '';
     let phone = m ? (m.phone || '') : ''; let address = m ? (m.address || '') : '';
 
-    let topBar = isAdmin() ? `<div class="fn-bar"><span class="fn-label">${s('fn') || 'family name'}</span><input class="fn-input" id="fn-inp" value="${state.familyName}"><button class="fn-btn" onclick="App.updateFamilyName()">${s('up') || 'update'}</button></div>` : '';
+    let topBar = isAdmin() ? `<div class="fn-bar"><span class="fn-label">${s('fn')}</span><input class="fn-input" id="fn-inp" value="${state.familyName}"><button class="fn-btn" onclick="App.updateFamilyName()">${s('up')}</button></div>` : '';
 
     area.innerHTML = `
       ${topBar}
-      <h2>${m ? (s('edit') || 'edit') : (s('new') || 'new')}</h2>
+      <h2>${m ? s('edit') : s('new')}</h2>
       <div class="form-grid">
-        <div class="fg full"><label>${s('photo') || 'photo'} (Primary)</label><div class="photo-row"><div class="photo-prev" id="pp">${pv ? `<img src="${pv}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="${s('pUrl') || 'paste URL'}" value="${pv}"><button class="url-apply" onclick="App.applyUrl()">${s('app') || 'apply'}</button></div><label class="upload-lbl" for="p-file">${s('upl') || 'upload'}</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>
-        <div class="fg"><label>${s('firstName') || 'first name'} (EN)</label><input type="text" id="f-fn" value="${m ? m.name.split(' ')[0] : ''}"></div>
-        <div class="fg"><label>${s('lastName') || 'last name'} (EN)</label><input type="text" id="f-ln" value="${m ? m.name.split(' ').slice(1).join(' ') : ''}"></div>
+        <div class="fg full"><label>${s('photo')} (Primary)</label><div class="photo-row"><div class="photo-prev" id="pp">${pv ? `<img src="${pv}">` : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="${s('pUrl')}" value="${pv}"><button class="url-apply" onclick="App.applyUrl()">${s('app')}</button></div><label class="upload-lbl" for="p-file">${s('upl')}</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>
+        <div class="fg"><label>${s('firstName')} (EN)</label><input type="text" id="f-fn" value="${m ? m.name.split(' ')[0] : ''}"></div>
+        <div class="fg"><label>${s('lastName')} (EN)</label><input type="text" id="f-ln" value="${m ? m.name.split(' ').slice(1).join(' ') : ''}"></div>
         <div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" value="${m && m.nameHi ? m.nameHi.split(' ')[0] : ''}"></div>
         <div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" value="${m && m.nameHi ? m.nameHi.split(' ').slice(1).join(' ') : ''}"></div>
-        <div class="fg"><label>Birth Year (Tree View)</label><input type="text" id="f-by" placeholder="1950" value="${bYear}"></div>
+        <div class="fg"><label>Birth Year (Tree View)</label><input type="text" id="f-by" placeholder="e.g. 1950" value="${bYear}"></div>
         <div class="fg"><label>Death Year (Tree View)</label><input type="text" id="f-dy" placeholder="Blank if living" value="${dYear}"></div>
         
-        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label style="color:var(--gold);">Primary Profile Details</label></div>
+        <div class="fg full" style="margin-top:15px; padding-top:20px; border-top:1px solid var(--border2);"><label style="color:var(--gold); font-size:13px;">Detailed Archives</label></div>
         <div class="fg"><label>Full Date of Birth</label><input type="text" id="f-dob" placeholder="DD/MM/YYYY" value="${dob}"></div>
         <div class="fg"><label>Marriage Date</label><input type="text" id="f-mdate" placeholder="DD/MM/YYYY" value="${mDate}"></div>
         <div class="fg"><label>Phone Number</label><input type="text" id="f-phone" value="${phone}"></div>
         <div class="fg"><label>Address / Location</label><input type="text" id="f-address" value="${address}"></div>
         
-        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label>Photo Gallery (Multiple Images)</label><label class="upload-lbl" for="gallery-files" style="width:max-content; padding:0.5rem 1rem;">+ Add Images</label><input type="file" id="gallery-files" accept="image/*" multiple style="display:none" onchange="App.handleGalleryFiles(this)"><div id="gallery-previews" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;"></div></div>
+        <div class="fg full" style="margin-top:15px; padding-top:20px; border-top:1px solid var(--border2);"><label>Photo Gallery (Multiple Images)</label><label class="upload-lbl" for="gallery-files" style="width:max-content; padding:0.6rem 1.5rem;">+ Add Images</label><input type="file" id="gallery-files" accept="image/*" multiple style="display:none" onchange="App.handleGalleryFiles(this)"><div id="gallery-previews" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;"></div></div>
         
-        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"></div>
-        <div class="fg"><label>${s('par') || 'parent'}</label><select id="f-par">${pOpts}</select></div>
-        <div class="fg"><label>${s('gen') || 'generation'}</label><select id="f-gen">${genOpts}</select></div>
+        <div class="fg full" style="margin-top:15px; padding-top:20px; border-top:1px solid var(--border2);"></div>
+        <div class="fg"><label>${s('par')}</label><select id="f-par">${pOpts}</select></div>
+        <div class="fg"><label>${s('gen')}</label><select id="f-gen">${genOpts}</select></div>
         
-        <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label style="color:var(--gold);">Spouse Details</label></div>
-        <div class="fg full"><label>${s('spN') || 'spouse'} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl') || 'blank'}" value="${spN}"></div>
-        <div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="${s('bl') || 'blank'}" value="${spNHi}"></div>
+        <div class="fg full" style="margin-top:15px; padding-top:20px; border-top:1px solid var(--border2);"><label style="color:var(--gold); font-size:13px;">Spouse Details</label></div>
+        <div class="fg full"><label>${s('spN')} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl')}" value="${spN}"></div>
+        <div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="${s('bl')}" value="${spNHi}"></div>
         
-        <div class="fg"><label>Spouse Birth Year</label><input type="text" id="f-sp-by" placeholder="1950" value="${spBy}"></div>
+        <div class="fg"><label>Spouse Birth Year</label><input type="text" id="f-sp-by" placeholder="e.g. 1950" value="${spBy}"></div>
         <div class="fg"><label>Spouse Death Year</label><input type="text" id="f-sp-dy" placeholder="Blank if living" value="${spDy}"></div>
         <div class="fg"><label>Spouse Full DOB</label><input type="text" id="f-sp-dob" placeholder="DD/MM/YYYY" value="${spDob}"></div>
         <div class="fg"><label>Spouse Phone</label><input type="text" id="f-sp-phone" value="${spPhone}"></div>
         <div class="fg full"><label>Spouse Address</label><input type="text" id="f-sp-address" value="${spAddr}"></div>
 
-        <div class="fg full"><label>Spouse Photo</label><div class="photo-row"><div class="photo-prev" id="pp-sp">${pvSp ? `<img src="${pvSp}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="${s('pUrl') || 'paste url'}" value="${pvSp}"><button class="url-apply" onclick="App.applyUrlSp()">${s('app') || 'apply'}</button></div><label class="upload-lbl" for="p-file-sp">${s('upl') || 'upload'}</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>
+        <div class="fg full"><label>Spouse Photo</label><div class="photo-row"><div class="photo-prev" id="pp-sp">${pvSp ? `<img src="${pvSp}">` : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="${s('pUrl')}" value="${pvSp}"><button class="url-apply" onclick="App.applyUrlSp()">${s('app')}</button></div><label class="upload-lbl" for="p-file-sp">${s('upl')}</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>
       </div>
-      <div class="form-actions">${m ? `<button class="btn-del" onclick="App.delMember('${m.id}')">${s('del') || 'delete'}</button>` : ''}<button class="btn-cancel" onclick="App.cancelEdit()">${s('can') || 'cancel'}</button><button class="btn-save" onclick="App.saveMember()">${s('sv') || 'save'}</button></div>
+      <div class="form-actions">${m ? `<button class="btn-del" onclick="App.delMember('${m.id}')">${s('del')}</button>` : ''}<button class="btn-cancel" onclick="App.cancelEdit()">${s('can')}</button><button class="btn-save" onclick="App.saveMember()">${s('sv')}</button></div>
     `;
     renderGalleryPreviews(); 
   }
@@ -1069,7 +1218,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
        if(u.status === 'pending') {
            a = `<button class="auth-act-btn btn-approve" onclick="App.modifyUser('${k}', 'approve')">Approve</button>`;
        } else { 
-           a += `<button class="auth-act-btn btn-promote" onclick="App.openAssignModal('${k}')" style="background:rgba(120,100,200,0.15); color:#967bd6; border-color:rgba(120,100,200,0.3);">Assign Profiles</button>`;
+           a += `<button class="auth-act-btn btn-promote" onclick="App.openAssignModal('${k}')">Assign Profiles</button>`;
            if(u.role !== 'admin') a += `<button class="auth-act-btn btn-promote" onclick="App.modifyUser('${k}', 'admin')">Make Admin</button>`; 
            else a += `<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'demote')">Make Member</button>`; 
            a += `<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'revoke')">Revoke</button>`; 
@@ -1080,7 +1229,9 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(!h) uHtml = '<div class="empty-state"><span>No registered users yet.</span></div>';
     
     let lHtml = `<div class="share-generator"><h3>View-Only Link</h3><div class="share-controls"><select id="share-expiry" class="share-select"><option value="1">1 Hour</option><option value="24">24 Hours</option><option value="168">7 Days</option></select><button class="share-btn" onclick="App.generateShareLink()">Copy Link</button></div></div>`;
-    v.innerHTML = `<div class="admin-sidebar"><div class="sidebar-title">Access</div><p style="font-size:12px;color:var(--text3);line-height:1.4;">Approve members and assign them profiles.</p></div><div class="admin-form-wrap"><h2>Authentication</h2><div style="margin-top:1.5rem;">${uHtml}</div>${lHtml}</div>`;
+    
+    let searchHtml = `<input type="text" class="tool-input" placeholder="Search users..." oninput="App.filterAuth(this.value)" style="margin-bottom:15px; width:100%; box-sizing:border-box;">`;
+    v.innerHTML = `<div class="admin-sidebar"><div class="sidebar-title">Access</div><p style="font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:12px;">Approve members and assign them profiles.</p>${searchHtml}</div><div class="admin-form-wrap"><h2>Authentication</h2><div style="margin-top:1.5rem;" id="auth-user-list">${uHtml}</div>${lHtml}</div>`;
   }
 
   function openAssignModal(userKey) {
@@ -1095,10 +1246,10 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       
       let listHtml = allMems.filter(m => !m.isSpouse).map(m => {
           let isChecked = assigned.includes(m.id) ? 'checked' : '';
-          return `<label style="display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer; color:var(--text); padding: 5px 0;"><input type="checkbox" class="assign-cb" value="${m.id}" ${isChecked}> <div class="mini-av">${m.photo ? `<img src="${m.photo}">` : initials(m.name)}</div> ${dname(m)}</label>`;
+          return `<label style="display:flex; align-items:center; gap:12px; font-size:15px; cursor:pointer; color:var(--text); padding: 8px 0; border-bottom:1px solid var(--border); transition:all 0.2s;"><input type="checkbox" class="assign-cb" value="${m.id}" ${isChecked} style="width:20px;height:20px;accent-color:var(--gold);"> <div class="mini-av">${m.photo ? `<img src="${m.photo}">` : initials(m.name)}</div> <span style="font-weight:500;">${dname(m)}</span></label>`;
       }).join('');
       
-      getEl('assign-list').innerHTML = listHtml || '<div style="font-size:12px; color:var(--text3);">No primary members in tree yet.</div>';
+      getEl('assign-list').innerHTML = listHtml || '<div style="font-size:13px; color:var(--text3); text-align:center; padding:20px;">No primary members in tree yet.</div>';
       getEl('assign-modal').classList.add('show');
   }
 
@@ -1111,7 +1262,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       if(!isAdmin() || !state.assigningUserKey) return;
       let checked = Array.from(document.querySelectorAll('.assign-cb:checked')).map(cb => cb.value);
       usersRef.child(state.assigningUserKey).update({ assignedProfiles: checked });
-      showToast('Assignments saved!');
+      showToast('Assignments Saved!');
       closeAssignModal();
   }
 
@@ -1130,17 +1281,22 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       let h = parseInt(getEl('share-expiry').value) || 1, tk = 'share_' + Math.random().toString(36).substr(2,9), e = Date.now() + (h*60*60*1000); 
       linksRef.child(tk).set({expiresAt: e, createdBy: state.currentUser.username}).then(() => { 
           let u = window.location.origin + window.location.pathname + '?share=' + tk; 
-          navigator.clipboard.writeText(u).then(() => showToast("Link copied!")).catch(() => prompt("Copy this:", u)); 
+          navigator.clipboard.writeText(u).then(() => showToast("Link Copied!")).catch(() => prompt("Copy this:", u)); 
       }); 
   }
   
   function updateFamilyName() { 
       if(!isAdmin()) return; 
       let v = (getEl('fn-inp') || {}).value; if(!v || !v.trim()) return; 
-      state.familyName = v.trim(); saveToFirebase(); showToast(s('sved') || 'saved'); renderTree(); 
+      state.familyName = v.trim(); saveToFirebase(); showToast(s('sved')); renderTree(); 
   }
   
-  function startNew() { state.editingId = '__new__'; state.prevPhoto = ''; state.prevPhotoSpouse = ''; state.prevGallery = []; renderAdmin(); }
+  function startNew() { 
+      state.editingId = '__new__'; state.prevPhoto = ''; state.prevPhotoSpouse = ''; state.prevGallery = []; 
+      renderAdmin(); 
+      scrollToForm();
+  }
+  
   function cancelEdit() { state.editingId = null; state.prevPhoto = ''; state.prevPhotoSpouse = ''; state.prevGallery = []; renderAdmin(); }
   
   function applyUrl() { let u = (getEl('p-url')||{}).value||''; u=u.trim(); if(u==='' && state.prevPhoto && state.prevPhoto.startsWith('data:image')) return; state.prevPhoto=u; let pp=getEl('pp'); if(pp) pp.innerHTML = u ? `<img src="${u}">` : '?'; }
@@ -1155,7 +1311,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
               state.prevPhoto = c.toDataURL('image/jpeg', 0.85); 
               let pp = getEl('pp'); if(pp) pp.innerHTML = `<img src="${state.prevPhoto}">`; 
               let pu = getEl('p-url'); if(pu) pu.value = ''; 
-              if(btn) { btn.disabled=false; btn.textContent=s('sv') || 'save'; } 
+              if(btn) { btn.disabled=false; btn.textContent=s('sv'); } 
           }; 
           img.src = e.target.result; 
       }; 
@@ -1174,7 +1330,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
               state.prevPhotoSpouse = c.toDataURL('image/jpeg', 0.85); 
               let pp = getEl('pp-sp'); if(pp) pp.innerHTML = `<img src="${state.prevPhotoSpouse}">`; 
               let pu = getEl('p-url-sp'); if(pu) pu.value = ''; 
-              if(btn) { btn.disabled=false; btn.textContent=s('sv') || 'save'; } 
+              if(btn) { btn.disabled=false; btn.textContent=s('sv'); } 
           }; 
           img.src = e.target.result; 
       }; 
@@ -1230,8 +1386,9 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       pD.isSpouse = false;
       state.members.push(pD);
       
+      let createdSpouseId = null;
       if(spN || spNHi) { 
-          let sid = pD.id + 's'; pD.spouse = sid; 
+          let sid = pD.id + 's'; pD.spouse = sid; createdSpouseId = sid;
           state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: pD.id, isSpouse: true, birthYear: spBy, deathYear: spDy, dob: spDob, phone: spPhone, address: spAddr }); 
       }
       state.editingId = pD.id;
@@ -1239,6 +1396,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       if(!isAdmin() && state.currentUser) {
           let currentAssignments = state.currentUser.assignedProfiles || [];
           currentAssignments.push(pD.id);
+          if(createdSpouseId) currentAssignments.push(createdSpouseId); 
+          
           let myKey = Object.keys(state.users).find(k => state.users[k].username === state.currentUser.username);
           if (myKey) {
               usersRef.child(myKey).update({ assignedProfiles: currentAssignments });
@@ -1267,7 +1426,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         }
       }
     }
-    saveToFirebase(); showToast(s('sved') || 'saved'); renderAdmin(); renderTree();
+    saveToFirebase(); showToast(s('sved')); renderAdmin(); renderTree();
   }
 
   function delMember(id) {
@@ -1277,7 +1436,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     state.members.filter(x => x && x.parentId === id).forEach(c => c.parentId = null); 
     state.members = state.members.filter(x => x && x.id !== id);
     delete state.expanded[id]; state.editingId = null; 
-    saveToFirebase(); showToast(s('dlted') || 'deleted'); renderAdmin(); renderTree();
+    saveToFirebase(); showToast(s('dlted')); renderAdmin(); renderTree();
   }
 
   function showView(v, btn) {
@@ -1286,23 +1445,32 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active')); 
     if (btn) btn.classList.add('active');
+    else {
+        let fallbackBtn = getEl('tab-' + v);
+        if(fallbackBtn) fallbackBtn.classList.add('active');
+    }
     
-    // FIX: Remove inline JS styles, let CSS grids/flex-columns take over for mobile vs desktop
     ['tree-view', 'admin-view', 'design-view', 'auth-view'].forEach(id => {
         let el = getEl(id);
-        if(el) el.style.display = 'none';
+        if(el) {
+            el.classList.remove('active-view');
+            el.style.display = 'none'; 
+        }
     });
     
     let activeEl = getEl(v + '-view');
-    if(activeEl) activeEl.style.display = '';
+    if(activeEl) {
+        activeEl.classList.add('active-view');
+        activeEl.style.display = '';
+    }
     
     let bg = getEl('custom-bg'), txtLayer = getEl('custom-text-container'), cv = document.querySelector('.bg-canvas');
     if(v === 'tree') { 
-        if(state.bgLayers && state.bgLayers.length) bg.style.opacity = '1';
-        if(state.textLayers && state.textLayers.length) txtLayer.style.opacity = '1';
+        if(state.bgLayers && state.bgLayers.length) if(bg) bg.style.opacity = '1';
+        if(state.textLayers && state.textLayers.length) if(txtLayer) txtLayer.style.opacity = '1';
         if(cv) cv.style.opacity = (state.bgLayers && state.bgLayers.length) ? '0' : '1'; 
     } else { 
-        bg.style.opacity = '0'; 
+        if(bg) bg.style.opacity = '0'; 
         if(txtLayer) txtLayer.style.opacity = '0'; 
         if(cv) cv.style.opacity = '1'; 
     }
@@ -1311,7 +1479,27 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     else if(v === 'admin') { state.editingId = null; renderAdmin(); } 
     else if(v === 'design') renderDesignStudio(); 
     else if(v === 'auth') renderAuthPanel();
+    
+    window.scrollTo(0, 0);
   }
+
+  (function shootStar(){
+  const s=document.createElement('div'),t=document.createElement('div');
+  const sx=Math.random()*innerWidth*.75, sy=Math.random()*innerHeight*.25;
+  s.style.cssText=`position:fixed;width:3px;height:3px;background:#fff;border-radius:50%;left:${sx}px;top:${sy}px;z-index:2;pointer-events:none;transition:none;`;
+  t.style.cssText=`position:fixed;width:60px;height:1.5px;background:linear-gradient(90deg,rgba(255,255,255,.85),rgba(201,169,110,.4),transparent);border-radius:2px;left:${sx}px;top:${sy}px;transform:rotate(32deg);transform-origin:left center;z-index:2;pointer-events:none;`;
+  document.body.append(s,t);
+  let p=0;
+  const a=setInterval(()=>{
+    p+=2.8;
+    const nx=sx+p*1.15, ny=sy+p*.6, op=Math.max(0,1-p/70);
+    s.style.cssText=s.style.cssText.replace(/left:[^;]+/,`left:${nx}px`).replace(/top:[^;]+/,`top:${ny}px`);
+    s.style.opacity=op; t.style.left=nx+'px'; t.style.top=ny+'px'; t.style.opacity=op;
+    if(p>70||nx>innerWidth||ny>innerHeight){clearInterval(a);s.remove();t.remove();}
+  },16);
+  setTimeout(shootStar, Math.random()*5500+2500);
+}
+  );
 
   // --- WINDOW EXPORTS ---
   window.App = { 
@@ -1321,12 +1509,31 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       handleBgFile, handleDropZoneOver, handleDropZoneLeave, handleDropZoneDrop, liveUpdateBg: () => { applyBgSettings(); refreshStudioPreview(); }, 
       handleGalleryFiles, removeGalleryImg, updateLayer, removeLayer,
       addTextLayer, updateTextLayer, removeTextLayer, saveTextSettings,
-      openAssignModal, closeAssignModal, saveAssignments, openEditorFromModal, toggleAccordionMode
+      openAssignModal, closeAssignModal, saveAssignments, openEditorFromModal, toggleAccordionMode, filterAdmin, filterAuth
   };
   
-  checkLocalAuth();
+ checkLocalAuth();
+
+  (function(){
+    const c=document.getElementById('ptcl'),ctx=c.getContext('2d');
+    function rsz(){c.width=innerWidth;c.height=innerHeight;}
+    rsz();window.addEventListener('resize',rsz);
+    const P=Array.from({length:45},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.6+0.2,vx:(Math.random()-.5)*.28,vy:-(Math.random()*.38+.08),a:Math.random()*.45+.07,da:(Math.random()-.5)*.0035,gold:Math.random()>.25}));
+    (function loop(){ctx.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.a+=p.da;if(p.a<.05||p.a>.55)p.da*=-1;if(p.y<-5){p.y=c.height+5;p.x=Math.random()*c.width;}if(p.x<-5)p.x=c.width+5;if(p.x>c.width+5)p.x=-5;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.gold?`rgba(201,169,110,${p.a})`:`rgba(255,255,255,${p.a*.35})`;ctx.fill();});requestAnimationFrame(loop);})();
+  })();
+
+  (function shootStar(){
+    const s=document.createElement('div'),t=document.createElement('div');
+    const sx=Math.random()*innerWidth*.75,sy=Math.random()*innerHeight*.25;
+    s.style.cssText=`position:fixed;width:3px;height:3px;background:#fff;border-radius:50%;left:${sx}px;top:${sy}px;z-index:2;pointer-events:none;`;
+    t.style.cssText=`position:fixed;width:60px;height:1.5px;background:linear-gradient(90deg,rgba(255,255,255,.85),rgba(201,169,110,.4),transparent);border-radius:2px;left:${sx}px;top:${sy}px;transform:rotate(32deg);transform-origin:left center;z-index:2;pointer-events:none;`;
+    document.body.append(s,t);let p=0;
+    const a=setInterval(()=>{p+=2.8;const nx=sx+p*1.15,ny=sy+p*.6,op=Math.max(0,1-p/70);s.style.left=nx+'px';s.style.top=ny+'px';s.style.opacity=op;t.style.left=nx+'px';t.style.top=ny+'px';t.style.opacity=op;if(p>70||nx>innerWidth||ny>innerHeight){clearInterval(a);s.remove();t.remove();}},16);
+    setTimeout(shootStar,Math.random()*5500+2500);
+  })();
 
 })();
+
 </script>
 </body>
 </html>
