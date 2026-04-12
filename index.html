@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Family Tree</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500&family=Noto+Sans+Devanagari:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -15,12 +15,15 @@
 html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;position:relative;overflow-x:hidden;transition:background 0.3s,color 0.3s}.lang-hi *{font-family:'Noto Sans Devanagari',sans-serif}
 
 .bg-canvas{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;filter:var(--canvas-filter);transition:opacity 0.5s}.bg-canvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(201,169,110,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(120,100,200,0.06) 0%,transparent 60%);animation:bgP 12s ease-in-out infinite alternate}.bg-canvas::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(201,169,110,0.15) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%);opacity:.3;animation:gD 20s linear infinite}@keyframes bgP{0%{opacity:.7}100%{opacity:1}}@keyframes gD{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:oF linear infinite;opacity:.4}.orb1{width:400px;height:400px;background:radial-gradient(circle,rgba(201,169,110,0.2),transparent 70%);top:-100px;left:-100px;animation-duration:25s}.orb2{width:300px;height:300px;background:radial-gradient(circle,rgba(100,80,180,0.15),transparent 70%);bottom:10%;right:-50px;animation-duration:30s;animation-delay:-10s}.orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(201,169,110,0.12),transparent 70%);top:50%;left:60%;animation-duration:20s;animation-delay:-5s}@keyframes oF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(0.9)}}
-.custom-bg{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:0;opacity:0;transition:opacity 0.5s;pointer-events:none;overflow:hidden}.custom-bg-layer{position:absolute;inset:0;background-repeat:no-repeat}
-.custom-text-container{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:0;opacity:0;transition:opacity 0.5s;pointer-events:none;overflow:hidden} .custom-text-layer{position:absolute;transform:translate(-50%,-50%);white-space:pre-wrap;text-align:center;font-family:'Cormorant Garamond',serif;text-shadow:2px 2px 8px rgba(0,0,0,0.8);line-height:1.1;pointer-events:none}
+
+.custom-bg, .custom-text-container {position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;overflow:hidden;border-radius:12px;opacity:1;}
+.custom-bg-layer{position:absolute;inset:0;background-repeat:no-repeat}
+.custom-text-layer{position:absolute;transform:translate(-50%,-50%);white-space:pre-wrap;text-align:center;font-family:'Cormorant Garamond',serif;text-shadow:2px 2px 8px rgba(0,0,0,0.8);line-height:1.1;pointer-events:none;transition:transform 0.3s}
 
 select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a96e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:32px!important}select option{background-color:var(--bg);color:var(--text)}
 
-.nav{position:relative;z-index:10;display:flex;align-items:center;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--bg);backdrop-filter:blur(20px);flex-wrap:wrap;opacity:0.95}.nav-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);letter-spacing:0.1em;margin-right:auto;padding:1rem 0;font-style:italic}.nav-brand span{font-style:normal;font-weight:500;color:var(--text)}.nav-tab{padding:0.9rem 1.1rem;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;color:var(--text2);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:'Outfit'}.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)} .nav-tab:hover:not(.active){color:var(--text)}.lang-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-left:0.5rem}.lang-btn{padding:0.35rem 0.75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit';transition:all 0.2s}.lang-btn.active{background:var(--gold);color:#ffffff;font-weight:500}.tool-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit';font-size:13px;outline:none;width:250px;transition:border 0.2s} .tool-input:focus{border-color:var(--gold)}.tool-btn{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.6rem 1.4rem;border-radius:8px;font-family:'Outfit';font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500} .tool-btn:hover{background:var(--gold);color:#fff}
+/* --- UI COMPONENTS --- */
+.nav{position:relative;z-index:10;display:flex;align-items:center;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--bg);backdrop-filter:blur(20px);flex-wrap:wrap;opacity:0.98}.nav-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);letter-spacing:0.1em;margin-right:auto;padding:1rem 0;font-style:italic}.nav-brand span{font-style:normal;font-weight:500;color:var(--text)}.nav-tab{padding:0.9rem 1.1rem;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;color:var(--text2);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:'Outfit'}.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)} .nav-tab:hover:not(.active){color:var(--text)}.lang-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-left:0.5rem}.lang-btn{padding:0.35rem 0.75rem;font-size:11px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:'Outfit';transition:all 0.2s}.lang-btn.active{background:var(--gold);color:#ffffff;font-weight:500}.tool-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit';font-size:13px;outline:none;width:250px;transition:border 0.2s} .tool-input:focus{border-color:var(--gold)}.tool-btn{background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.6rem 1.4rem;border-radius:8px;font-family:'Outfit';font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500} .tool-btn:hover{background:var(--gold);color:#fff}
 
 #login-overlay,#waiting-overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;width:340px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2)}.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:0.25rem} .login-logo span{font-style:normal;color:var(--text)}.login-sub{font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}.auth-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;color:var(--text);font-size:14px;font-family:'Outfit';outline:none;margin-bottom:1rem;transition:border 0.2s} .auth-input:focus{border-color:var(--gold)}.auth-btn{width:100%;padding:0.8rem;border-radius:10px;background:var(--gold);border:none;color:#000;font-size:14px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s;margin-bottom:0.5rem} .auth-btn:hover:not(:disabled){background:var(--gold2)} .auth-btn:disabled{opacity:0.6;cursor:not-allowed}.auth-btn-sec{width:100%;padding:0.8rem;border-radius:10px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit';transition:all 0.2s} .auth-btn-sec:hover{border-color:var(--gold);color:var(--gold)}.auth-error{color:#f09595;font-size:12px;margin-bottom:1rem;min-height:15px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s} .modal-overlay.show{opacity:1;pointer-events:auto}.modal-content{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2rem;width:90%;max-width:400px;max-height:85vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform 0.3s;box-shadow:0 15px 40px rgba(0,0,0,0.4);text-align:center} .modal-overlay.show .modal-content{transform:translateY(0)}.modal-close{position:absolute;top:15px;right:15px;background:transparent;border:none;color:var(--text3);font-size:24px;cursor:pointer;transition:color 0.2s} .modal-close:hover{color:var(--gold)}.modal-av{width:100px;height:100px;border-radius:50%;margin:0 auto 1rem;border:2px solid var(--gold);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden} .modal-av img{width:100%;height:100%;object-fit:cover}.modal-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold);margin-bottom:5px;line-height:1.1} .modal-dates{font-size:12px;color:var(--text3);margin-bottom:1.5rem;letter-spacing:0.05em}.modal-details{text-align:left;background:var(--surface);padding:1rem;border-radius:12px;border:1px solid var(--border2)} .modal-row{margin-bottom:0.75rem;font-size:14px} .modal-row:last-child{margin-bottom:0} .modal-row span{display:block;font-size:10px;text-transform:uppercase;color:var(--text3);letter-spacing:0.08em;margin-bottom:2px} .modal-row div{color:var(--text)} .modal-private{font-style:italic;color:var(--text2);font-size:13px;text-align:center;padding:1rem 0}.modal-gallery{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-top:10px;scroll-behavior:smooth} .modal-gallery::-webkit-scrollbar{height:6px} .modal-gallery::-webkit-scrollbar-track{background:var(--surface2);border-radius:3px} .modal-gallery::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px} .modal-gallery img{height:100px;border-radius:8px;border:1px solid var(--border);object-fit:cover;transition:border-color 0.2s} .modal-gallery img:hover{border-color:var(--gold)}
@@ -42,12 +45,33 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .drop-zone{border:2px dashed var(--border2);border-radius:8px;padding:1.5rem 1rem;text-align:center;color:var(--text3);font-size:12px;transition:all 0.2s;cursor:pointer;background:var(--bg)} .drop-zone.dragover{border-color:var(--gold);background:var(--surface3);color:var(--gold)}
 .slider-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px} .slider-row label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;width:40px} .slider-row input[type="range"]{flex:1;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer} .slider-row input[type="range"]::-webkit-slider-runnable-track{background:var(--border2);height:4px;border-radius:2px} .slider-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:-4px;background-color:var(--gold);height:12px;width:12px;border-radius:50%}
 
-.user-card{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);padding:1rem;border-radius:12px;margin-bottom:1rem} .user-info strong{font-size:16px;color:var(--text);display:block;margin-bottom:4px} .user-info span{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:2px 6px;border-radius:4px} .status-pending{background:rgba(240,150,100,0.15);color:#f0a864;border:1px solid rgba(240,150,100,0.3)} .status-approved{background:rgba(100,200,120,0.15);color:#64c878;border:1px solid rgba(100,200,120,0.3)} .status-admin{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3)} .auth-actions{display:flex;gap:0.5rem} .auth-act-btn{padding:0.4rem 0.8rem;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Outfit';border:1px solid transparent;transition:all 0.2s} .btn-approve{background:rgba(100,200,120,0.15);color:#64c878;border-color:rgba(100,200,120,0.3)} .btn-promote{background:var(--gold-soft);color:var(--gold);border-color:rgba(201,169,110,0.3)} .btn-revoke{background:transparent;border-color:var(--border2);color:var(--text3)} .share-generator{margin-top:2rem;padding:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px} .share-generator h3{font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--gold);font-size:20px;margin-bottom:10px} .share-generator p{font-size:12px;color:var(--text3);margin-bottom:15px} .share-controls{display:flex;gap:10px;align-items:center} .share-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border 0.2s} .share-select:focus{border-color:var(--gold)} .share-btn{padding:0.6rem 1.4rem;background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s} .share-btn:hover{background:var(--gold);color:#fff}
+.user-card{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);padding:1rem;border-radius:12px;margin-bottom:1rem;flex-wrap:wrap;gap:10px;} .user-info strong{font-size:16px;color:var(--text);display:block;margin-bottom:4px} .user-info span{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:2px 6px;border-radius:4px} .status-pending{background:rgba(240,150,100,0.15);color:#f0a864;border:1px solid rgba(240,150,100,0.3)} .status-approved{background:rgba(100,200,120,0.15);color:#64c878;border:1px solid rgba(100,200,120,0.3)} .status-admin{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3)} .auth-actions{display:flex;gap:0.5rem;flex-wrap:wrap;} .auth-act-btn{padding:0.4rem 0.8rem;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Outfit';border:1px solid transparent;transition:all 0.2s;white-space:nowrap;} .btn-approve{background:rgba(100,200,120,0.15);color:#64c878;border-color:rgba(100,200,120,0.3)} .btn-promote{background:var(--gold-soft);color:var(--gold);border-color:rgba(201,169,110,0.3)} .btn-revoke{background:transparent;border-color:var(--border2);color:var(--text3)} .share-generator{margin-top:2rem;padding:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px} .share-generator h3{font-family:'Cormorant Garamond',serif;font-weight:400;color:var(--gold);font-size:20px;margin-bottom:10px} .share-generator p{font-size:12px;color:var(--text3);margin-bottom:15px} .share-controls{display:flex;gap:10px;align-items:center} .share-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.6rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border 0.2s} .share-select:focus{border-color:var(--gold)} .share-btn{padding:0.6rem 1.4rem;background:var(--gold-soft);color:var(--gold);border:1px solid rgba(201,169,110,0.3);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s} .share-btn:hover{background:var(--gold);color:#fff}
 
 .fn-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem} .fn-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap} .fn-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-size:16px;font-family:'Cormorant Garamond',serif;font-style:italic;padding:0.2rem 0.25rem;outline:none;transition:border 0.2s} .fn-input:focus{border-bottom-color:var(--gold)} .fn-btn{padding:0.3rem 0.85rem;border-radius:8px;background:var(--gold-soft);border:1px solid rgba(201,169,110,0.3);color:var(--gold);font-size:12px;cursor:pointer;font-family:'Outfit';white-space:nowrap} .fn-btn:hover{background:rgba(201,169,110,0.2)} .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem} .fg{display:flex;flex-direction:column;gap:6px} .fg.full{grid-column:1/-1} .fg label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.1em;text-transform:uppercase} .fg input,.fg select{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0.5rem 0.8rem;color:var(--text);font-size:13px;font-family:'Outfit';outline:none;transition:border 0.2s;height:36px} .fg input:focus,.fg select:focus{border-color:rgba(201,169,110,0.4)} .photo-row{display:flex;gap:1rem;align-items:flex-start} .photo-prev{width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;overflow:hidden} .photo-prev img{width:100%;height:100%;object-fit:cover;border-radius:50%} .photo-inputs{flex:1;display:flex;flex-direction:column;gap:0.5rem} .url-row{display:flex;gap:0.5rem} .url-row input{flex:1} .url-apply{padding:0 0.8rem;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'Outfit'} .upload-lbl{display:block;padding:0.45rem 0.8rem;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;text-align:center} .form-actions{display:flex;gap:0.75rem;margin-top:1.25rem;justify-content:flex-end;align-items:center} .btn-save{padding:0.5rem 1.4rem;border-radius:9px;background:var(--gold);border:none;color:#000;font-size:13px;font-weight:500;cursor:pointer;font-family:'Outfit';transition:all 0.2s} .btn-save:hover:not(:disabled){background:var(--gold2)} .btn-save:disabled{opacity:0.5;cursor:not-allowed} .btn-del{padding:0.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'} .btn-del:hover{border-color:rgba(242,80,80,0.4);color:#f09595} .btn-cancel{padding:0.5rem 1rem;border-radius:9px;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:13px;cursor:pointer;font-family:'Outfit'} .empty-state{display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px;flex-direction:column;gap:0.75rem} .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg);border:1px solid rgba(201,169,110,0.3);color:var(--gold);padding:0.55rem 1.2rem;border-radius:10px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;box-shadow:0 4px 15px rgba(0,0,0,0.3)} .toast.show{opacity:1} .sync-pill{position:fixed;top:0.75rem;left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--border2);padding:0.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:0.07em;z-index:200;transition:opacity 0.5s;pointer-events:none;opacity:0;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
-@media (max-width: 768px) { #admin-view, #auth-view, #design-view { grid-template-columns: 1fr; grid-template-rows: auto 1fr; padding: 1rem 0.75rem; gap: 1rem; } .admin-sidebar { max-height: none; } }
-@media (max-width: 600px) { .nav { padding: 0 1rem; } .nav-brand { font-size: 16px; } .nav-tab { padding: 0.75rem 0.6rem; font-size: 10px; letter-spacing: 0.04em; } .lang-btn { padding: 0.3rem 0.5rem; font-size: 10px; } .login-box { width: 90vw; padding: 2rem 1.25rem; } #tree-view { padding: 1.5rem 0; } .tree-header h1 { font-size: 26px; } .tree-container { text-align: left; padding: 0 1rem 4rem 1rem; } #tree-root { margin: 0 !important; } .tree-col { padding: 20px 16px 0; } .admin-form-wrap { padding: 1.25rem; } .form-grid { grid-template-columns: 1fr; } .fg.full { grid-column: 1; } .form-actions { flex-wrap: wrap; gap: 0.5rem; } .form-actions button { flex: 1; min-width: 80px; } .fn-bar { flex-wrap: wrap; gap: 0.5rem; } .photo-row { flex-direction: column; align-items: center; } .photo-inputs { width: 100%; } .url-row { flex-direction: column; } .url-apply { height: 36px; width: 100%; } .toast { bottom: 1rem; right: 0.75rem; left: 0.75rem; text-align: center; } .user-card { flex-direction: column; align-items: flex-start; gap: 10px; } .share-controls { flex-direction: column; align-items: stretch; } .tree-toolbar { flex-direction: column; align-items: stretch; padding: 0 1rem; } .tool-input, .tool-btn { width: 100%; } }
-@media (max-width: 380px) { .nav-tab { padding: 0.7rem 0.4rem; font-size: 9px; } .login-box { padding: 1.5rem 1rem; } .tree-header h1 { font-size: 22px; } }
+
+/* --- MOBILE RESPONSIVE FIXES --- */
+@media (max-width: 768px) { 
+    body { padding-bottom: 70px; }
+    .nav { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 100; justify-content: space-around; padding: 0.5rem; flex-wrap: nowrap; overflow-x: auto; border-top: 1px solid var(--border); border-bottom: none; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
+    .nav-brand { display: none; }
+    .nav-tab { padding: 0.6rem 0.4rem; font-size: 10px; flex-shrink: 0; margin: 0; border: none; border-radius: 8px; }
+    .nav-tab.active { background: var(--surface3); border: none; }
+    .lang-toggle { margin: 0; }
+    
+    #admin-view, #auth-view, #design-view { display: flex; flex-direction: column; padding: 1rem 0.75rem; gap: 1rem; } 
+    .admin-sidebar { max-height: none; } 
+    #design-view .admin-form-wrap { order: -1; }
+    #studio-preview-box { height: 250px !important; }
+}
+
+@media (max-width: 600px) { 
+    .lang-btn { padding: 0.4rem; font-size: 10px; } .login-box { width: 90vw; padding: 2rem 1.25rem; } #tree-view { padding: 1.5rem 0; } .tree-header h1 { font-size: 26px; } .tree-container { text-align: left; padding: 0 1rem 4rem 1rem; } #tree-root { margin: 0 !important; } .tree-col { padding: 20px 16px 0; } .admin-form-wrap { padding: 1.25rem; } .form-grid { grid-template-columns: 1fr; } .fg.full { grid-column: 1; } .form-actions { flex-wrap: wrap; gap: 0.5rem; } .form-actions button { flex: 1; min-width: 80px; } .fn-bar { flex-wrap: wrap; gap: 0.5rem; } .photo-row { flex-direction: column; align-items: center; } .photo-inputs { width: 100%; } .url-row { flex-direction: column; } .url-apply { height: 36px; width: 100%; } .toast { bottom: 80px; right: 0.75rem; left: 0.75rem; text-align: center; } .user-card { flex-direction: column; align-items: flex-start; gap: 10px; } .share-controls { flex-direction: column; align-items: stretch; } .tree-toolbar { flex-direction: column; align-items: stretch; padding: 0 1rem; } .tool-input, .tool-btn { width: 100%; } 
+}
+
+@media (max-width: 480px) { 
+    .login-box { padding: 1.5rem 1rem; } .tree-header h1 { font-size: 22px; } 
+    .custom-text-layer { transform: translate(-50%, -50%) scale(0.4); }
+}
 </style>
 </head>
 <body>
@@ -91,12 +115,22 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   </div>
 </div>
 
+<div id="assign-modal" class="modal-overlay" onclick="if(event.target===this) App.closeAssignModal()">
+  <div class="modal-content" style="text-align: left;">
+    <button class="modal-close" onclick="App.closeAssignModal()">×</button>
+    <h3 style="font-family:'Cormorant Garamond',serif; color:var(--gold); margin-bottom:0.5rem; font-size:24px; font-weight:400;">Assign Profiles</h3>
+    <p style="font-size:12px; color:var(--text3); margin-bottom:1.5rem;">Select which family members <strong id="assign-uname" style="color:var(--text);"></strong> is allowed to edit.</p>
+    <div id="assign-list" style="max-height: 300px; overflow-y: auto; display:flex; flex-direction:column; gap:8px; margin-bottom:1.5rem; background:var(--surface2); padding:1rem; border-radius:12px; border: 1px solid var(--border);"></div>
+    <button class="tool-btn" style="width:100%;" onclick="App.saveAssignments()">Save Assignments</button>
+  </div>
+</div>
+
 <nav class="nav" id="main-nav" style="display:none">
   <span class="nav-brand"><em>family</em> <span id="brand-name">tree</span></span>
-  <button class="nav-tab active" id="tab-tree" onclick="App.showView('tree',this)">family tree</button>
-  <button class="nav-tab" id="tab-admin" onclick="App.showView('admin',this)" style="display:none;">admin panel</button>
-  <button class="nav-tab" id="tab-design" onclick="App.showView('design',this)" style="display:none;">themes & designs</button>
-  <button class="nav-tab" id="tab-auth" onclick="App.showView('auth',this)" style="display:none;">auth panel</button>
+  <button class="nav-tab active" id="tab-tree" onclick="App.showView('tree',this)"></button>
+  <button class="nav-tab" id="tab-admin" onclick="App.showView('admin',this)" style="display:none;"></button>
+  <button class="nav-tab" id="tab-design" onclick="App.showView('design',this)" style="display:none;"></button>
+  <button class="nav-tab" id="tab-auth" onclick="App.showView('auth',this)" style="display:none;"></button>
   
   <div class="lang-toggle">
     <select id="theme-picker" class="tool-select" style="margin-right:10px; border-radius:20px; background:transparent; border-color:transparent; color:var(--text3);" onchange="App.setTheme(this.value)">
@@ -141,7 +175,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 
   const STRINGS = {
     en:{
-      navTree: 'family tree', navAdmin: 'admin panel', navDesign: 'themes & designs',
+      navTree: 'family tree', navAdmin: 'edit members', navDesign: 'themes & designs',
       fam:'The <em>$1</em> Family', hint:'Click a name to view details', sp:'spouse', add:'+ add new member', all:'all members', 
       root:'root', desc:'descendant', edit:'edit member', new:'new member', par:'parent', gen:'generation level', spN:'spouse name', 
       sv:'save', del:'delete', can:'cancel', sel:'select a member or add new', sved:'saved', dlted:'deleted', fn:'family name', up:'update', 
@@ -150,7 +184,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       photo: 'photo', firstName: 'first name', lastName: 'last name'
     },
     hi:{
-      navTree: 'परिवार वृक्ष', navAdmin: 'व्यवस्थापक', navDesign: 'थीम और डिज़ाइन',
+      navTree: 'परिवार वृक्ष', navAdmin: 'सदस्य संपादित करें', navDesign: 'थीम और डिज़ाइन',
       fam:'<em>$1</em> परिवार', hint:'विवरण देखने के लिए नाम पर क्लिक करें', sp:'पति/पत्नी', add:'+ सदस्य जोड़ें', all:'सभी सदस्य', 
       root:'मूल', desc:'वंशज', edit:'संपादित करें', new:'नया सदस्य', par:'अभिभावक', gen:'पीढ़ी स्तर', spN:'पति/पत्नी का नाम', 
       sv:'सहेजें', del:'हटाएं', can:'रद्द करें', sel:'सदस्य चुनें या नया जोड़ें', sved:'सहेजा गया', dlted:'हटाया गया', fn:'परिवार का नाम', 
@@ -166,10 +200,12 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   let state = {
     lang: 'en', theme: 'dark', familyName: 'Shah', bgLayers: [], textLayers: [], dbReady: false, members: [],
     expanded: {}, users: {}, currentUser: null, authMode: 'login', selected: null, editingId: null,
-    prevPhoto: '', prevPhotoSpouse: '', prevGallery: [], isViewOnly: false, searchQuery: '', scrollTarget: null
+    prevPhoto: '', prevPhotoSpouse: '', prevGallery: [], isViewOnly: false, searchQuery: '', scrollTarget: null, assigningUserKey: null,
+    accordionMode: true // FIX: Default to Auto-Collapse ON
   };
 
   const isAdmin = () => state.currentUser && state.currentUser.role === 'admin' && !state.isViewOnly;
+  const isEditor = () => state.currentUser && state.currentUser.status === 'approved' && !state.isViewOnly;
 
   function setTheme(t) {
     state.theme = t; document.body.className = '';
@@ -182,13 +218,15 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   /* --- MULTI-LAYER BACKGROUND ENGINE --- */
   function applyBgSettings() {
     const bgContainer = getEl('custom-bg');
+    if(!bgContainer) return;
     const cv = document.querySelector('.bg-canvas');
     bgContainer.innerHTML = '';
     let bgHTMLContent = '';
     
     if (state.bgLayers && state.bgLayers.length > 0) {
       state.bgLayers.forEach(l => {
-        bgHTMLContent += `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${l.zoom || 100}%; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`;
+        let dynamicSize = (l.zoom == 100 || l.zoom == null) ? 'cover' : `${l.zoom}%`;
+        bgHTMLContent += `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${dynamicSize}; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`;
       });
       bgContainer.innerHTML = bgHTMLContent;
       document.querySelectorAll('.orb').forEach(o => o.style.display = 'none');
@@ -245,7 +283,10 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       state.textLayers.forEach(l => {
         let d = document.createElement('div');
         d.className = 'custom-text-layer';
-        d.style.cssText = `left: ${l.x||50}%; top: ${l.y||50}%; font-size: ${l.size||40}px; color: ${l.color||'#c9a96e'};`;
+        d.style.left = `${l.x||50}%`;
+        d.style.top = `${l.y||50}%`;
+        d.style.fontSize = `${l.size||40}px`;
+        d.style.color = `${l.color||'#c9a96e'}`;
         d.innerHTML = l.text.replace(/\n/g, '<br>');
         container.appendChild(d);
       });
@@ -348,7 +389,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 
       let activeTabBtn = document.querySelector('.nav-tab.active') || getEl('tab-tree');
       let activeView = activeTabBtn.id.replace('tab-', '');
-      if(activeView !== 'tree' && !isAdmin()) { activeView = 'tree'; activeTabBtn = getEl('tab-tree'); }
+      if(activeView !== 'tree' && !isEditor()) { activeView = 'tree'; activeTabBtn = getEl('tab-tree'); }
       showView(activeView, activeTabBtn);
       
       showSync('✓ connected');
@@ -364,6 +405,11 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
            let u = false; 
            if(state.currentUser.status !== dbU.status) { state.currentUser.status = dbU.status; u = true; }
            if(state.currentUser.role !== dbU.role) { state.currentUser.role = dbU.role; u = true; }
+           
+           let assignedStr = JSON.stringify(dbU.assignedProfiles || []);
+           let currentStr = JSON.stringify(state.currentUser.assignedProfiles || []);
+           if(assignedStr !== currentStr) { state.currentUser.assignedProfiles = dbU.assignedProfiles || []; u = true; }
+
            if(u) {
               localStorage.setItem('famUser', JSON.stringify(state.currentUser));
               if(state.currentUser.status === 'approved') unlockApp(); 
@@ -375,6 +421,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
            }
         }
         let authV = getEl('auth-view'); if(authV && authV.style.display !== 'none' && isAdmin()) renderAuthPanel();
+        let editV = getEl('admin-view'); if(editV && editV.style.display !== 'none' && isEditor()) renderAdmin();
       });
     }
   }
@@ -418,7 +465,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(!un || !pw) { err.textContent = 'Enter both fields.'; return; }
     
     if(un.toLowerCase() === MASTER_USER.toLowerCase() && pw === MASTER_PASS) {
-       state.currentUser = { username: MASTER_USER, role: 'admin', status: 'approved' };
+       state.currentUser = { username: MASTER_USER, role: 'admin', status: 'approved', assignedProfiles: [] };
        localStorage.setItem('famUser', JSON.stringify(state.currentUser)); unlockApp(); return;
     }
     
@@ -435,7 +482,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
           if(!dbU) { err.textContent = 'Username not found.'; return; }
           if(dbU.password !== encodedPw && dbU.password !== pw) { err.textContent = 'Incorrect password.'; return; }
           
-          state.currentUser = { username: dbU.username, role: dbU.role, status: dbU.status };
+          state.currentUser = { username: dbU.username, role: dbU.role, status: dbU.status, assignedProfiles: dbU.assignedProfiles || [] };
           localStorage.setItem('famUser', JSON.stringify(state.currentUser));
           
           if(dbU.status === 'approved') unlockApp();
@@ -443,8 +490,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
        } else {
           if(dbU) { err.textContent = 'Username taken.'; return; }
           if(un.toLowerCase() === MASTER_USER.toLowerCase()) { err.textContent = 'Reserved.'; return; }
-          usersRef.push({username: un, password: encodedPw, role: 'member', status: 'pending'}).then(() => {
-             state.currentUser = { username: un, role: 'member', status: 'pending' };
+          usersRef.push({username: un, password: encodedPw, role: 'member', status: 'pending', assignedProfiles: []}).then(() => {
+             state.currentUser = { username: un, role: 'member', status: 'pending', assignedProfiles: [] };
              localStorage.setItem('famUser', JSON.stringify(state.currentUser));
              getEl('login-overlay').style.display='none'; getEl('waiting-overlay').style.display='flex'; startSync();
           }).catch(e => err.textContent = "Error: " + e.message);
@@ -458,9 +505,17 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 
   function unlockApp() {
     getEl('login-overlay').style.display='none'; getEl('waiting-overlay').style.display='none';
-    getEl('main-nav').style.display='flex'; getEl('tab-admin').style.display='none'; getEl('tab-design').style.display='none'; getEl('tab-auth').style.display='none';
+    getEl('main-nav').style.display='flex'; 
+    getEl('tab-admin').style.display='none'; getEl('tab-design').style.display='none'; getEl('tab-auth').style.display='none';
     
-    if(isAdmin()) { getEl('tab-admin').style.display='block'; getEl('tab-design').style.display='block'; getEl('tab-auth').style.display='block'; }
+    if(isAdmin()) { 
+        getEl('tab-admin').style.display='block'; 
+        getEl('tab-design').style.display='block'; 
+        getEl('tab-auth').style.display='block'; 
+    } else if (isEditor()) {
+        getEl('tab-admin').style.display='block'; 
+    }
+
     applyLang();
     
     let tv = getEl('tree-view'), av = getEl('admin-view'), au = getEl('auth-view');
@@ -516,10 +571,26 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
             dh += `</div></div>`;
          }
      }
+     
+     if (isAdmin() || (state.currentUser && state.currentUser.assignedProfiles && state.currentUser.assignedProfiles.includes(m.id))) {
+         dh += `<div style="margin-top:1rem; text-align:center;"><button class="auth-btn-sec" style="padding:0.4rem 1rem; width:auto; border-radius:20px;" onclick="App.showView('admin', document.getElementById('tab-admin')); App.openEditorFromModal('${m.id}')">Edit Profile</button></div>`;
+     }
+     
      getEl('pm-details').innerHTML = dh;
      getEl('profile-modal').classList.add('show');
   }
   function closeProfile() { getEl('profile-modal').classList.remove('show'); }
+  function openEditorFromModal(id) {
+      closeProfile();
+      state.editingId = id;
+      let m = state.members.find(x => x.id === id);
+      if(m) {
+          state.prevPhoto = m.photo || ''; 
+          let sp = getSpouse(m); state.prevPhotoSpouse = sp ? (sp.photo || '') : ''; 
+          state.prevGallery = m.gallery ? [...m.gallery] : []; 
+      }
+      renderAdmin();
+  }
 
   /* --- POSTER EXPORT --- */
   function exportTree() {
@@ -557,7 +628,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       });
   }
 
-  /* --- SEARCH (FILTERS REMOVED) --- */
+  /* --- SEARCH --- */
   function handleSearch(v) { state.searchQuery = v.toLowerCase(); applySearch(); }
   
   function applySearch() {
@@ -577,29 +648,40 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       if(fMatch && state.searchQuery !== '') fMatch.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
   }
 
-  function setLang(l) { state.lang = l; document.querySelectorAll('.lang-btn').forEach((b,i) => { if(i < 2) b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi')); }); applyLang(); let tv = getEl('tree-view'), av = getEl('admin-view'), dv = getEl('design-view'), au = getEl('auth-view'); if(tv && tv.style.display !== 'none') renderTree(); if(av && av.style.display !== 'none' && isAdmin()) renderAdmin(); if(dv && dv.style.display !== 'none' && isAdmin()) renderDesignStudio(); if(au && au.style.display !== 'none' && isAdmin()) renderAuthPanel(); }
-  function applyLang() { getEl('tab-tree').textContent = s('navTree'); getEl('tab-admin').textContent = s('navAdmin'); getEl('tab-design').textContent = s('navDesign'); getEl('tab-auth').textContent = 'Auth Panel'; document.body.classList.toggle('lang-hi', state.lang === 'hi'); }
+  function setLang(l) { state.lang = l; document.querySelectorAll('.lang-btn').forEach((b,i) => { if(i < 2) b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='hi')); }); applyLang(); let tv = getEl('tree-view'), av = getEl('admin-view'), dv = getEl('design-view'), au = getEl('auth-view'); if(tv && tv.style.display !== 'none') renderTree(); if(av && av.style.display !== 'none' && isEditor()) renderAdmin(); if(dv && dv.style.display !== 'none' && isAdmin()) renderDesignStudio(); if(au && au.style.display !== 'none' && isAdmin()) renderAuthPanel(); }
+  function applyLang() { 
+      getEl('tab-tree').textContent = s('navTree') || 'family tree'; 
+      getEl('tab-admin').textContent = s('navAdmin') || 'edit members'; 
+      getEl('tab-design').textContent = s('navDesign') || 'themes & designs'; 
+      getEl('tab-auth').textContent = 'Auth Panel'; 
+      document.body.classList.toggle('lang-hi', state.lang === 'hi'); 
+  }
 
-  /* --- TREE RENDER --- */
+  /* --- FIX: TOGGLE ACCORDION MODE --- */
+  function toggleAccordionMode() {
+      state.accordionMode = !state.accordionMode;
+      showToast(state.accordionMode ? "Auto-Collapse Enabled" : "Auto-Collapse Disabled");
+      renderTree(); // Re-render to update the button text
+  }
+
   /* --- TREE RENDER --- */
   function toggleExpand(id, e) { 
       if(e) e.stopPropagation(); 
       
       if(state.expanded[id]) {
-          // If it is already open, just close it
           delete state.expanded[id]; 
       } else {
-          // If we are opening a new branch:
-          let clickedMember = state.members.find(m => m && m.id === id);
-          if(clickedMember) {
-              // Loop through everyone and close any siblings that share the same parent
-              state.members.forEach(m => {
-                  if(m && m.parentId === clickedMember.parentId && m.id !== id) {
-                      delete state.expanded[m.id];
-                  }
-              });
+          // FIX: Check accordion mode before collapsing siblings
+          if(state.accordionMode) {
+              let clickedMember = state.members.find(m => m && m.id === id);
+              if(clickedMember) {
+                  state.members.forEach(m => {
+                      if(m && m.parentId === clickedMember.parentId && m.id !== id) {
+                          delete state.expanded[m.id];
+                      }
+                  });
+              }
           }
-          // Finally, open the one we clicked
           state.expanded[id] = true; 
       }
       
@@ -628,7 +710,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     
     if(isSpouse) { 
         let sl = document.createElement('div'); sl.className = 'spouse-label'; sl.style.cssText = 'width:100%; display:flex; justify-content:center; overflow:visible; margin-top:2px;'; 
-        let slSpan = document.createElement('span'); slSpan.style.cssText = 'display:block; margin: 0 -30px; text-align:center;'; slSpan.textContent = s('sp'); sl.appendChild(slSpan); card.appendChild(sl); 
+        let slSpan = document.createElement('span'); slSpan.style.cssText = 'display:block; margin: 0 -30px; text-align:center;'; slSpan.textContent = s('sp') || 'spouse'; sl.appendChild(slSpan); card.appendChild(sl); 
     }
     
     if(m.birthYear || m.deathYear) { 
@@ -680,21 +762,26 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function renderTree() {
     let tv = getEl('tree-view'); let roots = getPrimaries(null);
     if(!roots.length) { 
-        tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName)}</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div>`; 
+        tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName) || state.familyName}</h1></div><div class="empty-state" style="height:300px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel') || 'No members'}</span></div>`; 
         return; 
     }
     
-    let hint = `<p>${state.isViewOnly ? 'Click a relative to view details' : s('hint')}</p>`;
-    let toolsHTML = `<div class="tree-toolbar"><input type="text" class="tool-input" id="tree-search" placeholder="Search a name..." oninput="App.handleSearch(this.value)"><button class="tool-btn" onclick="App.exportTree()">Export Poster</button></div>`;
+    let hint = `<p>${state.isViewOnly ? 'Click a relative to view details' : (s('hint') || 'Click a name')}</p>`;
+    // FIX: Integrated Toggle Accordion Button
+    let toolsHTML = `
+    <div class="tree-toolbar">
+        <input type="text" class="tool-input" id="tree-search" placeholder="Search a name..." oninput="App.handleSearch(this.value)">
+        <button class="tool-btn" onclick="App.toggleAccordionMode()">${state.accordionMode ? 'Auto-Collapse: ON' : 'Auto-Collapse: OFF'}</button>
+        <button class="tool-btn" onclick="App.exportTree()">Export Poster</button>
+    </div>`;
 
-    tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName)}</h1>${hint}</div>${toolsHTML}<div class="tree-container"><div id="tree-root"></div></div>`;
+    tv.innerHTML = `<div class="tree-header"><h1>${s('fam', state.familyName) || state.familyName}</h1>${hint}</div>${toolsHTML}<div class="tree-container"><div id="tree-root"></div></div>`;
     
     let sch = getEl('tree-search'); 
     if(sch) sch.value = state.searchQuery;
 
     renderLevel(getEl('tree-root'), null, 0);
 
-    // FIX: Smooth scrolling to the exact expanded node
     setTimeout(() => { 
         if(state.searchQuery !== '') applySearch(); 
         else if(state.scrollTarget) {
@@ -710,7 +797,15 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function refreshStudioPreview() {
       let previewBox = getEl('studio-preview-box');
       if(!previewBox) return;
-      let previewBg = (state.bgLayers || []).map(l => `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${l.zoom || 100}%; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`).join('');
+      
+      let previewBg = '';
+      if (state.bgLayers && state.bgLayers.length > 0) {
+          previewBg = state.bgLayers.map(l => {
+              let dynamicSize = (l.zoom == 100 || l.zoom == null) ? 'cover' : `${l.zoom}%`;
+              return `<div class="custom-bg-layer" style="background-image: url('${l.url}'); background-size: ${dynamicSize}; background-position: ${l.x || 50}% ${l.y || 50}%;"></div>`;
+          }).join('');
+      }
+      
       let previewTxt = (state.textLayers || []).map(l => `<div class="custom-text-layer" style="left: ${l.x||50}%; top: ${l.y||50}%; font-size: ${Math.max(12, l.size/2.5)}px; color: ${l.color||'#c9a96e'};">${l.text.replace(/\n/g, '<br>')}</div>`).join('');
       previewBox.innerHTML = previewBg + previewTxt;
   }
@@ -725,7 +820,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
             <img src="${l.url}" style="height:40px; width:40px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
             <button class="btn-del" style="padding:4px 8px; font-size:11px;" onclick="App.removeLayer('${l.id}')">Remove</button>
           </div>
-          <div class="slider-row"><label>Zoom</label><input type="range" min="10" max="300" value="${l.zoom}" oninput="App.updateLayer('${l.id}', 'zoom', this.value)"></div>
+          <div class="slider-row"><label>Zoom</label><input type="range" min="10" max="300" value="${l.zoom || 100}" oninput="App.updateLayer('${l.id}', 'zoom', this.value)"></div>
           <div class="slider-row"><label>Pan X</label><input type="range" min="0" max="100" value="${l.x}" oninput="App.updateLayer('${l.id}', 'x', this.value)"></div>
           <div class="slider-row"><label>Pan Y</label><input type="range" min="0" max="100" value="${l.y}" oninput="App.updateLayer('${l.id}', 'y', this.value)"></div>
         </div>
@@ -788,26 +883,36 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       refreshStudioPreview();
   }
 
-  /* --- ADMIN CORE --- */
+  /* --- ADMIN CORE (EDIT MEMBERS) --- */
   function renderAdmin() {
-    if(!isAdmin()) return; 
+    if(!isEditor()) return; 
     let v = getEl('admin-view');
     
-    let sidebarHtml = `<div class="admin-sidebar"><div class="sidebar-title">${s('all')}</div><div id="mlist" style="flex:1; overflow-y:auto; margin-bottom:1rem;"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">${s('add')}</button></div>`;
+    let sm = Array.isArray(state.members) ? state.members : [];
+    if(!isAdmin() && state.currentUser.assignedProfiles) {
+        sm = sm.filter(m => m && state.currentUser.assignedProfiles.includes(m.id));
+    }
+
+    let sidebarHtml = `<div class="admin-sidebar"><div class="sidebar-title">${s('all') || 'Members'}</div><div id="mlist" style="flex:1; overflow-y:auto; margin-bottom:1rem;"></div><button class="sidebar-btn btn-add" onclick="App.startNew()">${s('add') || '+ add new member'}</button></div>`;
     v.innerHTML = sidebarHtml + `<div class="admin-form-wrap" id="aform"></div>`;
     
-    let list = getEl('mlist'); let sm = Array.isArray(state.members) ? state.members : [];
-    sm.filter(m => m && !m.isSpouse).forEach(m => {
-      let it = document.createElement('div'); it.className = 'member-item' + (state.editingId === m.id ? ' active' : '');
-      it.innerHTML = `<div class="mini-av">${m.photo ? `<img src="${m.photo}" onerror="this.parentElement.textContent='${initials(m.name)}'">` : initials(m.name)}</div><div><div class="item-name">${dname(m)}</div><div class="item-role">${m.parentId ? s('desc') : s('root')}</div></div>`;
-      it.onclick = () => { 
-        state.editingId = m.id; state.prevPhoto = m.photo || ''; 
-        let sp = getSpouse(m); state.prevPhotoSpouse = sp ? (sp.photo || '') : ''; 
-        state.prevGallery = m.gallery ? [...m.gallery] : []; 
-        renderAdmin(); 
-      }; 
-      list.appendChild(it);
-    });
+    let list = getEl('mlist'); 
+    
+    if(sm.length === 0) {
+        list.innerHTML = `<div style="font-size:12px; color:var(--text3); text-align:center; margin-top:20px;">No profiles assigned to you yet.</div>`;
+    } else {
+        sm.filter(m => m && !m.isSpouse).forEach(m => {
+          let it = document.createElement('div'); it.className = 'member-item' + (state.editingId === m.id ? ' active' : '');
+          it.innerHTML = `<div class="mini-av">${m.photo ? `<img src="${m.photo}" onerror="this.parentElement.textContent='${initials(m.name)}'">` : initials(m.name)}</div><div><div class="item-name">${dname(m)}</div><div class="item-role">${m.parentId ? (s('desc') || 'descendant') : (s('root') || 'root')}</div></div>`;
+          it.onclick = () => { 
+            state.editingId = m.id; state.prevPhoto = m.photo || ''; 
+            let sp = getSpouse(m); state.prevPhotoSpouse = sp ? (sp.photo || '') : ''; 
+            state.prevGallery = m.gallery ? [...m.gallery] : []; 
+            renderAdmin(); 
+          }; 
+          list.appendChild(it);
+        });
+    }
 
     if(state.editingId) { 
         if(state.editingId === '__new__') renderForm(null);
@@ -815,14 +920,15 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     } else {
         let area = getEl('aform');
         if (area) {
-            area.innerHTML = `<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel')}</span></div>`;
+            area.innerHTML = `<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>${s('sel') || 'select a member'}</span></div>`;
         }
     }
   }
 
   function renderForm(m) {
-    let area = getEl('aform'), sm = Array.isArray(state.members) ? state.members : [];
-    let pOpts = `<option value="">${s('rootLevel')}</option>` + sm.filter(x => x && !x.isSpouse && (!m || x.id !== m.id)).map(p => `<option value="${p.id}"${m && m.parentId === p.id ? ' selected' : ''}>${dname(p)}</option>`).join('');
+    let area = getEl('aform'), allMems = Array.isArray(state.members) ? state.members : [];
+    
+    let pOpts = `<option value="">${s('rootLevel') || '— root —'}</option>` + allMems.filter(x => x && !x.isSpouse && (!m || x.id !== m.id)).map(p => `<option value="${p.id}"${m && m.parentId === p.id ? ' selected' : ''}>${dname(p)}</option>`).join('');
     
     let spObj = m && m.spouse ? state.members.find(x => x && x.id === m.spouse) : null;
     let spN = spObj ? spObj.name || '' : ''; 
@@ -833,21 +939,23 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     let spPhone = spObj && spObj.phone ? spObj.phone : '';
     let spAddr = spObj && spObj.address ? spObj.address : '';
 
-    let genOpts = s('genLabels').map((g,i) => `<option value="${i}"${m && m.generation === i ? ' selected' : ''}>${g}</option>`).join('');
+    let safeGenLabels = s('genLabels') || ['root', 'children', 'grandchildren', 'great-grandchildren', 'gen 4+'];
+    let genOpts = safeGenLabels.map((g,i) => `<option value="${i}"${m && m.generation === i ? ' selected' : ''}>${g}</option>`).join('');
     
     let pv = state.prevPhoto; let pvSp = state.prevPhotoSpouse;
     let bYear = m ? (m.birthYear || '') : ''; let dYear = m ? (m.deathYear || '') : '';
     let dob = m ? (m.dob || '') : ''; let mDate = m ? (m.marriageDate || '') : '';
     let phone = m ? (m.phone || '') : ''; let address = m ? (m.address || '') : '';
 
-    // FIX: Spouse Profile details completely added below
+    let topBar = isAdmin() ? `<div class="fn-bar"><span class="fn-label">${s('fn') || 'family name'}</span><input class="fn-input" id="fn-inp" value="${state.familyName}"><button class="fn-btn" onclick="App.updateFamilyName()">${s('up') || 'update'}</button></div>` : '';
+
     area.innerHTML = `
-      <div class="fn-bar"><span class="fn-label">${s('fn')}</span><input class="fn-input" id="fn-inp" value="${state.familyName}"><button class="fn-btn" onclick="App.updateFamilyName()">${s('up')}</button></div>
-      <h2>${m ? s('edit') : s('new')}</h2>
+      ${topBar}
+      <h2>${m ? (s('edit') || 'edit') : (s('new') || 'new')}</h2>
       <div class="form-grid">
-        <div class="fg full"><label>${s('photo')} (Primary)</label><div class="photo-row"><div class="photo-prev" id="pp">${pv ? `<img src="${pv}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="${s('pUrl')}" value="${pv}"><button class="url-apply" onclick="App.applyUrl()">${s('app')}</button></div><label class="upload-lbl" for="p-file">${s('upl')}</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>
-        <div class="fg"><label>${s('firstName')} (EN)</label><input type="text" id="f-fn" value="${m ? m.name.split(' ')[0] : ''}"></div>
-        <div class="fg"><label>${s('lastName')} (EN)</label><input type="text" id="f-ln" value="${m ? m.name.split(' ').slice(1).join(' ') : ''}"></div>
+        <div class="fg full"><label>${s('photo') || 'photo'} (Primary)</label><div class="photo-row"><div class="photo-prev" id="pp">${pv ? `<img src="${pv}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url" placeholder="${s('pUrl') || 'paste URL'}" value="${pv}"><button class="url-apply" onclick="App.applyUrl()">${s('app') || 'apply'}</button></div><label class="upload-lbl" for="p-file">${s('upl') || 'upload'}</label><input type="file" id="p-file" accept="image/*" style="display:none" onchange="App.handleFile(this)"></div></div></div>
+        <div class="fg"><label>${s('firstName') || 'first name'} (EN)</label><input type="text" id="f-fn" value="${m ? m.name.split(' ')[0] : ''}"></div>
+        <div class="fg"><label>${s('lastName') || 'last name'} (EN)</label><input type="text" id="f-ln" value="${m ? m.name.split(' ').slice(1).join(' ') : ''}"></div>
         <div class="fg"><label>नाम (हिंदी)</label><input type="text" id="f-fn-hi" value="${m && m.nameHi ? m.nameHi.split(' ')[0] : ''}"></div>
         <div class="fg"><label>उपनाम (हिंदी)</label><input type="text" id="f-ln-hi" value="${m && m.nameHi ? m.nameHi.split(' ').slice(1).join(' ') : ''}"></div>
         <div class="fg"><label>Birth Year (Tree View)</label><input type="text" id="f-by" placeholder="1950" value="${bYear}"></div>
@@ -862,12 +970,12 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label>Photo Gallery (Multiple Images)</label><label class="upload-lbl" for="gallery-files" style="width:max-content; padding:0.5rem 1rem;">+ Add Images</label><input type="file" id="gallery-files" accept="image/*" multiple style="display:none" onchange="App.handleGalleryFiles(this)"><div id="gallery-previews" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;"></div></div>
         
         <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"></div>
-        <div class="fg"><label>${s('par')}</label><select id="f-par">${pOpts}</select></div>
-        <div class="fg"><label>${s('gen')}</label><select id="f-gen">${genOpts}</select></div>
+        <div class="fg"><label>${s('par') || 'parent'}</label><select id="f-par">${pOpts}</select></div>
+        <div class="fg"><label>${s('gen') || 'generation'}</label><select id="f-gen">${genOpts}</select></div>
         
         <div class="fg full" style="margin-top:10px; padding-top:15px; border-top:1px solid var(--border);"><label style="color:var(--gold);">Spouse Details</label></div>
-        <div class="fg full"><label>${s('spN')} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl')}" value="${spN}"></div>
-        <div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="${s('bl')}" value="${spNHi}"></div>
+        <div class="fg full"><label>${s('spN') || 'spouse'} (EN)</label><input type="text" id="f-sp" placeholder="${s('bl') || 'blank'}" value="${spN}"></div>
+        <div class="fg full"><label>पति/पत्नी (हिंदी)</label><input type="text" id="f-sp-hi" placeholder="${s('bl') || 'blank'}" value="${spNHi}"></div>
         
         <div class="fg"><label>Spouse Birth Year</label><input type="text" id="f-sp-by" placeholder="1950" value="${spBy}"></div>
         <div class="fg"><label>Spouse Death Year</label><input type="text" id="f-sp-dy" placeholder="Blank if living" value="${spDy}"></div>
@@ -875,9 +983,9 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         <div class="fg"><label>Spouse Phone</label><input type="text" id="f-sp-phone" value="${spPhone}"></div>
         <div class="fg full"><label>Spouse Address</label><input type="text" id="f-sp-address" value="${spAddr}"></div>
 
-        <div class="fg full"><label>Spouse Photo</label><div class="photo-row"><div class="photo-prev" id="pp-sp">${pvSp ? `<img src="${pvSp}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="${s('pUrl')}" value="${pvSp}"><button class="url-apply" onclick="App.applyUrlSp()">${s('app')}</button></div><label class="upload-lbl" for="p-file-sp">${s('upl')}</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>
+        <div class="fg full"><label>Spouse Photo</label><div class="photo-row"><div class="photo-prev" id="pp-sp">${pvSp ? `<img src="${pvSp}">` : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'}</div><div class="photo-inputs"><div class="url-row"><input type="text" id="p-url-sp" placeholder="${s('pUrl') || 'paste url'}" value="${pvSp}"><button class="url-apply" onclick="App.applyUrlSp()">${s('app') || 'apply'}</button></div><label class="upload-lbl" for="p-file-sp">${s('upl') || 'upload'}</label><input type="file" id="p-file-sp" accept="image/*" style="display:none" onchange="App.handleFileSp(this)"></div></div></div>
       </div>
-      <div class="form-actions">${m ? `<button class="btn-del" onclick="App.delMember('${m.id}')">${s('del')}</button>` : ''}<button class="btn-cancel" onclick="App.cancelEdit()">${s('can')}</button><button class="btn-save" onclick="App.saveMember()">${s('sv')}</button></div>
+      <div class="form-actions">${m ? `<button class="btn-del" onclick="App.delMember('${m.id}')">${s('del') || 'delete'}</button>` : ''}<button class="btn-cancel" onclick="App.cancelEdit()">${s('can') || 'cancel'}</button><button class="btn-save" onclick="App.saveMember()">${s('sv') || 'save'}</button></div>
     `;
     renderGalleryPreviews(); 
   }
@@ -890,8 +998,10 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
        let u = state.users[k]; h = true;
        let stat = u.status === 'pending' ? '<span class="status-pending">Pending</span>' : (u.role === 'admin' ? '<span class="status-admin">Admin</span>' : '<span class="status-approved">Approved</span>');
        let a = ''; 
-       if(u.status === 'pending') a = `<button class="auth-act-btn btn-approve" onclick="App.modifyUser('${k}', 'approve')">Approve</button>`;
-       else { 
+       if(u.status === 'pending') {
+           a = `<button class="auth-act-btn btn-approve" onclick="App.modifyUser('${k}', 'approve')">Approve</button>`;
+       } else { 
+           a += `<button class="auth-act-btn btn-promote" onclick="App.openAssignModal('${k}')" style="background:rgba(120,100,200,0.15); color:#967bd6; border-color:rgba(120,100,200,0.3);">Assign Profiles</button>`;
            if(u.role !== 'admin') a += `<button class="auth-act-btn btn-promote" onclick="App.modifyUser('${k}', 'admin')">Make Admin</button>`; 
            else a += `<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'demote')">Make Member</button>`; 
            a += `<button class="auth-act-btn btn-revoke" onclick="App.modifyUser('${k}', 'revoke')">Revoke</button>`; 
@@ -902,7 +1012,39 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(!h) uHtml = '<div class="empty-state"><span>No registered users yet.</span></div>';
     
     let lHtml = `<div class="share-generator"><h3>View-Only Link</h3><div class="share-controls"><select id="share-expiry" class="share-select"><option value="1">1 Hour</option><option value="24">24 Hours</option><option value="168">7 Days</option></select><button class="share-btn" onclick="App.generateShareLink()">Copy Link</button></div></div>`;
-    v.innerHTML = `<div class="admin-sidebar"><div class="sidebar-title">Access</div><p style="font-size:12px;color:var(--text3);line-height:1.4;">Approve members or promote to Admin.</p></div><div class="admin-form-wrap"><h2>Authentication</h2><div style="margin-top:1.5rem;">${uHtml}</div>${lHtml}</div>`;
+    v.innerHTML = `<div class="admin-sidebar"><div class="sidebar-title">Access</div><p style="font-size:12px;color:var(--text3);line-height:1.4;">Approve members and assign them profiles.</p></div><div class="admin-form-wrap"><h2>Authentication</h2><div style="margin-top:1.5rem;">${uHtml}</div>${lHtml}</div>`;
+  }
+
+  function openAssignModal(userKey) {
+      if(!isAdmin()) return;
+      let u = state.users[userKey];
+      if(!u) return;
+      state.assigningUserKey = userKey;
+      getEl('assign-uname').textContent = u.username;
+      
+      let assigned = u.assignedProfiles || [];
+      let allMems = Array.isArray(state.members) ? state.members : [];
+      
+      let listHtml = allMems.filter(m => !m.isSpouse).map(m => {
+          let isChecked = assigned.includes(m.id) ? 'checked' : '';
+          return `<label style="display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer; color:var(--text); padding: 5px 0;"><input type="checkbox" class="assign-cb" value="${m.id}" ${isChecked}> <div class="mini-av">${m.photo ? `<img src="${m.photo}">` : initials(m.name)}</div> ${dname(m)}</label>`;
+      }).join('');
+      
+      getEl('assign-list').innerHTML = listHtml || '<div style="font-size:12px; color:var(--text3);">No primary members in tree yet.</div>';
+      getEl('assign-modal').classList.add('show');
+  }
+
+  function closeAssignModal() {
+      getEl('assign-modal').classList.remove('show');
+      state.assigningUserKey = null;
+  }
+
+  function saveAssignments() {
+      if(!isAdmin() || !state.assigningUserKey) return;
+      let checked = Array.from(document.querySelectorAll('.assign-cb:checked')).map(cb => cb.value);
+      usersRef.child(state.assigningUserKey).update({ assignedProfiles: checked });
+      showToast('Assignments saved!');
+      closeAssignModal();
   }
 
   function modifyUser(k, a) { 
@@ -927,7 +1069,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   function updateFamilyName() { 
       if(!isAdmin()) return; 
       let v = (getEl('fn-inp') || {}).value; if(!v || !v.trim()) return; 
-      state.familyName = v.trim(); saveToFirebase(); showToast(s('sved')); renderTree(); 
+      state.familyName = v.trim(); saveToFirebase(); showToast(s('sved') || 'saved'); renderTree(); 
   }
   
   function startNew() { state.editingId = '__new__'; state.prevPhoto = ''; state.prevPhotoSpouse = ''; state.prevGallery = []; renderAdmin(); }
@@ -945,7 +1087,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
               state.prevPhoto = c.toDataURL('image/jpeg', 0.85); 
               let pp = getEl('pp'); if(pp) pp.innerHTML = `<img src="${state.prevPhoto}">`; 
               let pu = getEl('p-url'); if(pu) pu.value = ''; 
-              if(btn) { btn.disabled=false; btn.textContent=s('sv'); } 
+              if(btn) { btn.disabled=false; btn.textContent=s('sv') || 'save'; } 
           }; 
           img.src = e.target.result; 
       }; 
@@ -964,7 +1106,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
               state.prevPhotoSpouse = c.toDataURL('image/jpeg', 0.85); 
               let pp = getEl('pp-sp'); if(pp) pp.innerHTML = `<img src="${state.prevPhotoSpouse}">`; 
               let pu = getEl('p-url-sp'); if(pu) pu.value = ''; 
-              if(btn) { btn.disabled=false; btn.textContent=s('sv'); } 
+              if(btn) { btn.disabled=false; btn.textContent=s('sv') || 'save'; } 
           }; 
           img.src = e.target.result; 
       }; 
@@ -972,7 +1114,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   }
 
   async function saveMember() {
-    if(!isAdmin()) return;
+    if(!isEditor()) return; 
     const GEMINI_API_KEY = 'YOUR_API_KEY_HERE';
     if(!state.members) state.members = []; 
     if(!Array.isArray(state.members)) state.members = Object.keys(state.members).map(k => state.members[k]);
@@ -1012,7 +1154,6 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(btn) { btn.textContent = ob; btn.disabled = false; } 
     if(!name) name = nameHi; if(!nameHi) nameHi = name;
 
-    // FIX: Do NOT include `spouse` or `isSpouse` in pD to prevent overwriting the DB link!
     let pD = { name, nameHi, photo: state.prevPhoto, parentId, generation: gen, birthYear: bYear.trim(), deathYear: dYear.trim(), dob: dob.trim(), marriageDate: mDate.trim(), phone: phone.trim(), address: address.trim(), gallery: state.prevGallery };
     
     if(state.editingId === '__new__') {
@@ -1026,10 +1167,22 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
           state.members.push({ id: sid, name: spN, nameHi: spNHi, photo: state.prevPhotoSpouse, parentId: null, generation: gen, spouse: pD.id, isSpouse: true, birthYear: spBy, deathYear: spDy, dob: spDob, phone: spPhone, address: spAddr }); 
       }
       state.editingId = pD.id;
+
+      if(!isAdmin() && state.currentUser) {
+          let currentAssignments = state.currentUser.assignedProfiles || [];
+          currentAssignments.push(pD.id);
+          let myKey = Object.keys(state.users).find(k => state.users[k].username === state.currentUser.username);
+          if (myKey) {
+              usersRef.child(myKey).update({ assignedProfiles: currentAssignments });
+              state.currentUser.assignedProfiles = currentAssignments;
+              localStorage.setItem('famUser', JSON.stringify(state.currentUser));
+          }
+      }
+
     } else {
       let m = state.members.find(x => x && x.id === state.editingId);
       if(m) { 
-        Object.assign(m, pD); // Safely merges without destroying m.spouse!
+        Object.assign(m, pD); 
         if(spN || spNHi) {
           if(m.spouse) { 
               let sp = state.members.find(x => x && x.id === m.spouse); 
@@ -1046,21 +1199,23 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
         }
       }
     }
-    saveToFirebase(); showToast(s('sved')); renderAdmin(); renderTree();
+    saveToFirebase(); showToast(s('sved') || 'saved'); renderAdmin(); renderTree();
   }
 
   function delMember(id) {
-    if(!isAdmin()) return; 
+    if(!isEditor()) return; 
     let m = state.members.find(x => x && x.id === id);
     if(m && m.spouse) { state.members = state.members.filter(x => x && x.id !== m.spouse); delete state.expanded[m.spouse]; }
     state.members.filter(x => x && x.parentId === id).forEach(c => c.parentId = null); 
     state.members = state.members.filter(x => x && x.id !== id);
     delete state.expanded[id]; state.editingId = null; 
-    saveToFirebase(); showToast(s('dlted')); renderAdmin(); renderTree();
+    saveToFirebase(); showToast(s('dlted') || 'deleted'); renderAdmin(); renderTree();
   }
 
   function showView(v, btn) {
-    if((v === 'admin' || v === 'auth' || v === 'design') && !isAdmin()) { showToast("Blocked."); return; }
+    if(v === 'admin' && !isEditor()) { showToast("Blocked."); return; }
+    if((v === 'auth' || v === 'design') && !isAdmin()) { showToast("Blocked."); return; }
+    
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active')); btn.classList.add('active');
     ['tree-view', 'admin-view', 'design-view', 'auth-view'].forEach(id => getEl(id).style.display = 'none');
     
@@ -1070,11 +1225,11 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
     if(v === 'tree') { 
         if(state.bgLayers && state.bgLayers.length) bg.style.opacity = '1';
         if(state.textLayers && state.textLayers.length) txtLayer.style.opacity = '1';
-        cv.style.opacity = (state.bgLayers && state.bgLayers.length) ? '0' : '1'; 
+        if(cv) cv.style.opacity = (state.bgLayers && state.bgLayers.length) ? '0' : '1'; 
     } else { 
         bg.style.opacity = '0'; 
         if(txtLayer) txtLayer.style.opacity = '0'; 
-        cv.style.opacity = '1'; 
+        if(cv) cv.style.opacity = '1'; 
     }
     
     if(v === 'tree') renderTree(); 
@@ -1090,7 +1245,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
       handleSearch, setTheme, openProfile, closeProfile, saveBgSettings, clearBgSettings, 
       handleBgFile, handleDropZoneOver, handleDropZoneLeave, handleDropZoneDrop, liveUpdateBg: () => { applyBgSettings(); refreshStudioPreview(); }, 
       handleGalleryFiles, removeGalleryImg, updateLayer, removeLayer,
-      addTextLayer, updateTextLayer, removeTextLayer, saveTextSettings
+      addTextLayer, updateTextLayer, removeTextLayer, saveTextSettings,
+      openAssignModal, closeAssignModal, saveAssignments, openEditorFromModal, toggleAccordionMode
   };
   
   checkLocalAuth();
